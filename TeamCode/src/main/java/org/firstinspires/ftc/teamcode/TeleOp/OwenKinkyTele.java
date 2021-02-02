@@ -118,7 +118,15 @@ public class OwenKinkyTele extends OpMode {
 	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
+		Controller.Thumbstick driverRightStick = driver.getRightThumbstick();
+		Controller.Thumbstick driverLeftStick = driver.getLeftThumbstick();
+		Controller.Thumbstick operatorThumbstickR = operator.getRightThumbstick();
+		Controller.Thumbstick operatorThumbstickL = operator.getLeftThumbstick();
+
 		driverRightStick.setShift(gyro.getModAngle());
+		driverLeftStick.setShift(0);
+		operatorThumbstickR.setShift(0);
+		operatorThumbstickL.setShift(0);
 		
 		boolean intakeOff = operator.trianglePressUpdate() || (operator.leftPressUpdate() || operator.rightPressUpdate());
 		boolean shooterOff = operator.crossPressUpdate() || operator.circlePressUpdate();
