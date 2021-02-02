@@ -35,6 +35,7 @@ import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -72,8 +73,8 @@ public class OwenKinkyTele extends OpMode {
 		Servo reachTwo = hardwareMap.get(Servo.class, "outerrollertwo");
 		
 		Servo lifter = hardwareMap.get(Servo.class, "lifter");
-		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
-		Servo gripperTwo = hardwareMap.get(Servo.class, "grippertwo");
+		CRServo gripperOne = hardwareMap.get(CRServo.class, "gripperone");
+		CRServo gripperTwo = hardwareMap.get(CRServo.class, "grippertwo");
 		
 		driver = new Controller(gamepad1);
 		operator = new Controller(gamepad2);
@@ -133,11 +134,11 @@ public class OwenKinkyTele extends OpMode {
 		
 		
 		//driver controls
-		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate());
-		robot.setTargetAngle(driverLeftStick);
-		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 10);
 		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
-				driverLeftStick.getInvertedShiftedX(), driver.RT(), driver.triangleToggle());
+				driverLeftStick.getInvertedShiftedX(), driver.RT(), driverLeftStick, driver.triangleToggle());
+		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate());
+		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 10);
+		
 		
 		//operator controls
 		shooter.shooterState(operator.trianglePress(), operator.trianglePress() || shooterOff, operator.leftPress(), operator.rightPress());
@@ -148,6 +149,7 @@ public class OwenKinkyTele extends OpMode {
 		
 		wobble.armState(operator.LT(), operator.RT(), operator.upPressUpdate(), operator.downPressUpdate(), operator.LSPressUpdate());
 		wobble.gripperState(operator.RBPressUpdate(), operator.LBPressUpdate());
+		
 	}
 	
 }

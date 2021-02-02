@@ -29,6 +29,7 @@ public class Shooter {
     private double shooterPower = 0.0;
     private boolean isFeederLocked;
     private double shooterRPM;
+    private int feedCount = 0;
 
     RingBufferOwen timeRing = new RingBufferOwen(20);
     RingBufferOwen positionRing = new RingBufferOwen(20);
@@ -62,6 +63,8 @@ public class Shooter {
         feederLock.setPosition(FEEDER_UNLOCK);
     }
     
+    public double feederCount(){ return feedCount; }
+    
     public void feederState(boolean trigger){
         switch (currentFeederState) {
             
@@ -84,7 +87,7 @@ public class Shooter {
                 break;
             
             case STATE_RESET:
-                if (feederTime.seconds() > .15) { newState(FeederState.STATE_IDLE); break; }
+                if (feederTime.seconds() > .15) { newState(FeederState.STATE_IDLE); feedCount++;break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -170,16 +173,9 @@ public class Shooter {
     }
     
     
+    private void newState(FeederState newState) { currentFeederState = newState; feederTime.reset(); }
     
-    
-    private void newState(FeederState newState) {
-        currentFeederState = newState;
-        feederTime.reset();
-    }
-    
-    private void newState(ShooterState newState) {
-        currentShooterState = newState;
-    }
+    public void newState(ShooterState newState) { currentShooterState = newState; feedCount = 0; }
     
     private enum FeederState {
         STATE_IDLE,
@@ -187,7 +183,7 @@ public class Shooter {
         STATE_FEED
     }
     
-    private enum ShooterState {
+    public enum ShooterState {
         STATE_OFF,
         STATE_TOP_GOAL,
         STATE_POWER_SHOT

@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake {
-
+    
     private DcMotor intakeDrive;
     private Servo reachOne;
     private Servo reachTwo;
@@ -16,22 +16,23 @@ public class Intake {
     
     private IntakeState currentIntakeState = IntakeState.STATE_OFF;
     private ReachState currentReachState = ReachState.STATE_RETRACT;
-
+    
     public Intake(DcMotor intakeDrive, Servo reachOne, Servo reachTwo){
         intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        reachTwo.setDirection(Servo.Direction.REVERSE);
         this.intakeDrive = intakeDrive;
         this.reachOne = reachOne;
         this.reachTwo = reachTwo;
     }
-
+    
     public void retractReach(){
         reachOne.setPosition(RETRACTED);
-        reachTwo.setPosition(-RETRACTED+1);
+        reachTwo.setPosition(RETRACTED);
     }
-
+    
     public void deployReach(){
         reachOne.setPosition(DEPLOYED);
-        reachTwo.setPosition(-DEPLOYED+1);
+        reachTwo.setPosition(DEPLOYED);
     }
     
     public void reachState(boolean deployToggle){
@@ -49,11 +50,11 @@ public class Intake {
         }
     }
     
-
+    
     public void intakeOn(){ intakeDrive.setPower(INTAKE_ON); }
-
+    
     public void intakeOff(){ intakeDrive.setPower(0.0); }
-
+    
     public void intakeReverse(){ intakeDrive.setPower(INTAKE_ON * -INTAKE_REVERSE); }
     
     public void intakeState(boolean intakeOn, boolean intakeOff, boolean intakeReverse){
@@ -64,7 +65,7 @@ public class Intake {
                 if (intakeReverse) { intakeReverse(); newState(ReachState.STATE_DEPLOY); break; }
                 intakeOff();
                 break;
-                
+            
             case STATE_ON:
                 if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOff) { newState(IntakeState.STATE_OFF); break; }
@@ -94,5 +95,5 @@ public class Intake {
         STATE_RETRACT,
         STATE_DEPLOY
     }
-
+    
 }

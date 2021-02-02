@@ -26,7 +26,6 @@ public class OwenKinkyAuto extends OpMode {
 	private Intake intake;
 	boolean isFeederLocked = true;
 	
-	private FeederState currentFeederState = FeederState.STATE_IDLE;
 	private MainState currentMainState = MainState.STATE_FORWARD;
 	
 	
@@ -58,12 +57,16 @@ public class OwenKinkyAuto extends OpMode {
 	public void init_loop(){
 		intake.retractReach();
 		intake.intakeOff();
+		shooter.resetFeeder();
+		shooter.lockFeeder();
 	}
 	
 	public void start() {
 		mainTime.reset();
 		robot.resetGyro();
 		robot.resetMotors();
+		shooter.newState(Shooter.ShooterState.STATE_TOP_GOAL);
+		
 		
 	}
 	
@@ -72,78 +75,55 @@ public class OwenKinkyAuto extends OpMode {
 		
 		switch (currentMainState) {
 			case STATE_FORWARD:
-				robot.strafe(3500,0,0,1,.5,.5,1);
+				robot.strafe(2000,0,0,1,0,0,1);
+				intake.deployReach();
 				
-				if(robot.currentTicks>1000) {
-						intake.deployReach();
+				if(robot.currentTicks>750) {
+					
 					intake.intakeOn();
 				}
+				if(robot.isStrafeFinished){
+					newState(MainState.STATE_LINEUP);
+				}
+				break;
+			
+			case STATE_LINEUP:
+				robot.strafe(400,0,180,.5,0,0,2);
+				if(robot.currentTicks < 350){ intake.intakeOn(); }
+				else{ intake.intakeOff(); intake.retractReach(); }
+				
 				if(robot.isStrafeFinished){
 					newState(MainState.STATE_SHOOT);
 				}
 				break;
+				
 			case STATE_SHOOT:
+				if (shooter.feederCount() >= 3) {
+					newState(MainState.STATE_STRAFE);
+					break;
+				}
+				
 				robot.setPower(0,0,0,0);
 				intake.retractReach();
 				intake.intakeOff();
 				shooter.topGoal();
-				if(shooter.updateRPM() > 3200 && shooter.updateRPM() < 3400){
 				
+				if(mainTime.seconds()>1){
+					shooter.feederState(true);
 				}
+				break;
+			
+			case STATE_STRAFE:
+				shooter.shooterOff();
 		}
 		
 		telemetry.addData("flywheel rpm = ", Math.abs(shooter.updateRPM()));
 		
-		//feeder state machine
-		switch (currentFeederState) {
-			case STATE_IDLE:
-				if(feederTime.seconds() > .8){
-					shooter.lockFeeder();
-					isFeederLocked = true;
-				}else{
-					isFeederLocked = false;
-					shooter.unlockFeeder();
-				}
-				shooter.resetFeeder();
-				telemetry.addData("feeder state = ", "idle");
-				break;
-			case STATE_FEED:
-				if (isFeederLocked) {
-					if (feederTime.seconds() > .3) {
-						newState(FeederState.STATE_RESET);
-						break;
-					}
-					if (feederTime.seconds() > 0.1) {
-						shooter.feedRing();
-					}
-				}else{
-					if (feederTime.seconds() > .2) {
-						newState(FeederState.STATE_RESET);
-						break;
-					}
-					shooter.feedRing();
-				}
-				shooter.unlockFeeder();
-				telemetry.addData("feeder state = ", "feed");
-				break;
-			case STATE_RESET:
-				if (feederTime.seconds() > .15) {
-					newState(FeederState.STATE_IDLE);
-					break;
-				}
-				shooter.resetFeeder();
-				shooter.unlockFeeder();
-				telemetry.addData("feeder state = ", "reset");
-				break;
-		}
+		
 	}
 	
 
 	
-	private void newState(FeederState newState) {
-		currentFeederState = newState;
-		feederTime.reset();
-	}
 	
 	private void newState(MainState newState) {
 		currentMainState = newState;
@@ -152,16 +132,8 @@ public class OwenKinkyAuto extends OpMode {
 	
 	private enum MainState {
 		STATE_FORWARD,
-		STATE_SHOOT
+		STATE_LINEUP,
+		STATE_SHOOT,
+		STATE_STRAFE,
 	}
-	
-	private enum FeederState {
-		STATE_IDLE,
-		STATE_RESET,
-		STATE_FEED
-	}
-	
-	
-	
-	
 }
