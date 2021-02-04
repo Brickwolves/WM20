@@ -87,7 +87,7 @@ public class Shooter {
                 break;
             
             case STATE_RESET:
-                if (feederTime.seconds() > .15) { newState(FeederState.STATE_IDLE); feedCount++;break; }
+                if (feederTime.seconds() > .25) { newState(FeederState.STATE_IDLE); feedCount++;break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
