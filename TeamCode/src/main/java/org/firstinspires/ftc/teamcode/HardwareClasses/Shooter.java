@@ -21,11 +21,15 @@ public class Shooter {
     private static final double RESET = 0.38;
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
+    
     private static final int TOP_GOAL = 3300;
     private static final int POWER_SHOT = 3000;
+    
     private static final double FEED_TIME = .2;
     private static final double RESET_TIME = .2;
-        private static final double UNLOCK_TIME = .1;
+    private static final double LOCK_TIME = .8;
+    private static final double UNLOCK_TIME = .1;
+    
     private double shooterPower = 0.0;
     private boolean isFeederLocked;
     private double shooterRPM;
@@ -69,25 +73,25 @@ public class Shooter {
         switch (currentFeederState) {
             
             case STATE_IDLE:
-                if(trigger && currentShooterState != ShooterState.STATE_OFF){ newState(FeederState.STATE_FEED); }
-                if(feederTime.seconds() > .8){ lockFeeder(); isFeederLocked = false; }
+                if(trigger && getPower() >= .1){ newState(FeederState.STATE_FEED); }
+                if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); isFeederLocked = false; }
                 else{ unlockFeeder(); isFeederLocked = false; }
                 resetFeeder();
                 break;
             
             case STATE_FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > .3) { newState(FeederState.STATE_RESET); }
-                    if (feederTime.seconds() > 0.1) { feedRing(); }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); }
+                    if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > .2) { newState(FeederState.STATE_RESET); }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
             case STATE_RESET:
-                if (feederTime.seconds() > .15) { newState(FeederState.STATE_IDLE); feedCount++;break; }
+                if (feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); feedCount++; break; }
                 resetFeeder();
                 unlockFeeder();
                 break;

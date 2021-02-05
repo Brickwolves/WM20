@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,9 +17,9 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 
-@Autonomous(name = "Owen Kinky Auto", group = "Auto")
+@Autonomous(name = "testauto", group = "Auto")
 
-public class OwenKinkyAuto extends OpMode {
+public class testauto extends OpMode {
 	
 	private final ElapsedTime feederTime = new ElapsedTime();
 	private final ElapsedTime mainTime = new ElapsedTime();
@@ -26,7 +30,7 @@ public class OwenKinkyAuto extends OpMode {
 	private Intake intake;
 	boolean isFeederLocked = true;
 	
-	private MainState currentMainState = MainState.STATE_FORWARD;
+	private MainState currentMainState = MainState.STATE_TURN;
 	
 	
 	@Override
@@ -59,6 +63,8 @@ public class OwenKinkyAuto extends OpMode {
 		intake.intakeOff();
 		shooter.resetFeeder();
 		shooter.lockFeeder();
+		telemetry.addData("cosine: ", Math.cos(-90));
+		telemetry.addData("sine: ", Math.sin(-90));
 	}
 	
 	public void start() {
@@ -67,54 +73,35 @@ public class OwenKinkyAuto extends OpMode {
 		robot.resetMotors();
 	}
 	
+	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
 		
 		switch (currentMainState) {
-			case STATE_FORWARD:
-				robot.strafe(2000,0,0,1,0,0);
-				intake.deployReach();
-				
-				if(robot.currentTicks>750) {
-					
-					intake.intakeOn();
-				}
-				if(robot.isStrafeComplete){
-					newState(MainState.STATE_LINEUP);
-				}
-				break;
-			
-			case STATE_LINEUP:
-				robot.strafe(400,0,180,.5,0,0);
-				if(robot.currentTicks < 350){ intake.intakeOn(); }
-				else{ intake.intakeOff(); intake.retractReach(); }
-				
-				if(robot.isStrafeComplete){
-					newState(MainState.STATE_SHOOT);
-				}
-				break;
-				
-			case STATE_SHOOT:
-				if (shooter.feederCount() >= 3) {
+			case STATE_TURN:
+				robot.turn(90,.8, 0.1);
+				telemetry.addData("state = ", "turn");
+				if(robot.isTurnComplete){
 					newState(MainState.STATE_STRAFE);
-					break;
-				}
-				
-				robot.setPower(0,0,0,0);
-				intake.retractReach();
-				intake.intakeOff();
-				shooter.topGoal();
-				
-				if(mainTime.seconds()>1){
-					shooter.feederState(true);
 				}
 				break;
 			
 			case STATE_STRAFE:
-				shooter.shooterOff();
+				robot.strafe(2000,90,0,1,0,0);
+				telemetry.addData("state = ", "strafe");
+				if(robot.isStrafeComplete){
+					newState(MainState.STATE_SHOOT);
+				}
+				break;
+			
+			case STATE_SHOOT:
+				robot.setPowerAuto(0,0,90,0);
+				telemetry.addData("state = ", "off");
+				
 		}
 		
 		telemetry.addData("flywheel rpm = ", Math.abs(shooter.updateRPM()));
+		telemetry.update();
 		
 		
 	}
@@ -128,9 +115,8 @@ public class OwenKinkyAuto extends OpMode {
 	}
 	
 	private enum MainState {
-		STATE_FORWARD,
-		STATE_LINEUP,
-		STATE_SHOOT,
+		STATE_TURN,
 		STATE_STRAFE,
+		STATE_SHOOT
 	}
 }
