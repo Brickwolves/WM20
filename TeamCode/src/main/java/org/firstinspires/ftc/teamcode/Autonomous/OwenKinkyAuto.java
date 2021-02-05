@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -67,6 +71,7 @@ public class OwenKinkyAuto extends OpMode {
 		robot.resetMotors();
 	}
 	
+	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
 		
