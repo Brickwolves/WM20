@@ -150,6 +150,9 @@ public class OwenKinkyTele extends OpMode {
 		wobble.armState(operator.LT(), operator.RT(), operator.upPressUpdate(), operator.downPressUpdate(), operator.LSPressUpdate());
 		wobble.gripperState(operator.RBPressUpdate(), operator.LBPressUpdate());
 		
+		telemetry.addData("RPM = ", shooter.getRPM());
+		telemetry.update();
+		
 	}
 	
 }

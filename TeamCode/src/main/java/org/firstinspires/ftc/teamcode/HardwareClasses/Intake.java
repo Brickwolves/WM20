@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.HardwareClasses;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.utilities.RingBufferOwen;
 
 public class Intake {
     
@@ -13,6 +16,9 @@ public class Intake {
     private final static double DEPLOYED = 0.0;
     private final static double INTAKE_ON = 1.0;
     private final static double INTAKE_REVERSE = .75;
+    private ElapsedTime stallTime = new ElapsedTime();
+    
+    RingBufferOwen stallRing = new RingBufferOwen(20);
     
     private IntakeState currentIntakeState = IntakeState.STATE_OFF;
     private ReachState currentReachState = ReachState.STATE_RETRACT;
@@ -50,8 +56,20 @@ public class Intake {
         }
     }
     
+    public double deltaPosition(){
+        return Math.abs(intakeDrive.getCurrentPosition() - stallRing.getValue(intakeDrive.getCurrentPosition()));
+    }
     
     public void intakeOn(){ intakeDrive.setPower(INTAKE_ON); }
+    
+    public void intakeStallControl(){
+        if ( deltaPosition() > 10 || stallTime.seconds() < 1) {
+            intakeOn();
+            stallTime.reset();
+        }else{
+            intakeReverse();
+        }
+    }
     
     public void intakeOff(){ intakeDrive.setPower(0.0); }
     
@@ -69,7 +87,7 @@ public class Intake {
             case STATE_ON:
                 if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOff) { newState(IntakeState.STATE_OFF); break; }
-                intakeOn();
+                intakeStallControl();
                 break;
         }
     }

@@ -89,14 +89,14 @@ public class CollinAuto extends OpMode {
 		
 		switch (currentMainState) {
 			case STATE_DIAGONAL:
-				robot.strafe(1000,0,78.311,1,0,0,1);
-				if(robot.isStrafeFinished){
+				robot.strafe(1000,0,78.311,1,0,0);
+				if(robot.isStrafeComplete){
 					newState(MainState.STATE_TURN1);
 				}
 				break;
 			
 			case STATE_TURN1:
-				robot.turn(10);
+				robot.turn(10, 1, .5);
 				newState(MainState.STATE_SHOOT1);
 				break;
 
@@ -116,7 +116,7 @@ public class CollinAuto extends OpMode {
 				break;
 			
 			case STATE_TURN2:
-				robot.turn(-10);
+				robot.turn(-10, 1, 1);
 				newState(MainState.STATE_SHOOT2);
 				break;
 
@@ -135,7 +135,7 @@ public class CollinAuto extends OpMode {
 				break;
 
 			case STATE_TURN3:
-				robot.turn(-10);
+				robot.turn(-10, 1, 1);
 				newState(MainState.STATE_SHOOT3);
 				break;
 
@@ -155,12 +155,12 @@ public class CollinAuto extends OpMode {
 
 			case STATE_TURN4:
 				shooter.shooterOff();
-				robot.turn(10);
+				robot.turn(10, 1, 1);
 				newState(MainState.STATE_FORWARD);
 
 			case STATE_FORWARD:
-				robot.strafe(org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.Utils.convertInches2Ticks(6),0,0,1,0,0,1);
-				if(robot.isStrafeFinished){
+				robot.strafe(org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.Utils.convertInches2Ticks(6),0,0,1,0,0);
+				if(robot.isStrafeComplete){
 					newState(MainState.STATE_OFF);
 				}
 				break;
