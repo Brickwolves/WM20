@@ -35,8 +35,8 @@ public class Shooter {
     private double shooterRPM;
     private int feedCount = 0;
 
-    RingBufferOwen timeRing = new RingBufferOwen(20);
-    RingBufferOwen positionRing = new RingBufferOwen(20);
+    RingBufferOwen timeRing = new RingBufferOwen(50);
+    RingBufferOwen positionRing = new RingBufferOwen(50);
     private FeederState currentFeederState = FeederState.STATE_IDLE;
     public ShooterState currentShooterState = ShooterState.STATE_OFF;
     
