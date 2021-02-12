@@ -46,7 +46,7 @@ public class OwenKinkyAuto extends OpMode {
 	private Intake intake;
 	boolean isFeederLocked = true;
 	
-	private MainState currentMainState = MainState.STATE_FORWARD;
+	private MainState currentMainState = MainState.state1;
 	OpenCvCamera webcam;
 
 	private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -118,58 +118,110 @@ public class OwenKinkyAuto extends OpMode {
 			case 0:
 				switch (currentMainState) {
 					case state1: //move forward to first wobble goal position
-						robot.strafe(2000,0,0,1,0,0);
-						if(robot.isStrafeComplete){
+						robot.strafe(2000, 0, 0, 1, 0, 0);
+						if (robot.isStrafeComplete) {
 							newState(MainState.state1Turn);
 						}
 						break;
 					case state1Turn: //turn
 						robot.turn();
-						if(robot.isTurnComplete){
+						if (robot.isTurnComplete) {
 							newState(MainState.state1WobbleGoal);
 						}
 						break;
 					case state1WobbleGoal: //put down wobble goal
 						break;
 					case state2: //moves to waypoint 2 in front of second powershot behind launch line
-						robot.strafe(2000,0,0,1,0,0);
-						if(robot.isStrafeComplete){
+						robot.strafe(2000, 0, 0, 1, 0, 0);
+						if (robot.isStrafeComplete) {
 							newState(MainState.state2Turn);
 						}
 						break;
 					case state2Turn: //turn towards center powershot
 						robot.turn();
-						if(robot.isTurnComplete){
+						if (robot.isTurnComplete) {
 							newState(MainState.statePS1);
+
 						}
 						break;
 					case statePS1: //do powershot shooter code
 						if (shooter.feederCount() >= 1) {
-							newState(MainState.statePS1Turn);
+							//do turn to next powershot
+							robot.turn();
+							if (robot.isTurnComplete) {
+								newState(MainState.statePS2);
+								break;
+							}
 							break;
+
 						}
 
-						robot.setPower(0,0,0,0);
+						robot.setPower(0, 0, 0, 0);
 						shooter.powerShot();
 
-						if(mainTime.seconds()>1){
+						if (mainTime.seconds() > 1) {
 							shooter.feederState(true);
 						}
 						break;
 					case statePS2:
+						if (shooter.feederCount() >= 1) {
+							//do turn to next powershot
+							robot.turn();
+							if (robot.isTurnComplete) {
+								newState(MainState.statePS3);
+								break;
+							}
+							break;
 
-					case state3:
+						}
+
+						robot.setPower(0, 0, 0, 0);
+						shooter.powerShot();
+
+						if (mainTime.seconds() > 1) {
+							shooter.feederState(true);
+						}
 						break;
-					case state4:
+					case statePS3:
+						if (shooter.feederCount() >= 1) {
+							//do turn to 0 degrees
+							robot.turn();
+							if (robot.isTurnComplete) {
+								newState(MainState.state3);
+								break;
+							}
+							break;
+
+						}
+
+						robot.setPower(0, 0, 0, 0);
+						shooter.powerShot();
+
+						if (mainTime.seconds() > 1) {
+							shooter.feederState(true);
+						}
 						break;
-					case state5:
+					case state3: //move to waypoint3
+						robot.strafe(2000, 0, 0, 1, 0, 0);
+						if (robot.isStrafeComplete) {
+							newState(MainState.state4);
+						}
 						break;
-					case state6:
+					case state4: //move forward to fourth wobble goal position
+						robot.strafe(2000, 0, 0, 1, 0, 0);
+						if (robot.isStrafeComplete) {
+							newState(MainState.state4Turn);
+						}
 						break;
-					case state7:
+					case state4Turn: //turn
+						robot.turn();
+						if (robot.isTurnComplete) {
+							newState(MainState.state4WobbleGoal);
+						}
 						break;
-					case state8:
+					case state4WobbleGoal: //put down wobble goal
 						break;
+
 
 				}
 
@@ -180,49 +232,6 @@ public class OwenKinkyAuto extends OpMode {
 
 			case 4:
 				break;
-		}
-		switch (currentMainState) {
-			case STATE_FORWARD:
-				robot.strafe(2000,0,0,1,0,0);
-				intake.deployReach();
-
-				if(robot.currentTicks>750) {
-
-					intake.intakeOn();
-				}
-				if(robot.isStrafeComplete){
-					newState(MainState.STATE_LINEUP);
-				}
-				break;
-			
-			case STATE_LINEUP:
-				robot.strafe(400,0,180,.5,0,0);
-				if(robot.currentTicks < 350){ intake.intakeOn(); }
-				else{ intake.intakeOff(); intake.retractReach(); }
-				
-				if(robot.isStrafeComplete){
-					newState(MainState.STATE_SHOOT);
-				}
-				break;
-				
-			case STATE_SHOOT:
-				if (shooter.feederCount() >= 3) {
-					newState(MainState.STATE_STRAFE);
-					break;
-				}
-				
-				robot.setPower(0,0,0,0);
-				intake.retractReach();
-				intake.intakeOff();
-				shooter.topGoal();
-				
-				if(mainTime.seconds()>1){
-					shooter.feederState(true);
-				}
-				break;
-			
-			case STATE_STRAFE:
-				shooter.shooterOff();
 		}
 		
 		telemetry.addData("flywheel rpm = ", Math.abs(shooter.updateRPM()));
@@ -239,8 +248,19 @@ public class OwenKinkyAuto extends OpMode {
 	}
 	
 	private enum MainState {
-		STATE_IDK_I_GIVE_UP,
-		state2
+		state1,
+		state1Turn,
+		state1WobbleGoal,
+		state2,
+		state2Turn,
+		statePS1,
+		statePS2,
+		statePS3,
+		state3,
+		state4,
+		state4Turn,
+		state4WobbleGoal
+
 	}
 
 	class RingDetectingPipeline extends OpenCvPipeline
