@@ -14,7 +14,7 @@ public class Shooter {
     private DcMotor shooterTwo;
     private Servo feeder;
     private Servo feederLock;
-    private PID shooterPID = new PID(.0008, 0.0000007, .00018, 20, false);
+    private PID shooterPID = new PID(.0001, 0, .0000018, 20, false);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -140,7 +140,7 @@ public class Shooter {
     }
 
     public void setRPM(int targetRPM){
-        shooterPower = shooterPower + shooterPID.update( targetRPM - updateRPM());
+        shooterPower = shooterPower + shooterPID.update( Math.pow(targetRPM - updateRPM(),3));
     
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
         setPower(shooterPower);

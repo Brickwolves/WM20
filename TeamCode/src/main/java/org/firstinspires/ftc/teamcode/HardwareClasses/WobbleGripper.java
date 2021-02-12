@@ -14,15 +14,15 @@ public class WobbleGripper {
     private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
     
     private double armPosition;
-    private static final double GRIP = .7;
+    private static final double GRIP = .538;
     private static final double OPEN = 0.0;
     private static final double ARM_UP = .7;
     private static final double ARM_DOWN = 0.04;
     private static final double ARM_FOLD = 1.0;
     private static final double ARM_CONTROL_RATE = -.00005;
     
-    private ArmState currentArmState = ArmState.STATE_CONTROL;
-    private GripperState currentGripperState = GripperState.STATE_OFF;
+    private ArmState currentArmState = ArmState.STATE_UP;
+    private GripperState currentGripperState = GripperState.STATE_GRIP;
     private ElapsedTime gripperTime = new ElapsedTime();
 
     public WobbleGripper(Servo gripperOne, Servo gripperTwo, Servo lifter){
@@ -42,7 +42,7 @@ public class WobbleGripper {
         switch (currentGripperState){
     
             case STATE_GRIP:
-                if(openClose) { newState(GripperState.STATE_OPEN); break; }
+                if(openClose && currentArmState != ArmState.STATE_FOLD) { newState(GripperState.STATE_OPEN); break; }
                 grip();
                 break;
     
@@ -111,9 +111,7 @@ public class WobbleGripper {
     }
     
     private enum GripperState {
-        STATE_OFF,
         STATE_GRIP,
-        STATE_LOCK,
         STATE_OPEN
     }
     
