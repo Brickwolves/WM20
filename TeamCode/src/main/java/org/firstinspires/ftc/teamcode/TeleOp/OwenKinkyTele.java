@@ -73,8 +73,8 @@ public class OwenKinkyTele extends OpMode {
 		Servo reachTwo = hardwareMap.get(Servo.class, "outerrollertwo");
 		
 		Servo lifter = hardwareMap.get(Servo.class, "lifter");
-		CRServo gripperOne = hardwareMap.get(CRServo.class, "gripperone");
-		CRServo gripperTwo = hardwareMap.get(CRServo.class, "grippertwo");
+		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
+		Servo gripperTwo = hardwareMap.get(Servo.class, "grippertwo");
 		
 		driver = new Controller(gamepad1);
 		operator = new Controller(gamepad2);
@@ -148,7 +148,7 @@ public class OwenKinkyTele extends OpMode {
 		intake.reachState(operator.RSPressUpdate());
 		
 		wobble.armState(operator.LT(), operator.RT(), operator.upPressUpdate(), operator.downPressUpdate(), operator.LSPressUpdate());
-		wobble.gripperState(operator.RBPressUpdate(), operator.LBPressUpdate());
+		wobble.gripperState(operator.RBPressUpdate());
 		
 		telemetry.addData("RPM = ", shooter.getRPM());
 		telemetry.update();
