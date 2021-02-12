@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -8,15 +7,15 @@ import org.firstinspires.ftc.utilities.RingBuffer;
 
 public class WobbleGripper {
 
-    public CRServo gripperOne;
-    public CRServo gripperTwo;
+    public Servo gripperOne;
+    public Servo gripperTwo;
     public Servo lifter;
     
     private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
     
     private double armPosition;
-    private static final double WHEEL_GRIP = 1.0;
-    private static final double WHEEL_EJECT = -1.0;
+    private static final double GRIP = .7;
+    private static final double OPEN = 0.0;
     private static final double ARM_UP = .7;
     private static final double ARM_DOWN = 0.04;
     private static final double ARM_FOLD = 1.0;
@@ -26,8 +25,8 @@ public class WobbleGripper {
     private GripperState currentGripperState = GripperState.STATE_OFF;
     private ElapsedTime gripperTime = new ElapsedTime();
 
-    public WobbleGripper(CRServo gripperOne, CRServo gripperTwo, Servo lifter){
-        gripperTwo.setDirection(CRServo.Direction.REVERSE);
+    public WobbleGripper(Servo gripperOne, Servo gripperTwo, Servo lifter){
+        gripperTwo.setDirection(Servo.Direction.REVERSE);
         this.gripperOne = gripperOne;
         this.gripperTwo = gripperTwo;
         this.lifter = lifter;
@@ -35,33 +34,21 @@ public class WobbleGripper {
     
     
     
-    public void wheelGrip() { gripperOne.setPower(WHEEL_GRIP); gripperTwo.setPower(WHEEL_GRIP); }
+    public void grip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP); }
     
-    public void wheelOff() {
-        gripperOne.setPower(0);
-        gripperTwo.setPower(0);
-    }
+    public void open() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN); }
     
-    public void wheelEject() { gripperOne.setPower(WHEEL_EJECT); gripperTwo.setPower(WHEEL_EJECT); }
-    
-    public void gripperState(boolean onOff, boolean eject){
+    public void gripperState(boolean openClose){
         switch (currentGripperState){
-            
-            case STATE_OFF:
-                if(onOff) { newState(GripperState.STATE_GRIP); break; }
-                if(eject) { newState(GripperState.STATE_EJECT); break; }
-                wheelOff();
-                break;
     
             case STATE_GRIP:
-                if(onOff) { newState(GripperState.STATE_OFF); break; }
-                if(eject) { newState(GripperState.STATE_EJECT); break; }
-                wheelGrip();
+                if(openClose) { newState(GripperState.STATE_OPEN); break; }
+                grip();
                 break;
     
-            case STATE_EJECT:
-                if(onOff || gripperTime.seconds() > .8) { newState(GripperState.STATE_OFF); break; }
-                wheelEject();
+            case STATE_OPEN:
+                if(openClose) { newState(GripperState.STATE_GRIP); break; }
+                open();
                 break;
         }
     }
@@ -127,7 +114,7 @@ public class WobbleGripper {
         STATE_OFF,
         STATE_GRIP,
         STATE_LOCK,
-        STATE_EJECT
+        STATE_OPEN
     }
     
     private void newState(ArmState newState) { currentArmState = newState; }
