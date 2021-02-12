@@ -156,7 +156,8 @@ public class OwenKinkyAuto extends OpMode {
 							shooter.feederState(true);
 						}
 						break;
-					case: statePS1Turn
+					case statePS2:
+
 					case state3:
 						break;
 					case state4:
