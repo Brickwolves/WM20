@@ -4,18 +4,12 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.DashConstants;
-import org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.DashVision;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
@@ -24,16 +18,6 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name = "Owen Kinky Auto", group = "Auto")
 
@@ -41,7 +25,6 @@ public class OwenKinkyAuto extends OpMode {
 	
 	private final ElapsedTime feederTime = new ElapsedTime();
 	private final ElapsedTime mainTime = new ElapsedTime();
-	
 	
 	private Controller operator;
 	private Gyro gyro;
@@ -93,7 +76,6 @@ public class OwenKinkyAuto extends OpMode {
 		intake = new Intake(intakeDrive, outerRollerOne, outerRollerTwo);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
-		
 	}
 	
 	public void init_loop(){
@@ -135,31 +117,50 @@ public class OwenKinkyAuto extends OpMode {
 
 		telemetry.addData("strafe drive = ", robot.strafeDrive);
 		telemetry.addData("auto drive = ", robot.autoDrive);
+		telemetry.addData("current state: ", currentMainState);
+		
 		switch ((int) ringCount) {
 			case 0:
 				switch (currentMainState) {
 					case state1: //move forward to first wobble goal position
-						robot.strafe(org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.Utils.convertInches2Ticks(63), 180, 0, 1, 0, 0);
+						robot.strafe(45, 180, 0, 1, 0, 0);
+						
+						if (robot.currentInches > 15){
+							wobble.armDown();
+						}
 						
 						if (robot.isStrafeComplete) {
-							robot.setPower(0,0,0,0);
-							newState(MainState.state1Turn);
-							break;
+							robot.setPower(0,0,0,1);
+							newState(MainState.state1WobbleGoal);
 						}
 						telemetry.addData("isStrafeComplete = ", robot.isStrafeComplete);
 						
 						break;
+					case state1WobbleGoal: //put down wobble goal
+						wobble.armDown();
+						intake.deployReach();
+						if(mainTime.seconds() > .9){
+							wobble.open();
+							robot.strafe(4, 180, 180, .5, 0, 0);
+						}else{
+							robot.setPower(0,0,0,1);
+						}
+						
+						if(mainTime.seconds() > .9 && robot.isStrafeComplete) {
+							newState(MainState.state1Turn);
+							wobble.armUp();
+						}
+						break;
+						
 					case state1Turn: //turn
 						robot.turn(255, .8, 1);
 						if (robot.isTurnComplete) {
-							newState(MainState.state1WobbleGoal);
+							newState(MainState.state2);
 						}
 						telemetry.addData("current state = ", "turn");
 						telemetry.addData("current state = ", "turn");
 						break;
-					case state1WobbleGoal: //put down wobble goal
-						newState(MainState.state2);
-						break;
+					
 					case state2: //moves to waypoint 2 in front of second powershot behind launch line
 						robot.strafe(org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.Utils.convertInches2Ticks(46), 255, 225, 1, 0, 0);
 						if (robot.isStrafeComplete) {
