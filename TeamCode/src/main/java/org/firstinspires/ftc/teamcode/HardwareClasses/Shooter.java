@@ -14,7 +14,7 @@ public class Shooter {
     private DcMotor shooterTwo;
     private Servo feeder;
     private Servo feederLock;
-    private PID shooterPID = new PID(.0001, 0, .000001, 20, false);
+    private PID shooterPID = new PID(.0002, 0.000005, 0.000007, 0, false);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -35,14 +35,18 @@ public class Shooter {
     private double shooterRPM;
     private int feedCount = 0;
 
-    RingBufferOwen timeRing = new RingBufferOwen(50);
-    RingBufferOwen positionRing = new RingBufferOwen(50);
+    RingBufferOwen timeRing = new RingBufferOwen(20);
+    RingBufferOwen positionRing = new RingBufferOwen(20);
     private FeederState currentFeederState = FeederState.STATE_IDLE;
     public ShooterState currentShooterState = ShooterState.STATE_OFF;
     
     public ElapsedTime feederTime = new ElapsedTime();
     
     public Shooter(DcMotor shooterOne, DcMotor shooterTwo, Servo feeder, Servo feederLock) {
+    
+        shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        
         this.shooterOne = shooterOne;
         this.shooterTwo = shooterTwo;
         this.feeder = feeder;
@@ -112,8 +116,8 @@ public class Shooter {
         shooterOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterTwo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterTwo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public long getPosition(){
@@ -140,7 +144,7 @@ public class Shooter {
     }
 
     public void setRPM(int targetRPM){
-        shooterPower = shooterPower + shooterPID.update( Math.pow(targetRPM - updateRPM(),3));
+        shooterPower = shooterPID.update( targetRPM - updateRPM());
     
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
         setPower(shooterPower);
@@ -157,19 +161,19 @@ public class Shooter {
         switch (currentShooterState) {
             
             case STATE_OFF:
-                if (shooterOn || topGoal) { newState(ShooterState.STATE_TOP_GOAL); break; }
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); break; }
+                if (shooterOn || topGoal) { newState(ShooterState.STATE_TOP_GOAL); shooterPID.resetIntegralSum(); break;  }
+                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
                 shooterOff();
                 break;
                 
             case STATE_TOP_GOAL:
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); break; }
+                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
                 if (shooterOff) { newState(ShooterState.STATE_OFF); break; }
                 topGoal();
                 break;
                 
             case STATE_POWER_SHOT:
-                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL); break; }
+                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL); shooterPID.resetIntegralSum(); break; }
                 if (shooterOff) { newState(ShooterState.STATE_OFF); break; }
                 powerShot();
                 break;

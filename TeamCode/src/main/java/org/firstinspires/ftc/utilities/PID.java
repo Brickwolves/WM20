@@ -14,8 +14,11 @@ public class PID {
     private double integralSum = 0;
     private double previousError = 0;
     private long previousTime;
+    private int integralLength;
 
     private PIDRingBuffer errors;
+    private RingBuffer<Double> integralSumBuffer;
+    private RingBuffer<Double> timeBuffer;
 
     private boolean debugMode;
 
@@ -28,20 +31,26 @@ public class PID {
         this.integral = integral;
         this.derivative = derivative;
         this.debugMode = debugMode;
-        errors = new PIDRingBuffer(integralLength);
-        previousTime = System.currentTimeMillis();
+        this.integralLength = integralLength;
+        integralSumBuffer = new RingBuffer<Double>(integralLength, 0.0);
+        timeBuffer = new RingBuffer<Double>(integralLength, 0.0);
     }
 
     public Double update(double error){
-        PIDRingBuffer.IntegralDerivativePair integralDerivativePair = errors.update(error, System.currentTimeMillis());
-        integralSum += error;
+        double iComponent;
+        if(integralLength == 0) {
+            integralSum += error;
+            iComponent = integralSum * integral;
+        }else{
+            integralSum = integralSum + error - integralSumBuffer.getValue(error);
+            iComponent = integralSum * integral / integralLength;
+        }
         long currentTime = System.currentTimeMillis();
         double deltaTime = (currentTime - previousTime) / 1000.0;
         double rateOfChange = (error - previousError) / deltaTime;
         previousTime = currentTime;
         previousError = error;
         double pComponent = error * proportional;
-        double iComponent = integralSum * integral;
         double dComponent = (rateOfChange * derivative);
         if(debugMode){
             dashboardTelemetry.addData("Proportional", pComponent);
@@ -53,5 +62,8 @@ public class PID {
     }
     public double getResult() {
         return result;
+    }
+    public void resetIntegralSum(){
+        integralSum = 0;
     }
 }
