@@ -113,7 +113,9 @@ public class OwenKinkyTele extends OpMode {
 	
 	@Override
 	public void start() {
-		robot.resetGyro();
+		robot.resetGyro(0);
+		wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
+		wobble.newState(WobbleGripper.GripperState.STATE_OPEN);
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)

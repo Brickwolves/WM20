@@ -12,7 +12,7 @@ public class Intake {
     private DcMotor intakeDrive;
     private Servo reachOne;
     private Servo reachTwo;
-    private final static double RETRACTED = 0.29;
+    private final static double RETRACTED = 0.27;
     private final static double DEPLOYED = 0.0;
     private final static double INTAKE_ON = 1.0;
     private final static double INTAKE_REVERSE = .75;

@@ -16,10 +16,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.DashConstants;
 import org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.DashVision;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
+import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 import org.opencv.core.Core;
@@ -40,18 +42,21 @@ public class OwenKinkyAuto extends OpMode {
 	private final ElapsedTime feederTime = new ElapsedTime();
 	private final ElapsedTime mainTime = new ElapsedTime();
 	
+	
+	private Controller operator;
 	private Gyro gyro;
 	private MecanumChassis robot;
 	private Shooter shooter;
 	private Intake intake;
+	private WobbleGripper wobble;
 	boolean isFeederLocked = true;
 	
 	private MainState currentMainState = MainState.state1;
 //	OpenCvCamera webcam;
 
-	private FtcDashboard dashboard = FtcDashboard.getInstance();
-	private Telemetry dashboardTelemetry = dashboard.getTelemetry();
-	private MultipleTelemetry multTelemetry = new MultipleTelemetry(telemetry, dashboardTelemetry);
+	//private FtcDashboard dashboard = FtcDashboard.getInstance();
+	//private Telemetry dashboardTelemetry = dashboard.getTelemetry();
+	//private MultipleTelemetry multTelemetry = new MultipleTelemetry(telemetry, dashboardTelemetry);
 
 
 	private static double ringCount = 0;
@@ -66,6 +71,10 @@ public class OwenKinkyAuto extends OpMode {
 		Servo outerRollerOne = hardwareMap.get(Servo.class, "outerrollerone");
 		Servo outerRollerTwo = hardwareMap.get(Servo.class, "outerrollertwo");
 		
+		Servo lifter = hardwareMap.get(Servo.class, "lifter");
+		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
+		Servo gripperTwo = hardwareMap.get(Servo.class, "grippertwo");
+		
 		DcMotor frontLeft = hardwareMap.get(DcMotor.class, "frontleft");
 		DcMotor frontRight = hardwareMap.get(DcMotor.class, "frontright");
 		DcMotor backLeft = hardwareMap.get(DcMotor.class, "backleft");
@@ -75,14 +84,16 @@ public class OwenKinkyAuto extends OpMode {
 		DcMotor shooterTwo = hardwareMap.get(DcMotor.class, "shootertwo");
 		DcMotor intakeDrive = hardwareMap.get(DcMotor.class, "intake");
 		
+		operator = new Controller(gamepad2);
+		
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
-		gyro = new Gyro(imu, 180);
+		gyro = new Gyro(imu, 0);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
-		intake = new Intake(intakeDrive, outerRollerOne,outerRollerTwo);
+		intake = new Intake(intakeDrive, outerRollerOne, outerRollerTwo);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
-
-
+		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
+		
 	}
 	
 	public void init_loop(){
@@ -90,6 +101,11 @@ public class OwenKinkyAuto extends OpMode {
 		intake.intakeOff();
 		shooter.resetFeeder();
 		shooter.lockFeeder();
+		if(operator.RBToggle()){
+			wobble.grip();
+		}else{
+			wobble.half();
+		}
 //
 //		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 //		webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"), cameraMonitorViewId);
@@ -107,7 +123,7 @@ public class OwenKinkyAuto extends OpMode {
 	
 	public void start() {
 		mainTime.reset();
-		robot.resetGyro();
+		robot.resetGyro(180);
 		robot.resetMotors();
 		ringCount = 0;
 	}
@@ -115,20 +131,31 @@ public class OwenKinkyAuto extends OpMode {
 	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
+		
+
+		telemetry.addData("strafe drive = ", robot.strafeDrive);
+		telemetry.addData("auto drive = ", robot.autoDrive);
 		switch ((int) ringCount) {
 			case 0:
 				switch (currentMainState) {
 					case state1: //move forward to first wobble goal position
-						robot.strafe(org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.Utils.convertInches2Ticks(63), 0, 0, 1, 0, 0);
+						robot.strafe(org.firstinspires.ftc.teamcode.Autonomous.AutoUtils.Utils.convertInches2Ticks(63), 180, 0, 1, 0, 0);
+						
 						if (robot.isStrafeComplete) {
+							robot.setPower(0,0,0,0);
 							newState(MainState.state1Turn);
+							break;
 						}
+						telemetry.addData("isStrafeComplete = ", robot.isStrafeComplete);
+						
 						break;
 					case state1Turn: //turn
 						robot.turn(255, .8, 1);
 						if (robot.isTurnComplete) {
 							newState(MainState.state1WobbleGoal);
 						}
+						telemetry.addData("current state = ", "turn");
+						telemetry.addData("current state = ", "turn");
 						break;
 					case state1WobbleGoal: //put down wobble goal
 						newState(MainState.state2);
@@ -235,8 +262,10 @@ public class OwenKinkyAuto extends OpMode {
 			case 4:
 				break;
 		}
-		
 		telemetry.addData("flywheel rpm = ", Math.abs(shooter.updateRPM()));
+		telemetry.update();
+		
+		
 		
 		
 	}

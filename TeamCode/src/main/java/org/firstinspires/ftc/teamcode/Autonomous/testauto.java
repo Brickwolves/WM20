@@ -30,7 +30,7 @@ public class testauto extends OpMode {
 	private Intake intake;
 	boolean isFeederLocked = true;
 	
-	private MainState currentMainState = MainState.STATE_TURN;
+	private MainState currentMainState = MainState.STATE_STRAFE;
 	
 	
 	@Override
@@ -69,7 +69,7 @@ public class testauto extends OpMode {
 	
 	public void start() {
 		mainTime.reset();
-		robot.resetGyro();
+		robot.resetGyro(0);
 		robot.resetMotors();
 	}
 	
@@ -89,6 +89,7 @@ public class testauto extends OpMode {
 			case STATE_STRAFE:
 				robot.strafe(2000,90,0,1,0,0);
 				telemetry.addData("state = ", "strafe");
+				telemetry.addData("strafe drive = ", robot.strafeDrive);
 				if(robot.isStrafeComplete){
 					newState(MainState.STATE_SHOOT);
 				}
