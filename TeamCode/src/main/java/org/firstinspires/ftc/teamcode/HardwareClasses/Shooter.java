@@ -14,7 +14,7 @@ public class Shooter {
     private DcMotor shooterTwo;
     private Servo feeder;
     private Servo feederLock;
-    private PID shooterPID = new PID(.0002, 0.000005, 0.000009, 0, false);
+    private PID shooterPID = new PID(.0002, 0.000008, 0.000009, 0, false);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -22,7 +22,7 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3300;
+    private static final int TOP_GOAL = 3250;
     private static final int POWER_SHOT = 3000;
     
     private static final double FEED_TIME = .2;
@@ -163,6 +163,7 @@ public class Shooter {
             case STATE_OFF:
                 if (shooterOn || topGoal) { newState(ShooterState.STATE_TOP_GOAL); shooterPID.resetIntegralSum(); break;  }
                 if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
+                feedCount = 0;
                 shooterOff();
                 break;
                 
@@ -183,7 +184,7 @@ public class Shooter {
     
     private void newState(FeederState newState) { currentFeederState = newState; feederTime.reset(); }
     
-    public void newState(ShooterState newState) { currentShooterState = newState; feedCount = 0; }
+    public void newState(ShooterState newState) { currentShooterState = newState;}
     
     private enum FeederState {
         STATE_IDLE,

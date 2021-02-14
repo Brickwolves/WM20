@@ -17,8 +17,8 @@ public class WobbleGripper {
     private static final double GRIP = .54;
     private static final double OPEN = 0.1;
     private static final double HALF = 0.35;
-    private static final double ARM_UP = .7;
-    private static final double ARM_TELE = .9;
+    private static final double ARM_UP = .68;
+    private static final double ARM_TELE = .85;
     private static final double ARM_DOWN = 0.04;
     private static final double ARM_FOLD = 1.0;
     private static final double ARM_CONTROL_RATE = -.00005;
@@ -36,29 +36,29 @@ public class WobbleGripper {
     
     
     
-    public void grip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP); }
+    public void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP); }
     
-    public void open() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN); }
+    public void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN); }
     
-    public void half() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF); }
+    public void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF); }
     
     public void gripperState(boolean openClose){
         switch (currentGripperState){
     
             case STATE_GRIP:
                 if(openClose && currentArmState != ArmState.STATE_FOLD) { newState(GripperState.STATE_OPEN); break; }
-                grip();
+                gripperGrip();
                 break;
     
             case STATE_OPEN:
                 if(openClose) { newState(GripperState.STATE_GRIP); break; }
                 if(currentArmState == ArmState.STATE_FOLD) { newState(GripperState.STATE_HALF); break; }
-                open();
+                gripperOpen();
                 break;
                 
             case STATE_HALF:
                 if(currentArmState != ArmState.STATE_FOLD) { newState(GripperState.STATE_OPEN); break; }
-                half();
+                gripperHalf();
                 break;
         }
     }
@@ -82,6 +82,8 @@ public class WobbleGripper {
     public void armFold() { lifter.setPosition(ARM_FOLD); }
     
     public void armTele() { lifter.setPosition(ARM_TELE);}
+    
+    public void armPostion(double position) { lifter.setPosition(position);}
     
 
     public void armState(double armControlUp, double armControlDown, boolean armUp, boolean armDown, boolean armFold){
