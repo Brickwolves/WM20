@@ -152,7 +152,10 @@ public class OwenFinalTele extends OpMode {
 		wobble.armState(operator.LT(), operator.RT(), operator.upPressUpdate(), operator.downPressUpdate(), operator.LSPressUpdate());
 		wobble.gripperState(operator.RBPressUpdate());
 		
+		
+		//telemetry
 		telemetry.addData("RPM = ", intake.getRPM());
+		telemetry.addData("hmmm = ", robot.hmmm);
 		telemetry.update();
 		
 	}
