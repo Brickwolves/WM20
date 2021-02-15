@@ -129,7 +129,7 @@ public class OwenKinkyAuto extends OpMode {
 			case 0:
 				switch (currentMainState) {
 					case state1: //move forward to first wobble goal position
-						robot.strafe(43, 180, 0, 1, 0, 0);
+						robot.strafe(40, 180, 0, 1, 0, 0);
 						
 						if (robot.currentInches > 20){
 							wobble.armDown();
@@ -169,7 +169,7 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 					
 					case state2: //moves to waypoint 2 in front of second powershot behind launch line
-						robot.strafe(28, 270, 270, 1, 0, 0);
+						robot.strafe(25, 270, 270, 1, 0, 0);
 						if (robot.isStrafeComplete) {
 							newState(MainState.state2Turn);
 						}
@@ -233,7 +233,7 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 						
 					case state3: //move to waypoint3
-						robot.strafe(19, -24, 157, 1, 0, 0);
+						robot.strafe(17, -24, 157, 1, 0, 0);
 						if (robot.isStrafeComplete) {
 							newState(MainState.state3WobbleGoal);
 							robot.setPower(0,0,0,1);
@@ -296,7 +296,7 @@ public class OwenKinkyAuto extends OpMode {
 			case 4:
 				switch (currentMainState) {
 					case state1: //move forward to first wobble goal position
-						robot.strafe(82, 180, 0, 1, 0, 0);
+						robot.strafe(80, 180, 0, 1, 0, 0);
 						
 						if (robot.currentInches > 50){
 							wobble.armDown();
@@ -327,14 +327,14 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 					
 					case state1Turn: //turn
-						robot.turn(-139, 1, 0);
+						robot.turn(-140, 1, 0);
 						if (robot.isTurnComplete) {
 							newState(MainState.state2);
 						}
 						break;
 					
 					case state2: //moves to waypoint 2 in front of second powershot behind launch line
-						robot.strafe(44, -139, -139, 1, 0, 0);
+						robot.strafe(41, -140, -139, 1, 0, 0);
 						if (robot.isStrafeComplete) {
 							newState(MainState.state2Turn);
 						}
@@ -355,7 +355,7 @@ public class OwenKinkyAuto extends OpMode {
 							robot.setPowerAuto(0,0,0,1);
 							if(mainTime.seconds() > 1.5){ shooter.feederState(true); }
 						}else{
-							robot.turn(-5, 1, 1);
+							robot.turn(-4.5, 1, 1);
 							if (robot.isTurnComplete) {
 								newState(MainState.statePS2);
 								break;
@@ -387,7 +387,7 @@ public class OwenKinkyAuto extends OpMode {
 							
 							if(mainTime.seconds() > 0){ shooter.feederState(true); }
 						}else{
-							robot.turn(-26, 1, .8);
+							robot.turn(-28, 1, .8);
 							shooter.shooterOff();
 							if (robot.isTurnComplete) {
 								newState(MainState.state3);
@@ -399,7 +399,7 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 					
 					case state3: //move to waypoint3
-						robot.strafe(18, -26, 154, 1, 0, 0);
+						robot.strafe(16, -28, 154, 1, 0, 0);
 						if (robot.isStrafeComplete) {
 							newState(MainState.state3WobbleGoal);
 							robot.setPower(0,0,0,1);
@@ -428,7 +428,7 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 						
 					case state4:
-						robot.strafe(11,0,90,.75,0,0);
+						robot.strafe(11,0,90,1,0,0);
 						if(robot.isStrafeComplete) {
 							robot.setPower(0,0,0,1);
 							newState(MainState.state5);
@@ -437,26 +437,31 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 						
 					case state5:
-						if(robot.currentInches > 25){
-							intake.intakeOn();
-						}
-						robot.strafe(75, 0, 0, .3, .2 ,.2);
+						robot.strafe(22, 0, 0, .6, .2 ,.3);
 						
 						if(mainTime.seconds() > .7 && robot.isStrafeComplete){
+							shooter.shooterPID.resetIntegralSum();
 							robot.setPower(0,0,0,1);
-							newState(MainState.state5Shoot);
+							newState(MainState.state51);
 							break;
 						}
 						break;
 						
+					case state51:
+						robot.strafe(20,0,0,.3,.3,0);
+						shooter.setRPM(3100);
+						intake.intakeOn();
+						if(robot.isStrafeComplete){ newState(MainState.state5Shoot); }
+						break;
+						
 					case state5Shoot:
-						robot.setPowerAuto(0,0,0,1);
-						shooter.topGoal();
-						if(mainTime.seconds() > 1) {
-							intake.intakeOff();
+						robot.setPower(0, 0, 0, 1);
+						shooter.setRPM(3100);
+						if(mainTime.seconds()>1.5) {
 							shooter.feederState(true);
+							intake.intakeOff();
 						}
-						if(mainTime.seconds() > 1.5 && shooter.feederCount() >=6){
+						if(mainTime.seconds() > 1.6 && shooter.feederCount() >=6){
 							newState(MainState.state6);
 							break;
 						}
@@ -465,18 +470,20 @@ public class OwenKinkyAuto extends OpMode {
 					case state6:
 						shooter.topGoal();
 						intake.intakeOn();
-						if(mainTime.seconds() > 2){ intake.intakeOff(); newState(MainState.state6Shoot); }
+						robot.strafe(7,0,0,1,0,0);
+						if(robot.isStrafeComplete){ robot.setPowerAuto(0,0,0,1); newState(MainState.state6Shoot); }
 						break;
 						
 					case state6Shoot:
 						robot.setPowerAuto(0,0,0,1);
+						intake.retractReach();
 						shooter.topGoal();
 						shooter.feederState(true);
 						if(shooter.feederCount() >=9){ newState(MainState.state7Turn); }
 						break;
 						
 					case state7Turn:
-						robot.turn(195,1,0);
+						robot.turn(199,1,0);
 						shooter.shooterOff();
 						wobble.armPostion(.14);
 						if(mainTime.seconds() > .5 && robot.isTurnComplete) {
@@ -487,13 +494,17 @@ public class OwenKinkyAuto extends OpMode {
 						break;
 						
 					case state7:
-						robot.strafe(45,195,15, 1, .5, 0);
+						robot.strafe(55,199,11, 1, .5, 0);
 						
 						if(robot.isStrafeComplete) {
 							robot.setPower(0,0,0,1);
+							wobble.gripperOpen();
 							newState(MainState.stateFinished);
 						}
 						break;
+						
+					case stateFinished:
+						robot.turn(-90,1,0);
 				}
 				
 				break;
@@ -531,6 +542,7 @@ public class OwenKinkyAuto extends OpMode {
 		state4Strafe,
 		state4WobbleGoal,
 		state5,
+		state51,
 		state5Shoot,
 		state6,
 		state6Shoot,

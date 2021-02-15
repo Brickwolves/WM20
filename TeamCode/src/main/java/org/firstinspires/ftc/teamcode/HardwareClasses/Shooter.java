@@ -14,7 +14,7 @@ public class Shooter {
     private DcMotor shooterTwo;
     private Servo feeder;
     private Servo feederLock;
-    private PID shooterPID = new PID(.0002, 0.000008, 0.000009, 0, false);
+    public PID shooterPID = new PID(.0002, 0.000008, 0.000009, 0, false);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -25,7 +25,7 @@ public class Shooter {
     private static final int TOP_GOAL = 3250;
     private static final int POWER_SHOT = 3000;
     
-    private static final double FEED_TIME = .2;
+    private static final double FEED_TIME = .23;
     private static final double RESET_TIME = .2;
     private static final double LOCK_TIME = .8;
     private static final double UNLOCK_TIME = .1;
