@@ -5,6 +5,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 
 @Autonomous(name = "Collin Auto", group = "Auto")
+@Disabled
 /*
 it was the best of autos, it was the worst of autos. actually nevermind that philisohpical nonsense, it's just
 the worst of autos. if you find this code i honestly recommend you delete it from the repository, erase it from
