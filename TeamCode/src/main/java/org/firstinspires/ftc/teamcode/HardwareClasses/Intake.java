@@ -16,14 +16,20 @@ public class Intake {
     private final static double DEPLOYED = 0.0;
     private final static double INTAKE_ON = 1.0;
     private final static double INTAKE_REVERSE = .75;
+    private final static double TICKS_PER_ROTATION = 28;
+    private double intakeRPM;
     private ElapsedTime stallTime = new ElapsedTime();
     
-    RingBufferOwen stallRing = new RingBufferOwen(20);
+    RingBufferOwen positionRing = new RingBufferOwen(15);
+    RingBufferOwen timeRing = new RingBufferOwen(15);
     
     private IntakeState currentIntakeState = IntakeState.STATE_OFF;
+    private IntakeState previousIntakeState = IntakeState.STATE_OFF;
+    private StallState currentStallState = StallState.STATE_START;
     private ReachState currentReachState = ReachState.STATE_RETRACT;
     
     public Intake(DcMotor intakeDrive, Servo reachOne, Servo reachTwo){
+        intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         reachTwo.setDirection(Servo.Direction.REVERSE);
         this.intakeDrive = intakeDrive;
@@ -56,18 +62,46 @@ public class Intake {
         }
     }
     
-    public double deltaPosition(){
-        return Math.abs(intakeDrive.getCurrentPosition() - stallRing.getValue(intakeDrive.getCurrentPosition()));
+    public double updateRPM(){
+        long currentTime = System.currentTimeMillis();
+        long deltaMili = currentTime - timeRing.getValue(currentTime);
+        double deltaMinutes = deltaMili / 60000.0;
+    
+        long currentPosition = intakeDrive.getCurrentPosition();
+        long deltaTicks = currentPosition - positionRing.getValue(currentPosition);
+        double deltaRotations = deltaTicks / TICKS_PER_ROTATION;
+    
+        intakeRPM = Math.abs(deltaRotations / deltaMinutes);
+    
+        return intakeRPM;
+    }
+    
+    public double getRPM(){
+        return intakeRPM;
     }
     
     public void intakeOn(){ intakeDrive.setPower(INTAKE_ON); }
     
     public void intakeStallControl(){
-        if ( deltaPosition() > 10 || stallTime.seconds() < 1) {
-            intakeOn();
-            stallTime.reset();
-        }else{
-            intakeReverse();
+        switch(currentStallState){
+            case STATE_START:
+                intakeOn();
+                newState(StallState.STATE_ON);
+                break;
+                
+            case STATE_ON:
+                intakeOn();
+                if(updateRPM() < 200 && stallTime.seconds() > .8){
+                    newState(StallState.STATE_REVERSE);
+                }
+                break;
+                
+            case STATE_REVERSE:
+                intakeReverse();
+                if(stallTime.seconds() > .35){
+                    newState(StallState.STATE_ON);
+                }
+                break;
         }
     }
     
@@ -80,15 +114,25 @@ public class Intake {
             
             case STATE_OFF:
                 if (intakeOn) { newState(IntakeState.STATE_ON); newState(ReachState.STATE_DEPLOY); break; }
-                if (intakeReverse) { intakeReverse(); newState(ReachState.STATE_DEPLOY); break; }
+                if (intakeReverse) { newState(IntakeState.STATE_REVERSE); newState(ReachState.STATE_DEPLOY); break; }
                 intakeOff();
                 break;
             
             case STATE_ON:
-                if (intakeReverse) { intakeReverse(); break; }
+                if (intakeReverse) { newState(IntakeState.STATE_REVERSE); break; }
                 if (intakeOff) { newState(IntakeState.STATE_OFF); break; }
                 intakeStallControl();
                 break;
+                
+            case STATE_REVERSE:
+                if(!intakeReverse){
+                    switch(previousIntakeState){
+                        case STATE_ON: newState(IntakeState.STATE_ON); break;
+                        case STATE_OFF: newState(IntakeState.STATE_OFF); break;
+                    }
+                }
+                intakeReverse();
+                
         }
     }
     
@@ -96,7 +140,14 @@ public class Intake {
     
     
     private void newState(IntakeState newState) {
+        stallTime.reset();
+        previousIntakeState = currentIntakeState;
         currentIntakeState = newState;
+    }
+    
+    private void newState(StallState newState) {
+        stallTime.reset();
+        currentStallState = newState;
     }
     
     private void newState(ReachState newState) {
@@ -107,6 +158,12 @@ public class Intake {
         STATE_OFF,
         STATE_ON,
         STATE_REVERSE
+    }
+    
+    private enum StallState {
+        STATE_ON,
+        STATE_REVERSE,
+        STATE_START
     }
     
     private enum ReachState {
