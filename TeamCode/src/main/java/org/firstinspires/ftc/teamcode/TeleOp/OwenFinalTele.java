@@ -49,9 +49,9 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 
-@TeleOp(name = "OwenKinkyTele", group = "TeleOp")
+@TeleOp(name = "Owen Final Tele", group = "TeleOp")
 //@Disabled
-public class OwenKinkyTele extends OpMode {
+public class OwenFinalTele extends OpMode {
 	
 	private Controller driver, operator;
 	private Controller.Thumbstick driverRightStick, driverLeftStick;

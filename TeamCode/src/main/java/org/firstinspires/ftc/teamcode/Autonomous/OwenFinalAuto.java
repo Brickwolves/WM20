@@ -20,9 +20,9 @@ import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 import org.openftc.easyopencv.OpenCvCamera;
 
-@Autonomous(name = "Owen Kinky Auto", group = "Auto")
+@Autonomous(name = "Owen Final Auto", group = "Auto")
 
-public class OwenKinkyAuto extends OpMode {
+public class OwenFinalAuto extends OpMode {
 	
 	private Controller operator;
 	private MecanumChassis robot;
