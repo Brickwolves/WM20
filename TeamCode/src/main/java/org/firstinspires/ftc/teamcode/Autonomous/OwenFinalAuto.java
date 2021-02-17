@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Camera;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
@@ -19,6 +21,10 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvWebcam;
+
+import static android.os.SystemClock.sleep;
 
 @Autonomous(name = "Owen Final Auto", group = "Auto")
 
@@ -29,7 +35,8 @@ public class OwenFinalAuto extends OpMode {
 	private Shooter shooter;
 	private Intake intake;
 	private WobbleGripper wobble;
-	OpenCvCamera webcam;
+	private Camera camera;
+	
 	
 	private MainState currentMainState = MainState.state1Drive;
 	private final ElapsedTime mainTime = new ElapsedTime();
@@ -59,8 +66,12 @@ public class OwenFinalAuto extends OpMode {
 		DcMotor shooterTwo = hardwareMap.get(DcMotor.class, "shootertwo");
 		DcMotor intakeDrive = hardwareMap.get(DcMotor.class, "intake");
 		
-		operator = new Controller(gamepad2);
+		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+		WebcamName webcamName = hardwareMap.get(WebcamName.class, "Camera");
+		OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 		
+		
+		operator = new Controller(gamepad2);
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
 		Gyro gyro = new Gyro(imu, 0);
@@ -68,6 +79,10 @@ public class OwenFinalAuto extends OpMode {
 		intake = new Intake(intakeDrive, outerRollerOne, outerRollerTwo);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
+		camera = new Camera(webcam);
+		
+		camera.openCamera();
+		camera.optimizeView();
 	}
 	
 	public void init_loop(){
@@ -86,19 +101,11 @@ public class OwenFinalAuto extends OpMode {
 			intake.retractReach();
 		}
 		
-//
-//		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//		webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"), cameraMonitorViewId);
-//
-//		webcam.setPipeline(new OwenKinkyAuto.RingDetectingPipeline());
-//		webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-//		{
-//			@Override
-//			public void onOpened()
-//			{
-//				webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
-//			}
-//		});
+		telemetry.addData("Analysis", camera.getAnalysis());
+		telemetry.addData("Position", camera.getRingCount());
+		telemetry.update();
+		
+		sleep(50);
 	}
 	
 	public void start() {
