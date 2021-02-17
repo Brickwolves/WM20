@@ -101,8 +101,8 @@ public class OwenFinalAuto extends OpMode {
 			intake.retractReach();
 		}
 		
-		telemetry.addData("Analysis", camera.getAnalysis());
-		telemetry.addData("Position", camera.getRingCount());
+		telemetry.addData("Analysis = ", camera.getAnalysis());
+		telemetry.addData("Ring Count = ", camera.getRingCount());
 		telemetry.update();
 		
 		sleep(50);
@@ -112,7 +112,7 @@ public class OwenFinalAuto extends OpMode {
 		mainTime.reset();
 		robot.resetGyro(180);
 		robot.resetMotors();
-		ringCount = 4;
+		ringCount = camera.getRingCount();
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)
@@ -299,7 +299,7 @@ public class OwenFinalAuto extends OpMode {
 				break;
 
 			case 1:
-				switch (currentMainState) {
+				/*switch (currentMainState) {
 					//drive to WP1
 					case state1Drive:
 						robot.strafe(80, 180, 0, 1, 0, 0);
@@ -530,7 +530,7 @@ public class OwenFinalAuto extends OpMode {
 					//turn to set teleop angle to 0
 					case stateFinished:
 						robot.turn(-90,1,0);
-				}
+				}*/
 
 				break;
 
@@ -816,122 +816,10 @@ public class OwenFinalAuto extends OpMode {
 		state19Drive,
 		stateFinished
 	}
-
-//	class RingDetectingPipeline extends OpenCvPipeline
-//	{
-//		boolean viewportPaused;
-//
-//		// Init mats here so we don't repeat
-//		Mat YCbCr = new Mat();
-//		Mat outPut = new Mat();
-//		Mat upperCrop = new Mat();
-//		Mat lowerCrop = new Mat();
-//
-//		// Rectangles starting coordinates      // Rectangles starting percentages
-//		int rectTopX1; int rectTopX2;           //double rectTopX1Percent = 0; double rectTopX2Percent = 0;
-//		int rectTopY1; int rectTopY2;           //double rectTopY1Percent = 0; double rectTopY2Percent = 0;
-//
-//		// Rectangles starting coordinates      // Rectangles starting percentages
-//		int rectBottomX1; int rectBottomX2;     //double rectBottomX1Percent = 0; double rectBottomX2Percent = 0;
-//		int rectBottomY1; int rectBottomY2;     //double rectBottomY1Percent = 0; double rectBottomY2Percent = 0;
-//
-//
-//		@Override
-//		public Mat processFrame(Mat input)
-//		{
-//			// Convert & Copy to outPut image
-//			Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
-//			input.copyTo(outPut);
-//
-//			// Dimensions for top rectangle
-//			rectTopX1 = (int) (input.rows() * DashVision.rectTopX1Percent);
-//			rectTopX2 = (int) (input.rows() * DashVision.rectTopX2Percent) - rectTopX1;
-//			rectTopY1 = (int) (input.cols() * DashVision.rectTopY1Percent);
-//			rectTopY2 = (int) (input.cols() * DashVision.rectTopY2Percent) - rectTopY1;
-//
-//			// Dimensions for bottom rectangle
-//			rectBottomX1 = (int) (input.rows() * DashVision.rectBottomX1Percent);
-//			rectBottomX2 = (int) (input.rows() * DashVision.rectBottomX2Percent) - rectBottomX1;
-//			rectBottomY1 = (int) (input.cols() * DashVision.rectBottomY1Percent);
-//			rectBottomY2 = (int) (input.cols() * DashVision.rectBottomY2Percent) - rectBottomY1;
-//
-//			// VISUALIZATION: Create rectangles and scalars, then draw them onto outPut
-//			Scalar rectangleColor = new Scalar(0, 0, 255);
-//			Rect rectTop = new Rect(rectTopX1, rectTopY1, rectTopX2, rectTopY2);
-//			Rect rectBottom = new Rect(rectBottomX1, rectBottomY1, rectBottomX2, rectBottomY2);
-//			Imgproc.rectangle(outPut, rectTop, rectangleColor, 2);
-//			Imgproc.rectangle(outPut, rectBottom, rectangleColor, 2);
-//
-//
-//
-//
-//			// IDENTIFY RINGS //
-//
-//			// Crop
-//			upperCrop = YCbCr.submat(rectTop);
-//			lowerCrop = YCbCr.submat(rectBottom);
-//
-//			// Extract Channels [Y, Cr, Cb], where 2 = index of Cb channel
-//			Core.extractChannel(lowerCrop, lowerCrop, 2);
-//			Core.extractChannel(upperCrop, upperCrop, 2);
-//
-//			// Store Averages
-//			Scalar lowerAveOrange = Core.mean(lowerCrop);
-//			Scalar upperAveOrange = Core.mean(upperCrop);
-//			double finalLowerAve = lowerAveOrange.val[0];
-//			double finalUpperAve = upperAveOrange.val[0];
-//
-//
-//			// Check 4 rings
-//			if (
-//
-//					finalUpperAve > DashVision.orangeMin &&
-//							finalUpperAve < DashVision.orangeMax
-//
-//			) ringCount = 4.0;
-//				// Check 0 rings
-//			else if (
-//
-//					finalLowerAve > DashVision.orangeMax ||
-//							finalLowerAve < DashVision.orangeMin
-//			) ringCount = 0.0;
-//			else ringCount = 1.0;
-//
-//			/**
-//			 * RECT_BOTTOM_X1: 0.75
-//			 * RECT_BOTTOM_X2: 0.9
-//			 * RECT_BOTTOM_Y1: 0.38
-//			 * RECT_BOTTOM_Y2: 0.42
-//			 * RECT_TOP_X1: 0.75
-//			 * RECT_TOP_X2: 0.9
-//			 * RECT_TOP_Y1: 0.3
-//			 * RECT_TOP_Y2: 0.38
-//			 * Given a distance of around 3ft from rings
-//			 */
-//
-//
-//			multTelemetry.addData("Ring Count", ringCount);
-//			multTelemetry.addData("finalLowerAve: ", finalLowerAve);
-//			multTelemetry.addData("finalUpperAve: ", finalUpperAve);
-//			multTelemetry.update();
-//
-//			// Return altered image
-//			return outPut;
-//		}
-//
-//		@Override
-//		public void onViewportTapped()
-//		{
-//			viewportPaused = !viewportPaused;
-//
-//			if(viewportPaused)
-//			{
-//				webcam.pauseViewport();
-//			}
-//			else
-//			{
-//				webcam.resumeViewport();
-//			}
-//		}
-//	}
+	
+	private enum RingCount{
+		NO_RINGS,
+		ONE_RING,
+		FOUR_RINGS
+	}
 }

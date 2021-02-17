@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
-import org.firstinspires.ftc.teamcode.Vision.EasyOpenCVExample;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -17,7 +16,6 @@ public class Camera {
 	OpenCvWebcam webcam;
 	RingDetectingPipeline pipeline = new RingDetectingPipeline();
 	
-	
 	public Camera(OpenCvWebcam webcam){
 		webcam.setPipeline(pipeline);
 		this.webcam = webcam;
@@ -31,35 +29,30 @@ public class Camera {
 		webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
 			
 			@Override
-			public void onOpened() { webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPSIDE_DOWN); }
+			public void onOpened() { webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN); }
 		});
 	}
 	
 	public int getAnalysis(){ return pipeline.getAnalysis(); }
 	
-	public RingDetectingPipeline.RingCount getRingCount(){ return pipeline.ringCount; }
+	public int getRingCount(){ return pipeline.ringCount; }
 	
 	
 	public static class RingDetectingPipeline extends OpenCvPipeline
 	{
-		public enum RingCount
-		{
-			FOUR,
-			ONE,
-			NONE
-		}
+		private int ringCount;
 		
 		static final Scalar BLUE = new Scalar(0, 0, 255);
 		static final Scalar GREEN = new Scalar(0, 255, 0);
 		
 		
 		
-		static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(181,98);
+		static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(160,98);
 		
 		static final int REGION_WIDTH = 35;
-		static final int REGION_HEIGHT = 25;
+		static final int REGION_HEIGHT = 40;
 		
-		final int FOUR_RING_THRESHOLD = 150;
+		final int FOUR_RING_THRESHOLD = 145;
 		final int ONE_RING_THRESHOLD = 135;
 		
 		Point region1_pointA = new Point(
@@ -74,9 +67,6 @@ public class Camera {
 		Mat YCrCb = new Mat();
 		Mat Cb = new Mat();
 		int avg1;
-		
-		
-		private volatile RingCount ringCount = RingCount.FOUR;
 		
 		
 		void inputToCb(Mat input)
@@ -107,13 +97,13 @@ public class Camera {
 					BLUE, // The color the rectangle is drawn in
 					2); // Thickness of the rectangle lines
 			
-			ringCount = RingCount.FOUR; // Record our analysis
+			ringCount = 4; // Record our analysis
 			if(avg1 > FOUR_RING_THRESHOLD){
-				ringCount = RingCount.FOUR;
+				ringCount = 4;
 			}else if (avg1 > ONE_RING_THRESHOLD){
-				ringCount = RingCount.ONE;
+				ringCount = 1;
 			}else{
-				ringCount = RingCount.NONE;
+				ringCount = 0;
 			}
 			
 			Imgproc.rectangle(

@@ -21,9 +21,9 @@
 
 package org.firstinspires.ftc.teamcode.Vision;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
@@ -40,33 +40,34 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @TeleOp
+@Disabled
 public class EasyOpenCVExample extends LinearOpMode
 {
-    OpenCvWebcam camera;
+    OpenCvWebcam webcam;
     SkystoneDeterminationPipeline pipeline;
 
     @Override
     public void runOpMode()
     {
-        
+    
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Camera");
-
+        
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
         pipeline = new SkystoneDeterminationPipeline();
-        camera.setPipeline(pipeline);
+        webcam.setPipeline(pipeline);
 
         // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
         // out when the RC activity is in portrait. We do our actual image processing assuming
         // landscape orientation, though.
-        camera.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
+        webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
 
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                camera.startStreaming(1280,720, OpenCvCameraRotation.UPSIDE_DOWN);
+                webcam.startStreaming(320,240, OpenCvCameraRotation.UPSIDE_DOWN);
             }
         });
 
@@ -75,7 +76,7 @@ public class EasyOpenCVExample extends LinearOpMode
         while (opModeIsActive())
         {
             telemetry.addData("Analysis", pipeline.getAnalysis());
-            telemetry.addData("Position", pipeline.ringCount);
+            telemetry.addData("Position", pipeline.position);
             telemetry.update();
 
             // Don't burn CPU cycles busy-looping in this sample
@@ -86,9 +87,9 @@ public class EasyOpenCVExample extends LinearOpMode
     public static class SkystoneDeterminationPipeline extends OpenCvPipeline
     {
         /*
-         * An enum to define the number of rings
+         * An enum to define the skystone position
          */
-        public enum RingCount
+        public enum RingPosition
         {
             FOUR,
             ONE,
@@ -128,7 +129,7 @@ public class EasyOpenCVExample extends LinearOpMode
         int avg1;
 
         // Volatile since accessed by OpMode thread w/o synchronization
-        private volatile RingCount ringCount = RingCount.FOUR;
+        private volatile RingPosition position = RingPosition.FOUR;
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -162,13 +163,13 @@ public class EasyOpenCVExample extends LinearOpMode
                     BLUE, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
-            ringCount = RingCount.FOUR; // Record our analysis
+            position = RingPosition.FOUR; // Record our analysis
             if(avg1 > FOUR_RING_THRESHOLD){
-                ringCount = RingCount.FOUR;
+                position = RingPosition.FOUR;
             }else if (avg1 > ONE_RING_THRESHOLD){
-                ringCount = RingCount.ONE;
+                position = RingPosition.ONE;
             }else{
-                ringCount = RingCount.NONE;
+                position = RingPosition.NONE;
             }
 
             Imgproc.rectangle(
