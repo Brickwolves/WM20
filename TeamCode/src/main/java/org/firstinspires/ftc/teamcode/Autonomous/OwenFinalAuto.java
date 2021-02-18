@@ -807,7 +807,9 @@ public class OwenFinalAuto extends OpMode {
 		state17Shoot,
 		state18Turn,
 		state19Drive,
-		stateFinished
+		stateFinished,
+		state1Diagonal,
+		state1Turn
 	}
 
 //	class RingDetectingPipeline extends OpenCvPipeline
