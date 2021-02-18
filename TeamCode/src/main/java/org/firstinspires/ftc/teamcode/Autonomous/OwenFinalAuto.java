@@ -82,7 +82,6 @@ public class OwenFinalAuto extends OpMode {
 		camera = new Camera(webcam);
 		
 		camera.openCamera();
-		camera.optimizeView();
 	}
 	
 	public void init_loop(){
@@ -255,7 +254,7 @@ public class OwenFinalAuto extends OpMode {
 						break;
 						
 						
-					//drive to targeet A
+					//drive to target A
 					case state11Drive:
 						robot.strafe(35, 213, 33, 1, 0, 0);
 						
@@ -778,12 +777,8 @@ public class OwenFinalAuto extends OpMode {
 				
 				break;
 		}
-		
 		telemetry.update();
-		
 	}
-	
-
 	
 	
 	private void newState(MainState newState) {
@@ -815,11 +810,5 @@ public class OwenFinalAuto extends OpMode {
 		state18Turn,
 		state19Drive,
 		stateFinished
-	}
-	
-	private enum RingCount{
-		NO_RINGS,
-		ONE_RING,
-		FOUR_RINGS
 	}
 }
