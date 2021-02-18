@@ -71,7 +71,7 @@ public class testauto extends OpMode {
 	public void start() {
 		mainTime.reset();
 		robot.resetGyro(0);
-		robot.resetMotors();
+		robot.resetWithoutEncoders();
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)

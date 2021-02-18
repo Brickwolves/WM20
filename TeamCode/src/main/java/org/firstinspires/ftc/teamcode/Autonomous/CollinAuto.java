@@ -79,7 +79,7 @@ public class CollinAuto extends OpMode {
 	public void start() {
 		mainTime.reset();
 		robot.resetGyro(0);
-		robot.resetMotors();
+		robot.resetWithoutEncoders();
 		shooter.newState(Shooter.ShooterState.STATE_POWER_SHOT);
 
 
