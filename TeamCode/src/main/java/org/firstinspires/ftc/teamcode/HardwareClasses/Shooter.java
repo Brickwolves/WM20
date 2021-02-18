@@ -151,7 +151,7 @@ public class Shooter {
     }
     
 
-    public void topGoal(){ setRPM(TOP_GOAL); }
+    public void highTower(){ setRPM(TOP_GOAL); }
 
     public void powerShot(){ setRPM(POWER_SHOT); }
 
@@ -170,7 +170,7 @@ public class Shooter {
             case STATE_TOP_GOAL:
                 if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
                 if (shooterOff) { newState(ShooterState.STATE_OFF); break; }
-                topGoal();
+                highTower();
                 break;
                 
             case STATE_POWER_SHOT:
