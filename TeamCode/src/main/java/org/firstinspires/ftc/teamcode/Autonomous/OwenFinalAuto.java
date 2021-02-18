@@ -298,7 +298,7 @@ public class OwenFinalAuto extends OpMode {
 				break;
 
 			case 1:
-				/*switch (currentMainState) {
+				switch (currentMainState) {
 					//drive to WP1
 					case state1Drive:
 						robot.strafe(80, 180, 0, 1, 0, 0);
@@ -529,7 +529,7 @@ public class OwenFinalAuto extends OpMode {
 					//turn to set teleop angle to 0
 					case stateFinished:
 						robot.turn(-90,1,0);
-				}*/
+				}
 
 				break;
 
@@ -638,7 +638,7 @@ public class OwenFinalAuto extends OpMode {
 						break;
 						
 						
-					//drive to second wobblee goal
+					//drive to second wobble goal
 					case state9Drive:
 						robot.strafe(14, -28, 154, 1, 0, 0);
 						if (robot.isStrafeComplete) {
@@ -809,6 +809,8 @@ public class OwenFinalAuto extends OpMode {
 		state17Shoot,
 		state18Turn,
 		state19Drive,
-		stateFinished
+		stateFinished,
+		state1Diagonal,
+		state1Turn
 	}
 }
