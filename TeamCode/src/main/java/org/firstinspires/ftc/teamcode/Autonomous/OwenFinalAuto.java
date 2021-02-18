@@ -101,7 +101,7 @@ public class OwenFinalAuto extends OpMode {
 			intake.retractReach();
 		}
 		
-		telemetry.addData("Analysis = ", camera.getAnalysis());
+		telemetry.addData("Stack Analysis = ", camera.getStackAnalysis());
 		telemetry.addData("Ring Count = ", camera.getRingCount());
 		telemetry.update();
 		

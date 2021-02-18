@@ -33,93 +33,78 @@ public class Camera {
 		});
 	}
 	
-	public int getAnalysis(){ return pipeline.getAnalysis(); }
+	public int getStackAnalysis(){ return pipeline.getStackAnalysis(); }
 	
 	public int getRingCount(){ return pipeline.ringCount; }
 	
 	
-	public static class RingDetectingPipeline extends OpenCvPipeline
-	{
+	public static class RingDetectingPipeline extends OpenCvPipeline {
+		
 		private int ringCount;
+		int avgStack;
 		
 		static final Scalar BLUE = new Scalar(0, 0, 255);
 		static final Scalar GREEN = new Scalar(0, 255, 0);
 		
 		
-		
 		static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(160,98);
+		static final int REGION1_WIDTH = 35;
+		static final int REGION1_HEIGHT = 45;
 		
-		static final int REGION_WIDTH = 35;
-		static final int REGION_HEIGHT = 40;
-		
-		final int FOUR_RING_THRESHOLD = 145;
-		final int ONE_RING_THRESHOLD = 135;
+		final int FOUR_RING_THRESHOLD = 143;
+		final int ONE_RING_THRESHOLD = 133;
 		
 		Point region1_pointA = new Point(
 				REGION1_TOPLEFT_ANCHOR_POINT.x,
 				REGION1_TOPLEFT_ANCHOR_POINT.y);
 		Point region1_pointB = new Point(
-				REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-				REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
+				REGION1_TOPLEFT_ANCHOR_POINT.x + REGION1_WIDTH,
+				REGION1_TOPLEFT_ANCHOR_POINT.y + REGION1_HEIGHT);
 		
 		
 		Mat region1_Cb;
 		Mat YCrCb = new Mat();
 		Mat Cb = new Mat();
-		int avg1;
 		
-		
-		void inputToCb(Mat input)
-		{
+		void inputToCb(Mat input) {
 			Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
 			Core.extractChannel(YCrCb, Cb, 1);
 		}
 		
 		@Override
-		public void init(Mat firstFrame)
-		{
-			inputToCb(firstFrame);
+		public void init(Mat firstFrame) {
 			
+			inputToCb(firstFrame);
 			region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));
 		}
 		
 		@Override
-		public Mat processFrame(Mat input)
-		{
+		public Mat processFrame(Mat input) {
 			inputToCb(input);
 			
-			avg1 = (int) Core.mean(region1_Cb).val[0];
+			avgStack = (int) Core.mean(region1_Cb).val[0];
 			
 			Imgproc.rectangle(
 					input, // Buffer to draw on
 					region1_pointA, // First point which defines the rectangle
 					region1_pointB, // Second point which defines the rectangle
 					BLUE, // The color the rectangle is drawn in
-					2); // Thickness of the rectangle lines
+					3); // Thickness of the rectangle lines
+			
 			
 			ringCount = 4; // Record our analysis
-			if(avg1 > FOUR_RING_THRESHOLD){
+			if(avgStack > FOUR_RING_THRESHOLD){
 				ringCount = 4;
-			}else if (avg1 > ONE_RING_THRESHOLD){
+			}else if (avgStack > ONE_RING_THRESHOLD){
 				ringCount = 1;
 			}else{
 				ringCount = 0;
 			}
 			
-			Imgproc.rectangle(
-					input, // Buffer to draw on
-					region1_pointA, // First point which defines the rectangle
-					region1_pointB, // Second point which defines the rectangle
-					GREEN, // The color the rectangle is drawn in
-					-1); // Negative thickness means solid fill
-			
 			return input;
 		}
 		
-		public int getAnalysis()
-		{
-			return avg1;
-		}
+		public int getStackAnalysis() { return avgStack; }
 	}
 	
 }

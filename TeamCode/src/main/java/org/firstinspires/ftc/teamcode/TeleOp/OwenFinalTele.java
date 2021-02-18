@@ -137,9 +137,9 @@ public class OwenFinalTele extends OpMode {
 		
 		//driver controls
 		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
-				driverLeftStick.getInvertedShiftedX(), driver.RT(), driverLeftStick, driver.triangleToggle());
+				driverLeftStick.getInvertedShiftedX(), driver.RT());
 		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate());
-		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 10);
+		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 6);
 		
 		
 		//operator controls
@@ -154,8 +154,11 @@ public class OwenFinalTele extends OpMode {
 		
 		
 		//telemetry
-		telemetry.addData("RPM = ", intake.getRPM());
-		telemetry.addData("hmmm = ", robot.hmmm);
+		telemetry.addData("RPM", intake.getRPM());
+		telemetry.addData("autodrive", robot.autoDrive);
+		telemetry.addData("autostrafe", robot.autoStrafe);
+		telemetry.addData("autoturn", robot.autoTurn);
+		telemetry.addData("autopower", robot.autoPower);
 		telemetry.update();
 		
 	}
