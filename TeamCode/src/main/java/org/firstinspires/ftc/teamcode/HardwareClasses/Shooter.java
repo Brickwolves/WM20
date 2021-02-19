@@ -14,7 +14,7 @@ public class Shooter {
     private DcMotor shooterTwo;
     private Servo feeder;
     private Servo feederLock;
-    public PID shooterPID = new PID(.0002, 0.000007, 0.00001, 0, false);
+    public PID shooterPID = new PID(.00015, 0.000008, 0.00001, 0, false);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
