@@ -270,7 +270,7 @@ public class OwenFinalAuto extends OpMode {
 						}
 						
 						if (mainTime.seconds() > 1.6) {
-							robot.turn(215, 1, 0);
+							robot.turn(200, 1, 0);
 							if (robot.isTurnComplete) {
 								newState(MainState.state11Drive);
 							}
@@ -281,42 +281,38 @@ public class OwenFinalAuto extends OpMode {
 					//drive to target A
 					case state11Drive:
 						wobble.armPostion(.15);
-						robot.strafe(26, 213, 33, 1, 0, 0);
+						robot.strafe(26, 200, 20, 1, 0, 0);
 						
 						if (robot.isStrafeComplete) {
+							newState(MainState.state13Turn);
+						}
+						break;
+						
+					
+					case state13Turn:
+						if (mainTime.seconds() > .7) {
+							robot.turn(-90, 1, .5);
+						}
+						if (mainTime.seconds() > 1 && robot.isTurnComplete) {
 							newState(MainState.state12WobbleGoal);
 						}
 						break;
-					
-					
+						
+						
 					//put down second wobble goal and back up
 					case state12WobbleGoal:
 						wobble.armDown();
-						if (mainTime.seconds() > .9) {
-							wobble.gripperOpen();
-							robot.strafe(10, 215, 270, .5, 0, 0);
-						} else {
-							robot.setPower(0, 0, 0, 1);
+						robot.strafe(8, -90, 90, 1, .5, 0);
+						if(robot.isStrafeComplete){
+							newState(MainState.stateFinished);
 						}
+						break;
 						
-						if (mainTime.seconds() > 1 && robot.isStrafeComplete) {
-							newState(MainState.state13Turn);
-							wobble.armFold();
-							wobble.gripperHalf();
-						}
-						break;
+					case stateFinished:
+						robot.setPowerAuto(0,0,-90,1);
 					
 					
-					//turn to set teleop angle to 0
-					case state13Turn:
-						robot.turn(-90, .9, .5);
-						if (mainTime.seconds() > 1 && robot.isStrafeComplete) {
-							newState(MainState.state14Drive);
-						}
-						break;
-					
-					
-					//strafe onto launch line
+					/*//strafe onto launch line
 					case state14Drive:
 						robot.strafe(10, -90, 0, 1, .5, 0);
 						
@@ -324,7 +320,7 @@ public class OwenFinalAuto extends OpMode {
 							robot.setPower(0, 0, 0, 1);
 							newState(MainState.stateFinished);
 						}
-						break;
+						break;*/
 				}
 				
 				break;
@@ -586,7 +582,7 @@ public class OwenFinalAuto extends OpMode {
 					
 					//drive to target B and open the gripper
 					case state19Drive:
-						robot.strafe(17, 180, 0, 1, .3, 0);
+						robot.strafe(16, 180, 0, 1, .3, 0);
 						
 						if (robot.isStrafeComplete) {
 							robot.setPower(0, 0, 0, 1);
@@ -596,19 +592,10 @@ public class OwenFinalAuto extends OpMode {
 					
 					case state20WobbleGoal:
 						wobble.armDown();
-						wobble.gripperOpen();
-						robot.strafe(4, 180, 180, .8, 0, 0);
-						if (mainTime.seconds() > .9 && robot.isStrafeComplete) {
-							newState(MainState.stateFinished);
-							wobble.armFold();
-							wobble.gripperHalf();
-						}
+						intake.deployReach();
+						robot.setPowerAuto(0, 0, 180, 1);
 						break;
 					
-					
-					//turn to set teleop angle to 0
-					case stateFinished:
-						robot.turn(-90, 1, 0);
 				}
 				
 				break;

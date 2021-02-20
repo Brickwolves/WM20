@@ -55,6 +55,7 @@ public class OwenFinalTele extends OpMode {
 	
 	private Controller driver, operator;
 	private Controller.Thumbstick driverRightStick, driverLeftStick;
+	private boolean angleOffset = false;
 	
 	private Gyro gyro;
 	private MecanumChassis robot;
@@ -101,35 +102,47 @@ public class OwenFinalTele extends OpMode {
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
 	}
 	
+	
 	@Override
 	public void init_loop() {
-		intake.retractReach();
 		shooter.lockFeeder();
 		shooter.resetFeeder();
 		shooter.shooterOff();
 		intake.intakeOff();
+		
+		if(driver.cross()){ angleOffset = true; }
+		else if(driver.circle()){ angleOffset = false; }
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
+		
+		telemetry.addData("angle offset", angleOffset);
+		telemetry.update();
 	}
+	
 	
 	@Override
 	public void start() {
-		robot.resetGyro(0);
+		if(angleOffset){
+			robot.resetGyro(90);
+		}else{
+			robot.resetGyro(0);
+		}
 		wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
-		wobble.newState(WobbleGripper.GripperState.STATE_OPEN);
+		wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
 	}
+	
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
 		Controller.Thumbstick driverRightStick = driver.getRightThumbstick();
 		Controller.Thumbstick driverLeftStick = driver.getLeftThumbstick();
-		Controller.Thumbstick operatorThumbstickR = operator.getRightThumbstick();
-		Controller.Thumbstick operatorThumbstickL = operator.getLeftThumbstick();
+		Controller.Thumbstick operatorRightStick = operator.getRightThumbstick();
+		Controller.Thumbstick operatorLeftStick = operator.getLeftThumbstick();
 
 		driverRightStick.setShift(gyro.getModAngle());
 		driverLeftStick.setShift(0);
-		operatorThumbstickR.setShift(0);
-		operatorThumbstickL.setShift(0);
+		operatorRightStick.setShift(0);
+		operatorLeftStick.setShift(0);
 		
 		boolean intakeOff = operator.trianglePressUpdate() || (operator.leftPressUpdate() || operator.rightPressUpdate());
 		boolean shooterOff = operator.crossPressUpdate() || operator.circlePressUpdate();
@@ -155,11 +168,15 @@ public class OwenFinalTele extends OpMode {
 		
 		//telemetry
 		telemetry.addData("RPM", intake.getRPM());
-		telemetry.addData("autodrive", robot.autoDrive);
+		/*telemetry.addData("autodrive", robot.autoDrive);
 		telemetry.addData("autostrafe", robot.autoStrafe);
 		telemetry.addData("autoturn", robot.autoTurn);
-		telemetry.addData("autopower", robot.autoPower);
+		telemetry.addData("autopower", robot.autoPower);*/
 		telemetry.update();
+		
+		if(driver.RS() && driver.LS()){
+			stop();
+		}
 		
 	}
 	
