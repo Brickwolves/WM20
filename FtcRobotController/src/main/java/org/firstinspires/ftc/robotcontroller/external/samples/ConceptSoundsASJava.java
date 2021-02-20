@@ -85,7 +85,6 @@ public class ConceptSoundsASJava extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
         // Determine Resource IDs for sounds built into the RC application.
         int silverSoundID = hardwareMap.appContext.getResources().getIdentifier("silver", "raw", hardwareMap.appContext.getPackageName());
         int goldSoundID   = hardwareMap.appContext.getResources().getIdentifier("gold",   "raw", hardwareMap.appContext.getPackageName());
@@ -120,6 +119,7 @@ public class ConceptSoundsASJava extends LinearOpMode {
                 telemetry.update();
             }
 
+            SoundPlayer.getInstance().setMasterVolume(10);
             // say Gold each time gamepad B is pressed  (This sound is a resource)
             if (goldFound && (isB = gamepad1.b) && !WasB) {
                 SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, goldSoundID);

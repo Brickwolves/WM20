@@ -53,9 +53,14 @@ import org.firstinspires.ftc.utilities.Utils;
 //@Disabled
 public class OwenFinalTele extends OpMode {
 	
+	private boolean angleOffset = false;
+	private boolean timeStop = true;
+	
 	private Controller driver, operator;
 	private Controller.Thumbstick driverRightStick, driverLeftStick;
-	private boolean angleOffset = false;
+	
+	private ElapsedTime mainTime = new ElapsedTime();
+	
 	
 	private Gyro gyro;
 	private MecanumChassis robot;
@@ -110,11 +115,12 @@ public class OwenFinalTele extends OpMode {
 		shooter.shooterOff();
 		intake.intakeOff();
 		
-		if(driver.cross()){ angleOffset = true; }
-		else if(driver.circle()){ angleOffset = false; }
+		angleOffset = driver.crossToggle();
+		timeStop = !driver.squareToggle();
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
 		telemetry.addData("angle offset", angleOffset);
+		telemetry.addData("time stop", timeStop);
 		telemetry.update();
 	}
 	
@@ -128,6 +134,7 @@ public class OwenFinalTele extends OpMode {
 		}
 		wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
 		wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
+		mainTime.reset();
 	}
 	
 	
@@ -167,16 +174,24 @@ public class OwenFinalTele extends OpMode {
 		
 		
 		//telemetry
-		telemetry.addData("RPM", intake.getRPM());
+		telemetry.addData("time", mainTime.seconds());
 		/*telemetry.addData("autodrive", robot.autoDrive);
 		telemetry.addData("autostrafe", robot.autoStrafe);
 		telemetry.addData("autoturn", robot.autoTurn);
 		telemetry.addData("autopower", robot.autoPower);*/
 		telemetry.update();
 		
-		if(driver.RS() && driver.LS()){
-			stop();
+		
+		if(timeStop){
+			if((driver.RS() && driver.LS()) || mainTime.seconds() > 121){
+				requestOpModeStop();
+			}
+		}else{
+			if(driver.RS() && driver.LS()){
+				requestOpModeStop();
+			}
 		}
+		
 		
 	}
 	
