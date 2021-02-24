@@ -29,7 +29,7 @@ public class Camera {
 		webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
 			
 			@Override
-			public void onOpened() { webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN); }
+			public void onOpened() { webcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT); }
 		});
 	}
 	
@@ -41,28 +41,35 @@ public class Camera {
 	public static class RingDetectingPipeline extends OpenCvPipeline {
 		
 		private int ringCount;
-		int avgStack;
+		int avgBottom;
+		int avgTop;
 		
 		static final Scalar BLUE = new Scalar(0, 0, 255);
 		static final Scalar GREEN = new Scalar(0, 255, 0);
 		
 		
-		static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(160,98);
-		static final int REGION1_WIDTH = 35;
-		static final int REGION1_HEIGHT = 45;
+		static final Point MIDLEFT_ANCHOR_POINT = new Point(1420,590);
+		static final int BOTTOM_WIDTH = 200;
+		static final int BOTTOM_HEIGHT = 45;
+		static final int TOP_WIDTH = 200;
+		static final int TOP_HEIGHT = 100;
 		
-		final int FOUR_RING_THRESHOLD = 143;
-		final int ONE_RING_THRESHOLD = 133;
+		final int TOP_THRESHOLD = 143;
+		final int BOTTOM_THRESHOLD = 143;
 		
-		Point region1_pointA = new Point(
-				REGION1_TOPLEFT_ANCHOR_POINT.x,
-				REGION1_TOPLEFT_ANCHOR_POINT.y);
-		Point region1_pointB = new Point(
-				REGION1_TOPLEFT_ANCHOR_POINT.x + REGION1_WIDTH,
-				REGION1_TOPLEFT_ANCHOR_POINT.y + REGION1_HEIGHT);
+		Point pointA = new Point(
+				MIDLEFT_ANCHOR_POINT.x,
+				MIDLEFT_ANCHOR_POINT.y);
+		Point bottom_pointB = new Point(
+				MIDLEFT_ANCHOR_POINT.x + BOTTOM_WIDTH,
+				MIDLEFT_ANCHOR_POINT.y + BOTTOM_HEIGHT);
+		Point top_pointB = new Point(
+				MIDLEFT_ANCHOR_POINT.x + TOP_WIDTH,
+				MIDLEFT_ANCHOR_POINT.y - TOP_HEIGHT);
 		
 		
-		Mat region1_Cb;
+		Mat bottomRegion_Cb;
+		Mat topRegion_Cb;
 		Mat YCrCb = new Mat();
 		Mat Cb = new Mat();
 		
@@ -75,36 +82,45 @@ public class Camera {
 		public void init(Mat firstFrame) {
 			
 			inputToCb(firstFrame);
-			region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));
+			bottomRegion_Cb = Cb.submat(new Rect(pointA, bottom_pointB));
+			topRegion_Cb = Cb.submat(new Rect(pointA, top_pointB));
 		}
 		
 		@Override
 		public Mat processFrame(Mat input) {
 			inputToCb(input);
 			
-			avgStack = (int) Core.mean(region1_Cb).val[0];
+			avgBottom = (int) Core.mean(bottomRegion_Cb).val[0];
+			avgTop = (int) Core.mean(topRegion_Cb).val[0];
 			
 			Imgproc.rectangle(
 					input, // Buffer to draw on
-					region1_pointA, // First point which defines the rectangle
-					region1_pointB, // Second point which defines the rectangle
+					pointA, // First point which defines the rectangle
+					bottom_pointB, // Second point which defines the rectangle
 					BLUE, // The color the rectangle is drawn in
-					3); // Thickness of the rectangle lines
+			12); // Thickness of the rectangle lines
+			
+			Imgproc.rectangle(
+					input, // Buffer to draw on
+					pointA, // First point which defines the rectangle
+					top_pointB, // Second point which defines the rectangle
+					BLUE, // The color the rectangle is drawn in
+					12); // Thickness of the rectangle lines
 			
 			
 			ringCount = 4; // Record our analysis
-			if(avgStack > FOUR_RING_THRESHOLD){
-				ringCount = 4;
-			}else if (avgStack > ONE_RING_THRESHOLD){
-				ringCount = 1;
-			}else{
+			if(avgBottom < BOTTOM_THRESHOLD){
 				ringCount = 0;
+			}else if (avgTop > TOP_THRESHOLD){
+				ringCount = 4;
+			}else{
+				ringCount = 1;
 			}
 			
 			return input;
 		}
 		
-		public int getStackAnalysis() { return avgStack; }
+		public int getStackAnalysis() { return avgBottom; }
 	}
 	
 }
