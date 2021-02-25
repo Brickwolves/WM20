@@ -175,6 +175,7 @@ public class OwenFinalTele extends OpMode {
 		
 		//telemetry
 		telemetry.addData("time", mainTime.seconds());
+		telemetry.addData("shooter rpm", shooter.getRPM());
 		/*telemetry.addData("autodrive", robot.autoDrive);
 		telemetry.addData("autostrafe", robot.autoStrafe);
 		telemetry.addData("autoturn", robot.autoTurn);

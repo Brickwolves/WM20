@@ -13,11 +13,10 @@ public class PID {
     private double result = 0;
     private double integralSum = 0;
     private double previousError = 0;
-    private long previousTime;
     private int integralLength;
 
     private PIDRingBuffer errors;
-    private RingBuffer<Double> integralSumBuffer;
+    private RingBuffer<Double> derivitaveBuffer;
     private RingBuffer<Double> timeBuffer;
 
     private boolean debugMode;
@@ -32,25 +31,22 @@ public class PID {
         this.derivative = derivative;
         this.debugMode = debugMode;
         this.integralLength = integralLength;
-        integralSumBuffer = new RingBuffer<Double>(integralLength, 0.0);
-        timeBuffer = new RingBuffer<Double>(integralLength, 0.0);
+        derivitaveBuffer = new RingBuffer<Double>(3, 0.0);
+        timeBuffer = new RingBuffer<Double>(3, 0.0);
     }
 
     public Double update(double error){
-        double iComponent;
-        if(integralLength == 0) {
-            integralSum += error;
-            iComponent = integralSum * integral;
-        }else{
-            integralSum = integralSum + error - integralSumBuffer.getValue(error);
-            iComponent = integralSum * integral / integralLength;
-        }
-        long currentTime = System.currentTimeMillis();
-        double deltaTime = (currentTime - previousTime) / 1000.0;
-        double rateOfChange = (error - previousError) / deltaTime;
-        previousTime = currentTime;
+        integralSum += error;
+        double currentTime = System.currentTimeMillis();
+        double deltaTime = (currentTime - timeBuffer.getValue(currentTime)) / 1000;
+       
+        double deltaError = error - derivitaveBuffer.getValue(error);
+        
+        double rateOfChange = (deltaError / deltaTime) / 3;
+        
         previousError = error;
         double pComponent = error * proportional;
+        double iComponent = integralSum * integral;
         double dComponent = (rateOfChange * derivative);
         if(debugMode){
             dashboardTelemetry.addData("Proportional", pComponent);
