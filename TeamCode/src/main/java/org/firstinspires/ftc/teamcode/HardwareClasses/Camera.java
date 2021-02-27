@@ -48,24 +48,19 @@ public class Camera {
 		static final Scalar GREEN = new Scalar(0, 255, 0);
 		
 		
-		static final Point MIDLEFT_ANCHOR_POINT = new Point(1420,590);
-		static final int BOTTOM_WIDTH = 200;
-		static final int BOTTOM_HEIGHT = 45;
-		static final int TOP_WIDTH = 200;
-		static final int TOP_HEIGHT = 100;
+		static final Point TOPLEFT_ANCHOR_POINT = new Point(1500,560);
+		static final int BOTTOM_WIDTH = 150;
+		static final int BOTTOM_HEIGHT = 250;
 		
-		final int TOP_THRESHOLD = 143;
-		final int BOTTOM_THRESHOLD = 143;
+		final int ONE_RING_THRESHOLD = 135;
+		final int FOUR_RING_THRESHOLD = 145;
 		
 		Point pointA = new Point(
-				MIDLEFT_ANCHOR_POINT.x,
-				MIDLEFT_ANCHOR_POINT.y);
+				TOPLEFT_ANCHOR_POINT.x,
+				TOPLEFT_ANCHOR_POINT.y);
 		Point bottom_pointB = new Point(
-				MIDLEFT_ANCHOR_POINT.x + BOTTOM_WIDTH,
-				MIDLEFT_ANCHOR_POINT.y + BOTTOM_HEIGHT);
-		Point top_pointB = new Point(
-				MIDLEFT_ANCHOR_POINT.x + TOP_WIDTH,
-				MIDLEFT_ANCHOR_POINT.y - TOP_HEIGHT);
+				TOPLEFT_ANCHOR_POINT.x + BOTTOM_WIDTH,
+				TOPLEFT_ANCHOR_POINT.y + BOTTOM_HEIGHT);
 		
 		
 		Mat bottomRegion_Cb;
@@ -83,7 +78,6 @@ public class Camera {
 			
 			inputToCb(firstFrame);
 			bottomRegion_Cb = Cb.submat(new Rect(pointA, bottom_pointB));
-			topRegion_Cb = Cb.submat(new Rect(pointA, top_pointB));
 		}
 		
 		@Override
@@ -91,7 +85,6 @@ public class Camera {
 			inputToCb(input);
 			
 			avgBottom = (int) Core.mean(bottomRegion_Cb).val[0];
-			avgTop = (int) Core.mean(topRegion_Cb).val[0];
 			
 			Imgproc.rectangle(
 					input, // Buffer to draw on
@@ -100,21 +93,14 @@ public class Camera {
 					BLUE, // The color the rectangle is drawn in
 			12); // Thickness of the rectangle lines
 			
-			Imgproc.rectangle(
-					input, // Buffer to draw on
-					pointA, // First point which defines the rectangle
-					top_pointB, // Second point which defines the rectangle
-					BLUE, // The color the rectangle is drawn in
-					12); // Thickness of the rectangle lines
-			
 			
 			ringCount = 4; // Record our analysis
-			if(avgBottom < BOTTOM_THRESHOLD){
-				ringCount = 0;
-			}else if (avgTop > TOP_THRESHOLD){
+			if(avgBottom > FOUR_RING_THRESHOLD){
 				ringCount = 4;
-			}else{
+			}else if (avgBottom > ONE_RING_THRESHOLD){
 				ringCount = 1;
+			}else{
+				ringCount = 0;
 			}
 			
 			return input;

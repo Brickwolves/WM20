@@ -14,7 +14,7 @@ public class Shooter {
     private DcMotor shooterTwo;
     private Servo feeder;
     private Servo feederLock;
-    public PID shooterPID = new PID(.00012, 0.000005, 0.00003, 0, false);
+    public PID shooterPID = new PID(.00014, 0.000005, 0.00003, 0, false);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -22,7 +22,7 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3250;
+    private static final int TOP_GOAL = 3300;
     private static final int POWER_SHOT = 3000;
     
     private static final double FEED_TIME = .23;
@@ -35,8 +35,8 @@ public class Shooter {
     private double shooterRPM;
     private int feedCount = 0;
 
-    RingBufferOwen timeRing = new RingBufferOwen(20);
-    RingBufferOwen positionRing = new RingBufferOwen(20);
+    RingBufferOwen timeRing = new RingBufferOwen(5);
+    RingBufferOwen positionRing = new RingBufferOwen(5);
     private FeederState currentFeederState = FeederState.STATE_IDLE;
     public ShooterState currentShooterState = ShooterState.STATE_OFF;
     
