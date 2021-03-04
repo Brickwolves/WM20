@@ -22,8 +22,8 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3300;
-    private static final int POWER_SHOT = 3000;
+    private static final int TOP_GOAL = 3350;
+    private static final int POWER_SHOT = 3050;
     
     private static final double FEED_TIME = .23;
     private static final double RESET_TIME = .2;
@@ -37,6 +37,7 @@ public class Shooter {
 
     RingBufferOwen timeRing = new RingBufferOwen(5);
     RingBufferOwen positionRing = new RingBufferOwen(5);
+    
     private FeederState currentFeederState = FeederState.STATE_IDLE;
     public ShooterState currentShooterState = ShooterState.STATE_OFF;
     

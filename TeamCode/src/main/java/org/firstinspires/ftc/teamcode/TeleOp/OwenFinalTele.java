@@ -132,8 +132,10 @@ public class OwenFinalTele extends OpMode {
 		}else{
 			robot.resetGyro(0);
 		}
-		wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
-		wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
+		if(timeStop) {
+			wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
+			wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
+		}
 		mainTime.reset();
 	}
 	
@@ -183,7 +185,7 @@ public class OwenFinalTele extends OpMode {
 		telemetry.update();
 		
 		
-		if(mainTime.seconds() > 87 && mainTime.seconds() < 88){
+		if(mainTime.seconds() > 87 && mainTime.seconds() < 88 && timeStop){
 			wobble.newState(WobbleGripper.ArmState.STATE_UP);
 		}
 		

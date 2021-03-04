@@ -14,8 +14,8 @@ public class WobbleGripper {
     private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
     
     private double armPosition;
-    private static final double GRIP = .54;
-    private static final double OPEN = 0.1;
+    private static final double GRIP = .52;
+    private static final double OPEN = 0.07;
     private static final double HALF = 0.35;
     private static final double ARM_UP = .68;
     private static final double ARM_TELE = .85;
@@ -36,11 +36,11 @@ public class WobbleGripper {
     
     
     
-    public void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP); }
+    public void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP+.02); }
     
-    public void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN); }
+    public void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN+.02); }
     
-    public void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF); }
+    public void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF+.02); }
     
     public void gripperState(boolean openClose){
         switch (currentGripperState){
