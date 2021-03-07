@@ -52,7 +52,7 @@ public class Camera {
 		static final int BOTTOM_WIDTH = 150;
 		static final int BOTTOM_HEIGHT = 250;
 		
-		final int ONE_RING_THRESHOLD = 135;
+		final int ONE_RING_THRESHOLD = 129;
 		final int FOUR_RING_THRESHOLD = 145;
 		
 		Point pointA = new Point(
