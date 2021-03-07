@@ -10,10 +10,14 @@ import org.firstinspires.ftc.utilities.RingBufferOwen;
 public class Intake {
     
     private DcMotor intakeDrive;
-    private Servo reachOne;
-    private Servo reachTwo;
-    private final static double RETRACTED = 0.26;
-    private final static double DEPLOYED = 0.0;
+    private Servo bumperOne;
+    private Servo bumperTwo;
+    private final static double RETRACTED = 0.3;
+    private final static double ZERO_RING = 0.012;
+    private final static double ONE_RING = 0.028;
+    private final static double TWO_RING = 0.046;
+    private final static double THREE_RING = 0.064;
+    private final static double FOUR_RING = 0.092;
     private final static double INTAKE_ON = 1.0;
     private final static double INTAKE_REVERSE = .75;
     private final static double TICKS_PER_ROTATION = 28;
@@ -28,23 +32,48 @@ public class Intake {
     private StallState currentStallState = StallState.STATE_START;
     private ReachState currentReachState = ReachState.STATE_RETRACT;
     
-    public Intake(DcMotor intakeDrive, Servo reachOne, Servo reachTwo){
+    public Intake(DcMotor intakeDrive, Servo bumperOne, Servo bumperTwo){
         intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        reachTwo.setDirection(Servo.Direction.REVERSE);
+        bumperTwo.setDirection(Servo.Direction.REVERSE);
         this.intakeDrive = intakeDrive;
-        this.reachOne = reachOne;
-        this.reachTwo = reachTwo;
+        this.bumperOne = bumperOne;
+        this.bumperTwo = bumperTwo;
     }
     
-    public void retractReach(){
-        reachOne.setPosition(RETRACTED);
-        reachTwo.setPosition(RETRACTED+.03);
+    public void retractBumper(){
+        bumperOne.setPosition(RETRACTED);
+        bumperTwo.setPosition(RETRACTED + .05);
     }
     
-    public void deployReach(){
-        reachOne.setPosition(DEPLOYED);
-        reachTwo.setPosition(DEPLOYED);
+    public void setBumperThreshold(int ringThreshold){
+        switch (ringThreshold){
+            case 0:
+                bumperOne.setPosition(ZERO_RING);
+                bumperTwo.setPosition(ZERO_RING + .05);
+                break;
+    
+            case 1:
+                bumperOne.setPosition(ONE_RING);
+                bumperTwo.setPosition(ONE_RING + .05);
+                break;
+    
+            case 2:
+                bumperOne.setPosition(TWO_RING);
+                bumperTwo.setPosition(TWO_RING + .05);
+                break;
+    
+            case 3:
+                bumperOne.setPosition(THREE_RING);
+                bumperTwo.setPosition(THREE_RING + .05);
+                break;
+    
+            case 4:
+                bumperOne.setPosition(FOUR_RING);
+                bumperTwo.setPosition(FOUR_RING + .05);
+                break;
+        }
+        
     }
     
     public void reachState(boolean deployToggle){
@@ -52,12 +81,12 @@ public class Intake {
             
             case STATE_RETRACT:
                 if (deployToggle) { newState(ReachState.STATE_DEPLOY); break; }
-                retractReach();
+                retractBumper();
                 break;
             
             case STATE_DEPLOY:
                 if (deployToggle) { newState(ReachState.STATE_RETRACT); newState(IntakeState.STATE_OFF); break; }
-                deployReach();
+                setBumperThreshold(1);
                 break;
         }
     }

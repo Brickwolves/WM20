@@ -115,6 +115,12 @@ public class OwenFinalTele extends OpMode {
 		shooter.shooterOff();
 		intake.intakeOff();
 		
+		if(operator.RSToggle()){
+			intake.setBumperThreshold(3);
+		}else{
+			intake.retractBumper();
+		}
+		
 		angleOffset = driver.crossToggle();
 		timeStop = !driver.squareToggle();
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
