@@ -92,7 +92,7 @@ public class OwenFinalAuto extends OpMode {
 			wobble.gripperHalf();
 		}
 		if(operator.crossToggle()){
-			intake.intakeOn();
+			intake.intakeStallControl();
 			intake.deployReach();
 		}else{
 			intake.intakeOff();
@@ -127,7 +127,7 @@ public class OwenFinalAuto extends OpMode {
 				switch (currentMainState) {
 					//drive to target A
 					case state1Drive:
-						robot.strafe(35, 180, 0, 1, 0, 0);
+						robot.strafe(33.5, 180, 0, 1, 0, 0);
 						
 						if (robot.currentInches > 18) {
 							wobble.armDown();
@@ -145,7 +145,7 @@ public class OwenFinalAuto extends OpMode {
 						wobble.armDown();
 						if (mainTime.seconds() > .9) {
 							wobble.gripperOpen();
-							robot.strafe(3, 180, 180, .5, 0, 0);
+							robot.strafe(6, 180, 180, .5, 0, 0);
 						} else {
 							robot.setPower(0, 0, 0, 1);
 						}
@@ -170,7 +170,7 @@ public class OwenFinalAuto extends OpMode {
 					
 					//drive to power shot shooting position
 					case state4Drive:
-						robot.strafe(20, 270, 270, 1, 0, 0);
+						robot.strafe(27.5, 270, 270, 1, 0, 0);
 						
 						if (robot.isStrafeComplete) {
 							newState(MainState.state5Turn);
@@ -181,7 +181,8 @@ public class OwenFinalAuto extends OpMode {
 					//turn to face powershots
 					case state5Turn:
 						if (mainTime.seconds() > .7) {
-							robot.turn(0, 1, 0);
+							robot.turn(-5, 1, 0);
+							shooter.powerShot();
 						}
 						
 						if (mainTime.seconds() > .7 && robot.isTurnComplete) {
@@ -190,20 +191,18 @@ public class OwenFinalAuto extends OpMode {
 						break;
 					
 					
-					//shoot power shot 1, turn to power shot 2
 					case state6PS1:
 						shooter.powerShot();
 						
 						if (shooter.feederCount() < 1) {
-							robot.setPowerAuto(0, 0, 0, 1);
-							
-							if (mainTime.seconds() > 1.5) {
+							robot.setPowerAuto(0, 0, 0);
+							if (mainTime.seconds() > .8) {
 								shooter.feederState(true);
 							}
 						} else {
-							robot.turn(-5, 1, 1);
+							robot.turn(6, 1, 1);
 							
-							if (robot.isTurnComplete) {
+							if (mainTime.seconds() > 1.7 && robot.isTurnComplete) {
 								newState(MainState.state7PS2);
 							}
 						}
@@ -214,13 +213,12 @@ public class OwenFinalAuto extends OpMode {
 					case state7PS2:
 						shooter.powerShot();
 						if (shooter.feederCount() < 2) {
-							robot.setPowerAuto(0, 0, -6, 1);
-							
-							if (mainTime.seconds() > 0) {
+							robot.setPowerAuto(0, 0, 6);
+							if (mainTime.seconds() > .2) {
 								shooter.feederState(true);
 							}
 						} else {
-							robot.turn(-10.5, 1, 1);
+							robot.turn(11.3, 1, 1);
 							
 							if (robot.isTurnComplete) {
 								newState(MainState.state8PS3);
@@ -236,12 +234,12 @@ public class OwenFinalAuto extends OpMode {
 						wobble.gripperOpen();
 						
 						if (shooter.feederCount() < 3) {
-							robot.setPowerAuto(0, 0, -11, 1);
 							if (mainTime.seconds() > 0) {
 								shooter.feederState(true);
 							}
+							robot.setPowerAuto(0, 0, 11.3);
 						} else {
-							robot.turn(-24.5, 1, .8);
+							robot.turn(-37, 1, .8);
 							shooter.shooterOff();
 							
 							if (robot.isTurnComplete) {
@@ -253,7 +251,7 @@ public class OwenFinalAuto extends OpMode {
 					
 					//drive to second wobble goal
 					case state9Drive:
-						robot.strafe(15.5, -24.5, 155.5, 1, 0, 0);
+						robot.strafe(17, -37, 143, 1, 0, 0);
 						if (robot.isStrafeComplete) {
 							newState(MainState.state10WobbleGoal);
 							robot.setPower(0, 0, 0, 1);
@@ -271,6 +269,7 @@ public class OwenFinalAuto extends OpMode {
 						
 						if (mainTime.seconds() > 1.6) {
 							robot.turn(187, 1, 0);
+							wobble.armPostion(.15);
 							if (robot.isTurnComplete) {
 								newState(MainState.state11Drive);
 							}
@@ -281,7 +280,8 @@ public class OwenFinalAuto extends OpMode {
 					//drive to target A
 					case state11Drive:
 						wobble.armPostion(.15);
-						robot.strafe(24, 187, 7, 1, 0, 0);
+						wobble.gripperGrip();
+						robot.strafe(23, 187, 7, 1, 0, 0);
 						
 						if (robot.isStrafeComplete) {
 							newState(MainState.state13Turn);
@@ -290,6 +290,8 @@ public class OwenFinalAuto extends OpMode {
 						
 					
 					case state13Turn:
+						wobble.gripperGrip();
+						wobble.armPostion(.15);
 						if (mainTime.seconds() > .7) {
 							robot.turn(-90, 1, .5);
 						}
@@ -302,14 +304,15 @@ public class OwenFinalAuto extends OpMode {
 					//put down second wobble goal and back up
 					case state12WobbleGoal:
 						wobble.armDown();
-						robot.strafe(12, -90, 90, 1, .5, 0);
+						wobble.gripperGrip();
+						robot.strafe(10, -90, 90, .6, .2, 0);
 						if(robot.isStrafeComplete){
 							newState(MainState.stateFinished);
 						}
 						break;
 						
 					case stateFinished:
-						robot.setPowerAuto(0,0,-90,1);
+						robot.setPowerAuto(0,0,-90,2);
 					
 					
 					/*//strafe onto launch line
@@ -429,7 +432,7 @@ public class OwenFinalAuto extends OpMode {
 						shooter.powerShot();
 						if (shooter.feederCount() < 2) {
 							robot.setPowerAuto(0, 0, 6);
-							if (mainTime.seconds() > .7) {
+							if (mainTime.seconds() > .2) {
 								shooter.feederState(true);
 							}
 						} else {
@@ -586,7 +589,7 @@ public class OwenFinalAuto extends OpMode {
 					case state20WobbleGoal:
 						wobble.armDown();
 						intake.deployReach();
-						robot.turn(180, 1, .5);
+						robot.setPowerAuto(0,0,robot.closestTarget(180), 1);
 						if(mainTime.seconds() > .8){
 						
 						}
