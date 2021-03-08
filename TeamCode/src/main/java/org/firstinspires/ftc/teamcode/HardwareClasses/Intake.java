@@ -13,12 +13,12 @@ public class Intake {
     private Servo bumperOne;
     private Servo bumperTwo;
     private final static double RETRACTED = 0.3;
-    private final static double ZERO_RING = 0.012;
-    private final static double ONE_RING = 0.028;
-    private final static double TWO_RING = 0.046;
-    private final static double THREE_RING = 0.064;
+    private final static double ZERO_RING = 0.005;
+    private final static double ONE_RING = 0.031;
+    private final static double TWO_RING = 0.03;
+    private final static double THREE_RING = 0.062;
     private final static double FOUR_RING = 0.092;
-    private final static double INTAKE_ON = 1.0;
+    private final static double INTAKE_ON = .9;
     private final static double INTAKE_REVERSE = .75;
     private final static double TICKS_PER_ROTATION = 28;
     private double intakeRPM;
@@ -50,22 +50,22 @@ public class Intake {
         switch (ringThreshold){
             case 0:
                 bumperOne.setPosition(ZERO_RING);
-                bumperTwo.setPosition(ZERO_RING + .05);
+                bumperTwo.setPosition(ZERO_RING + .03);
                 break;
     
             case 1:
                 bumperOne.setPosition(ONE_RING);
-                bumperTwo.setPosition(ONE_RING + .05);
+                bumperTwo.setPosition(ONE_RING + .03);
                 break;
     
             case 2:
                 bumperOne.setPosition(TWO_RING);
-                bumperTwo.setPosition(TWO_RING + .05);
+                bumperTwo.setPosition(TWO_RING + .03);
                 break;
     
             case 3:
                 bumperOne.setPosition(THREE_RING);
-                bumperTwo.setPosition(THREE_RING + .05);
+                bumperTwo.setPosition(THREE_RING + .03);
                 break;
     
             case 4:
