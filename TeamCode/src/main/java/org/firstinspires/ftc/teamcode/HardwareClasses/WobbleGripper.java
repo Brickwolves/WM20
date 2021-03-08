@@ -83,7 +83,7 @@ public class WobbleGripper {
     
     public void armTele() { lifter.setPosition(ARM_TELE);}
     
-    public void armPostion(double position) { lifter.setPosition(position);}
+    public void armPosition(double position) { lifter.setPosition(position);}
     
 
     public void armState(double armControlUp, double armControlDown, boolean armUp, boolean armDown, boolean armFold){
