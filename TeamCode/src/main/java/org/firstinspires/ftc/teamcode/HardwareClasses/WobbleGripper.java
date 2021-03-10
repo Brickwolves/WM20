@@ -14,13 +14,14 @@ public class WobbleGripper {
     private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
     
     private double armPosition;
-    private static final double GRIP = .52;
+    private static final double BAT = .58;
+    private static final double GRIP = .53;
     private static final double OPEN = 0.07;
     private static final double HALF = 0.35;
-    private static final double ARM_UP = .62;
-    private static final double ARM_TELE = .82;
-    private static final double ARM_DOWN = 0.0;
-    private static final double ARM_FOLD = .99;
+    private static final double ARM_UP = .68;
+    private static final double ARM_TELE = .9;
+    private static final double ARM_DOWN = 0.05;
+    private static final double ARM_FOLD = 1;
     private static final double ARM_CONTROL_RATE = -.00005;
     
     private ArmState currentArmState = ArmState.STATE_UP;
@@ -41,6 +42,8 @@ public class WobbleGripper {
     public void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN+.02); }
     
     public void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF+.02); }
+    
+    public void gripperBAT() { gripperOne.setPosition(BAT); gripperTwo.setPosition(BAT + .02);}
     
     public void gripperState(boolean openClose){
         switch (currentGripperState){
@@ -86,27 +89,25 @@ public class WobbleGripper {
     public void armPosition(double position) { lifter.setPosition(position);}
     
 
-    public void armState(double armControlUp, double armControlDown, boolean armUp, boolean armDown, boolean armFold){
+    public void armState(boolean armUpDown, boolean armFold){
         switch(currentArmState){
                 
             case STATE_UP:
-                if(armDown) { newState(ArmState.STATE_DOWN); break; }
+                if(armUpDown) { newState(ArmState.STATE_DOWN); break; }
                 if(armFold) { newState(ArmState.STATE_FOLD); break; }
                 armUp();
                 break;
     
             case STATE_DOWN:
-                if(armControlUp != 0 || armControlDown != 0) { newState(ArmState.STATE_CONTROL); break; }
-                if(armUp) { newState(ArmState.STATE_UP); break; }
+                if(armUpDown) { newState(ArmState.STATE_UP); break; }
                 if(armFold) { newState(ArmState.STATE_FOLD); break; }
                 armDown();
                 break;
     
             case STATE_FOLD:
-                if(armControlUp != 0 || armControlDown != 0) { newState(ArmState.STATE_CONTROL); break; }
-                if(armUp) { newState(ArmState.STATE_UP); break; }
-                if(armDown || armFold) { newState(ArmState.STATE_DOWN); break; }
-                if(currentGripperState != GripperState.STATE_GRIP  ){ armFold(); }
+                if(armUpDown) { newState(ArmState.STATE_UP); break; }
+                if(armFold) { newState(ArmState.STATE_DOWN); break; }
+                if(currentGripperState != GripperState.STATE_GRIP ){ armFold(); }
                 else{ armTele(); }
                 break;
         }

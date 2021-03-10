@@ -120,8 +120,6 @@ public class OwenTestTele extends OpMode {
 			intake.retractBumper();
 		}
 		
-		angleOffset = driver.crossToggle();
-		timeStop = !driver.squareToggle();
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
 		telemetry.addData("angle offset", angleOffset);
@@ -158,43 +156,32 @@ public class OwenTestTele extends OpMode {
 		operatorRightStick.setShift(0);
 		operatorLeftStick.setShift(0);
 		
-		boolean intakeOff = driver.trianglePressUpdate() || (driver.leftPressUpdate() || driver.rightPressUpdate());
+		boolean intakeOff = driver.trianglePressUpdate();
 		boolean shooterOff = driver.crossPressUpdate() || driver.circlePressUpdate();
 		
 		
 		//driver controls
 		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
 				driverLeftStick.getInvertedShiftedX(), driver.RT());
-		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate());
-		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 10);
+		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), driver.LT() > .4);
 		
 		
 		//operator controls
-		shooter.shooterState(driver.trianglePress(), driver.trianglePress() || shooterOff, driver.LT() > .5, false);
+		shooter.shooterState(driver.trianglePress(), driver.trianglePress() || shooterOff, false, false);
 		shooter.feederState(driver.square());
 		
 		intake.intakeState(driver.crossPress(), driver.crossPress() || intakeOff, driver.circle());
 		intake.reachState(driver.RSPressUpdate());
 		
+		wobble.gripperState(driver.RBPressUpdate());
+		wobble.armState(driver.LBPressUpdate(), driver.LSPressUpdate());
+		
 		
 		//telemetry
 		telemetry.addData("time", mainTime.seconds());
 		telemetry.addData("shooter rpm", shooter.getRPM());
-		/*telemetry.addData("autodrive", robot.autoDrive);
-		telemetry.addData("autostrafe", robot.autoStrafe);
-		telemetry.addData("autoturn", robot.autoTurn);
-		telemetry.addData("autopower", robot.autoPower);*/
 		telemetry.update();
 		
-		
-		if(mainTime.seconds() > 87 && mainTime.seconds() < 88 && timeStop){
-			wobble.newState(WobbleGripper.ArmState.STATE_UP);
-		}
-		
-		
-		if(timeStop && mainTime.seconds() > 121) {
-			requestOpModeStop();
-		}
 		
 		if(driver.RS() && driver.LS()){
 			requestOpModeStop();

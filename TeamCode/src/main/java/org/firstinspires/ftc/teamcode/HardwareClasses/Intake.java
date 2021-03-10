@@ -18,14 +18,14 @@ public class Intake {
     private final static double TWO_RING = 0.03;
     private final static double THREE_RING = 0.062;
     private final static double FOUR_RING = 0.092;
-    private final static double INTAKE_ON = .9;
+    private final static double INTAKE_ON = .87;
     private final static double INTAKE_REVERSE = .75;
     private final static double TICKS_PER_ROTATION = 28;
     private double intakeRPM;
     private ElapsedTime stallTime = new ElapsedTime();
     
-    RingBufferOwen positionRing = new RingBufferOwen(15);
-    RingBufferOwen timeRing = new RingBufferOwen(15);
+    RingBufferOwen positionRing = new RingBufferOwen(5);
+    RingBufferOwen timeRing = new RingBufferOwen(5);
     
     private IntakeState currentIntakeState = IntakeState.STATE_OFF;
     private IntakeState previousIntakeState = IntakeState.STATE_OFF;
@@ -120,14 +120,14 @@ public class Intake {
                 
             case STATE_ON:
                 intakeOn();
-                if(updateRPM() < 200 && stallTime.seconds() > .8){
+                if(updateRPM() < 200 && stallTime.seconds() > .3){
                     newState(StallState.STATE_REVERSE);
                 }
                 break;
                 
             case STATE_REVERSE:
                 intakeReverse();
-                if(stallTime.seconds() > .35){
+                if(stallTime.seconds() > .2){
                     newState(StallState.STATE_ON);
                 }
                 break;
