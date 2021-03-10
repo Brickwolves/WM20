@@ -17,10 +17,10 @@ public class WobbleGripper {
     private static final double GRIP = .52;
     private static final double OPEN = 0.07;
     private static final double HALF = 0.35;
-    private static final double ARM_UP = .68;
-    private static final double ARM_TELE = .85;
-    private static final double ARM_DOWN = 0.04;
-    private static final double ARM_FOLD = 1.0;
+    private static final double ARM_UP = .62;
+    private static final double ARM_TELE = .82;
+    private static final double ARM_DOWN = 0.0;
+    private static final double ARM_FOLD = .99;
     private static final double ARM_CONTROL_RATE = -.00005;
     
     private ArmState currentArmState = ArmState.STATE_UP;
@@ -88,16 +88,8 @@ public class WobbleGripper {
 
     public void armState(double armControlUp, double armControlDown, boolean armUp, boolean armDown, boolean armFold){
         switch(currentArmState){
-            
-            case STATE_CONTROL:
-                if(armUp) { newState(ArmState.STATE_UP); break; }
-                if(armDown) { newState(ArmState.STATE_DOWN); break; }
-                if(armFold) { newState(ArmState.STATE_FOLD); break; }
-                armControl(armControlUp - armControlDown);
-                break;
                 
             case STATE_UP:
-                if(armControlUp != 0 || armControlDown != 0) { newState(ArmState.STATE_CONTROL); break; }
                 if(armDown) { newState(ArmState.STATE_DOWN); break; }
                 if(armFold) { newState(ArmState.STATE_FOLD); break; }
                 armUp();

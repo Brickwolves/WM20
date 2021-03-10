@@ -35,7 +35,6 @@ import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -49,9 +48,9 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 
-@TeleOp(name = "Owen Final Tele", group = "TeleOp")
+@TeleOp(name = "TEST Tele", group = "TeleOp")
 //@Disabled
-public class OwenFinalTele extends OpMode {
+public class OwenTestTele extends OpMode {
 	
 	private boolean angleOffset = false;
 	private boolean timeStop = true;
@@ -159,8 +158,8 @@ public class OwenFinalTele extends OpMode {
 		operatorRightStick.setShift(0);
 		operatorLeftStick.setShift(0);
 		
-		boolean intakeOff = operator.trianglePressUpdate() || (operator.leftPressUpdate() || operator.rightPressUpdate());
-		boolean shooterOff = operator.crossPressUpdate() || operator.circlePressUpdate();
+		boolean intakeOff = driver.trianglePressUpdate() || (driver.leftPressUpdate() || driver.rightPressUpdate());
+		boolean shooterOff = driver.crossPressUpdate() || driver.circlePressUpdate();
 		
 		
 		//driver controls
@@ -171,14 +170,11 @@ public class OwenFinalTele extends OpMode {
 		
 		
 		//operator controls
-		shooter.shooterState(operator.trianglePress(), operator.trianglePress() || shooterOff, operator.leftPress(), operator.rightPress());
-		shooter.feederState(operator.square());
+		shooter.shooterState(driver.trianglePress(), driver.trianglePress() || shooterOff, driver.LT() > .5, false);
+		shooter.feederState(driver.square());
 		
-		intake.intakeState(operator.crossPress(), operator.crossPress() || intakeOff, operator.circle());
-		intake.reachState(operator.RSPressUpdate());
-		
-		wobble.armState(operator.LT(), operator.RT(), operator.LBPressUpdate(), operator.LBPress(), operator.LSPressUpdate());
-		wobble.gripperState(operator.RBPressUpdate());
+		intake.intakeState(driver.crossPress(), driver.crossPress() || intakeOff, driver.circle());
+		intake.reachState(driver.RSPressUpdate());
 		
 		
 		//telemetry
