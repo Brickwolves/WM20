@@ -55,6 +55,7 @@ public class OwenFinalTele extends OpMode {
 	
 	private boolean angleOffset = false;
 	private boolean timeStop = true;
+	private double ringCount;
 	
 	private Controller driver, operator;
 	private Controller.Thumbstick driverRightStick, driverLeftStick;
@@ -115,16 +116,20 @@ public class OwenFinalTele extends OpMode {
 		shooter.shooterOff();
 		intake.intakeOff();
 		
-		if(operator.RSToggle()){
-			intake.setBumperThreshold(3);
+		if(wobble.lifter.getPosition() > .5){
+			ringCount = 4;
+		}else if(intake.bumperOne.getPosition() < .2){
+			ringCount = 1;
 		}else{
-			intake.retractBumper();
+			ringCount = 0;
 		}
 		
 		angleOffset = driver.crossToggle();
 		timeStop = !driver.squareToggle();
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
+		telemetry.addData("bumper position", intake.bumperOne.getPosition());
+		telemetry.addData("ring count", ringCount);
 		telemetry.addData("angle offset", angleOffset);
 		telemetry.addData("time stop", timeStop);
 		telemetry.update();

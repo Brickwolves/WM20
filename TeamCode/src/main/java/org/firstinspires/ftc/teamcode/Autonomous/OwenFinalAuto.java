@@ -856,6 +856,8 @@ public class OwenFinalAuto extends OpMode {
 						
 					case state21Drive:
 						robot.strafe(45, -90, 180, 1, .5, 0);
+						wobble.armFold();
+						wobble.gripperHalf();
 						if(robot.isStrafeComplete){
 							newState(MainState.stateFinished);
 						}

@@ -10,8 +10,8 @@ import org.firstinspires.ftc.utilities.RingBufferOwen;
 public class Intake {
     
     private DcMotor intakeDrive;
-    private Servo bumperOne;
-    private Servo bumperTwo;
+    public Servo bumperOne;
+    public Servo bumperTwo;
     private final static double RETRACTED = 0.3;
     private final static double ZERO_RING = 0.005;
     private final static double ONE_RING = 0.031;
