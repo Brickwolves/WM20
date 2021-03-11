@@ -354,6 +354,9 @@ public class Controller {
 	}
 	
 	
+	public boolean touchpad() { return gamepad.touchpad; }
+	
+	
 	public class Thumbstick {
 		
 		private final double rawX;

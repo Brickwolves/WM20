@@ -35,7 +35,6 @@ import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -53,9 +52,8 @@ import org.firstinspires.ftc.utilities.Utils;
 //@Disabled
 public class OwenFinalTele extends OpMode {
 	
-	private boolean angleOffset = false;
-	private boolean timeStop = true;
-	private double ringCount;
+	private boolean realMatch = true;
+	private int ringCount;
 	
 	private Controller driver, operator;
 	private Controller.Thumbstick driverRightStick, driverLeftStick;
@@ -106,6 +104,8 @@ public class OwenFinalTele extends OpMode {
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, reachOne, reachTwo);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
+		
+		mainTime.reset();
 	}
 	
 	
@@ -118,47 +118,55 @@ public class OwenFinalTele extends OpMode {
 		
 		if(wobble.lifter.getPosition() > .5){
 			ringCount = 4;
+			wobble.armFold();
+			wobble.gripperHalf();
 		}else if(intake.bumperOne.getPosition() < .2){
 			ringCount = 1;
+			wobble.armDown();
+			if(mainTime.seconds() > .4){ wobble.gripperGrip(); }
 		}else{
 			ringCount = 0;
+			wobble.armDown();
+			if(mainTime.seconds() > .4){ wobble.gripperGrip(); }
 		}
 		
-		angleOffset = driver.crossToggle();
-		timeStop = !driver.squareToggle();
+		realMatch = !driver.crossToggle();
+		
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
 		telemetry.addData("bumper position", intake.bumperOne.getPosition());
 		telemetry.addData("ring count", ringCount);
-		telemetry.addData("angle offset", angleOffset);
-		telemetry.addData("time stop", timeStop);
+		telemetry.addData("angle offset", realMatch);
 		telemetry.update();
 	}
 	
 	
 	@Override
 	public void start() {
-		if(angleOffset){
-			robot.resetGyro(90);
+		if(realMatch){
+			switch((int) ringCount){
+				case 0:
+					wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
+					wobble.newState(WobbleGripper.ArmState.STATE_FOLD);
+					robot.resetGyro(0);
+					break;
+				
+				case 1:
+					wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
+					wobble.newState(WobbleGripper.ArmState.STATE_FOLD);
+					robot.resetGyro(90);
+					break;
+				
+				case 4:
+					wobble.newState(WobbleGripper.GripperState.STATE_HALF);
+					wobble.newState(WobbleGripper.ArmState.STATE_FOLD);
+					robot.resetGyro(0);
+					break;
+			}
 		}else{
 			robot.resetGyro(0);
 		}
-		if(driver.RBToggle()){
-			wobble.armDown();
-		}else{
-			wobble.armUp();
-		}
 		
-		if(driver.LBToggle()){
-			wobble.gripperBAT();
-		}else{
-			wobble.gripperOpen();
-		}
-		
-		if(timeStop) {
-			wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
-			wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
-		}
 		mainTime.reset();
 	}
 	
@@ -201,23 +209,19 @@ public class OwenFinalTele extends OpMode {
 		//telemetry
 		telemetry.addData("time", mainTime.seconds());
 		telemetry.addData("shooter rpm", shooter.getRPM());
-		/*telemetry.addData("autodrive", robot.autoDrive);
-		telemetry.addData("autostrafe", robot.autoStrafe);
-		telemetry.addData("autoturn", robot.autoTurn);
-		telemetry.addData("autopower", robot.autoPower);*/
 		telemetry.update();
 		
 		
-		if(mainTime.seconds() > 87 && mainTime.seconds() < 88 && timeStop){
+		if(mainTime.seconds() > 87 && mainTime.seconds() < 88 && realMatch){
 			wobble.newState(WobbleGripper.ArmState.STATE_UP);
 		}
 		
 		
-		if(timeStop && mainTime.seconds() > 121) {
+		if(realMatch && mainTime.seconds() > 121) {
 			requestOpModeStop();
 		}
 		
-		if(driver.RS() && driver.LS()){
+		if(driver.touchpad()){
 			requestOpModeStop();
 		}
 		

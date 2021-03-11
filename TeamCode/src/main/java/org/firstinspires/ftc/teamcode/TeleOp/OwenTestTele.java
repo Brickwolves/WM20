@@ -114,12 +114,6 @@ public class OwenTestTele extends OpMode {
 		shooter.shooterOff();
 		intake.intakeOff();
 		
-		if(operator.RSToggle()){
-			intake.setBumperThreshold(3);
-		}else{
-			intake.retractBumper();
-		}
-		
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
 		telemetry.addData("angle offset", angleOffset);
@@ -130,15 +124,11 @@ public class OwenTestTele extends OpMode {
 	
 	@Override
 	public void start() {
-		if(angleOffset){
-			robot.resetGyro(90);
-		}else{
-			robot.resetGyro(0);
-		}
-		if(timeStop) {
-			wobble.newState(WobbleGripper.ArmState.STATE_DOWN);
-			wobble.newState(WobbleGripper.GripperState.STATE_GRIP);
-		}
+		robot.resetGyro(0);
+		
+		wobble.newState(WobbleGripper.ArmState.STATE_FOLD);
+		wobble.newState(WobbleGripper.GripperState.STATE_HALF);
+		
 		mainTime.reset();
 	}
 	
@@ -183,7 +173,7 @@ public class OwenTestTele extends OpMode {
 		telemetry.update();
 		
 		
-		if(driver.RS() && driver.LS()){
+		if(driver.touchpad()){
 			requestOpModeStop();
 		}
 		

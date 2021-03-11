@@ -19,7 +19,7 @@ public class WobbleGripper {
     private static final double OPEN = 0.07;
     private static final double HALF = 0.35;
     private static final double ARM_UP = .68;
-    private static final double ARM_TELE = .9;
+    private static final double ARM_TELE = .84;
     private static final double ARM_DOWN = 0.05;
     private static final double ARM_FOLD = 1;
     private static final double ARM_CONTROL_RATE = -.00005;
