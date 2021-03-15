@@ -114,6 +114,11 @@ public class OwenTestTele extends OpMode {
 		shooter.shooterOff();
 		intake.intakeOff();
 		
+		shooter.highTower();
+		intake.intakeOn();
+		intake.retractBumper();
+		wobble.armDown();
+		
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
 		telemetry.addData("angle offset", angleOffset);

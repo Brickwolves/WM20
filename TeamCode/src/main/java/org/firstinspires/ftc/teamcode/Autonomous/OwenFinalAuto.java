@@ -796,7 +796,7 @@ public class OwenFinalAuto extends OpMode {
 						
 					case state16Shoot:
 						robot.setPowerAuto(0, 0, 0);
-						shooter.highTower();
+						shooter.setRPM(3200);
 						
 						if (mainTime.seconds() > 1.2) {
 							intake.intakeOff();
