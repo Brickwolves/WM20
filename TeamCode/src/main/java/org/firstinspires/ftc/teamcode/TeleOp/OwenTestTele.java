@@ -113,11 +113,7 @@ public class OwenTestTele extends OpMode {
 		shooter.resetFeeder();
 		shooter.shooterOff();
 		intake.intakeOff();
-		
-		shooter.highTower();
-		intake.intakeOn();
-		intake.retractBumper();
-		wobble.armDown();
+		intake.setBumperThreshold(3);
 		
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
@@ -158,7 +154,7 @@ public class OwenTestTele extends OpMode {
 		//driver controls
 		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
 				driverLeftStick.getInvertedShiftedX(), driver.RT());
-		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), driver.LT() > .4);
+		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), false);
 		
 		
 		//operator controls
@@ -166,7 +162,7 @@ public class OwenTestTele extends OpMode {
 		shooter.feederState(driver.square());
 		
 		intake.intakeState(driver.crossPress(), driver.crossPress() || intakeOff, driver.circle());
-		intake.reachState(driver.RSPressUpdate());
+		intake.reachState(driver.RSPressUpdate(), driver.LT() > .4);
 		
 		wobble.gripperState(driver.RBPressUpdate());
 		wobble.armState(driver.LBPressUpdate(), driver.LSPressUpdate());

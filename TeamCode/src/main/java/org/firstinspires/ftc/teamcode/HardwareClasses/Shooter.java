@@ -22,7 +22,7 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3450;
+    private static final int TOP_GOAL = 3400;
     private static final int POWER_SHOT = 3050;
     
     private static final double FEED_TIME = .23;

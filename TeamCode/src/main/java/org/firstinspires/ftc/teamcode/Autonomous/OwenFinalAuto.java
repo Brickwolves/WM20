@@ -762,7 +762,7 @@ public class OwenFinalAuto extends OpMode {
 						wobble.gripperGrip();
 						intake.setBumperThreshold(3);
 						if(mainTime.seconds() > 0){
-							robot.strafe(8,0,-90, .7,.1,0);
+							robot.strafe(6,0,-90, .7,.1,0);
 						}
 						if(mainTime.seconds() > 0 && robot.isStrafeComplete){
 							newState(MainState.state14Drive);
@@ -796,7 +796,7 @@ public class OwenFinalAuto extends OpMode {
 						
 					case state16Shoot:
 						robot.setPowerAuto(0, 0, 0);
-						shooter.setRPM(3200);
+						shooter.setRPM(3100);
 						
 						if (mainTime.seconds() > 1.2) {
 							intake.intakeOff();

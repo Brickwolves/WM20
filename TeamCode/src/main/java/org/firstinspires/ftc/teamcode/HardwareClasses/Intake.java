@@ -12,12 +12,12 @@ public class Intake {
     private DcMotor intakeDrive;
     public Servo bumperOne;
     public Servo bumperTwo;
-    private final static double RETRACTED = 0.3;
-    private final static double ZERO_RING = 0.005;
-    private final static double ONE_RING = 0.031;
+    private final static double RETRACTED = 0.38;
+    private final static double ZERO_RING = 0.015;
+    private final static double ONE_RING = 0.07;
     private final static double TWO_RING = 0.03;
-    private final static double THREE_RING = 0.062;
-    private final static double FOUR_RING = 0.092;
+    private final static double THREE_RING = 0.13;
+    private final static double FOUR_RING = 0.25;
     private final static double INTAKE_ON = .87;
     private final static double INTAKE_REVERSE = .75;
     private final static double TICKS_PER_ROTATION = 28;
@@ -43,50 +43,57 @@ public class Intake {
     
     public void retractBumper(){
         bumperOne.setPosition(RETRACTED);
-        bumperTwo.setPosition(RETRACTED + .05);
+        bumperTwo.setPosition(RETRACTED - .06);
     }
     
     public void setBumperThreshold(int ringThreshold){
         switch (ringThreshold){
             case 0:
                 bumperOne.setPosition(ZERO_RING);
-                bumperTwo.setPosition(ZERO_RING + .03);
+                bumperTwo.setPosition(ZERO_RING - .04);
                 break;
     
             case 1:
                 bumperOne.setPosition(ONE_RING);
-                bumperTwo.setPosition(ONE_RING + .03);
+                bumperTwo.setPosition(ONE_RING - .01);
                 break;
     
             case 2:
                 bumperOne.setPosition(TWO_RING);
-                bumperTwo.setPosition(TWO_RING + .03);
+                bumperTwo.setPosition(TWO_RING - .04);
                 break;
     
             case 3:
                 bumperOne.setPosition(THREE_RING);
-                bumperTwo.setPosition(THREE_RING + .03);
+                bumperTwo.setPosition(THREE_RING - .04);
                 break;
     
             case 4:
                 bumperOne.setPosition(FOUR_RING);
-                bumperTwo.setPosition(FOUR_RING + .05);
+                bumperTwo.setPosition(FOUR_RING - .04);
                 break;
         }
         
     }
     
-    public void reachState(boolean deployToggle){
+    public void reachState(boolean deployToggle, boolean rollingRings){
         switch (currentReachState) {
             
             case STATE_RETRACT:
                 if (deployToggle) { newState(ReachState.STATE_DEPLOY); break; }
+                if (rollingRings) { newState(ReachState.STATE_ROLLING); break; }
                 retractBumper();
                 break;
             
             case STATE_DEPLOY:
                 if (deployToggle) { newState(ReachState.STATE_RETRACT); newState(IntakeState.STATE_OFF); break; }
+                if (rollingRings) { newState(ReachState.STATE_ROLLING); break; }
                 setBumperThreshold(1);
+                break;
+    
+            case STATE_ROLLING:
+                if (!rollingRings) { newState(ReachState.STATE_DEPLOY); break; }
+                setBumperThreshold(4);
                 break;
         }
     }
@@ -142,8 +149,14 @@ public class Intake {
         switch (currentIntakeState) {
             
             case STATE_OFF:
-                if (intakeOn) { newState(IntakeState.STATE_ON); newState(ReachState.STATE_DEPLOY); break; }
-                if (intakeReverse) { newState(IntakeState.STATE_REVERSE); newState(ReachState.STATE_DEPLOY); break; }
+                if (intakeOn) {
+                    newState(IntakeState.STATE_ON);
+                    if(currentReachState == ReachState.STATE_RETRACT) { newState(ReachState.STATE_DEPLOY); }
+                    break; }
+                if (intakeReverse) {
+                    newState(IntakeState.STATE_REVERSE);
+                    if(currentReachState == ReachState.STATE_RETRACT) { newState(ReachState.STATE_DEPLOY); }
+                    break; }
                 intakeOff();
                 break;
             
@@ -197,7 +210,8 @@ public class Intake {
     
     private enum ReachState {
         STATE_RETRACT,
-        STATE_DEPLOY
+        STATE_DEPLOY,
+        STATE_ROLLING
     }
     
 }

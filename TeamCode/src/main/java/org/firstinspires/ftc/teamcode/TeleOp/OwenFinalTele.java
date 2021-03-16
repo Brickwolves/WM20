@@ -116,6 +116,7 @@ public class OwenFinalTele extends OpMode {
 		shooter.shooterOff();
 		intake.intakeOff();
 		
+		
 		if(wobble.lifter.getPosition() > .5){
 			ringCount = 4;
 			wobble.armFold();
@@ -191,7 +192,7 @@ public class OwenFinalTele extends OpMode {
 		//driver controls
 		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
 				driverLeftStick.getInvertedShiftedX(), driver.RT());
-		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), driver.LT() > .4);
+		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), false);
 		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 10);
 		
 		
@@ -200,9 +201,9 @@ public class OwenFinalTele extends OpMode {
 		shooter.feederState(operator.square());
 		
 		intake.intakeState(operator.crossPress(), operator.crossPress() || intakeOff, operator.circle());
-		intake.reachState(operator.RSPressUpdate());
+		intake.reachState(operator.RSPressUpdate(), driver.LT() > .4);
 		
-		wobble.armState(operator.LBPressUpdate(), operator.LSPressUpdate());
+		wobble.armState(operator.LBPressUpdate(), operator.LBPressUpdate());
 		wobble.gripperState(operator.RBPressUpdate());
 		
 		
