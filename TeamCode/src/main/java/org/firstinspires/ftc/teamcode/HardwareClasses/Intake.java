@@ -10,11 +10,11 @@ import org.firstinspires.ftc.utilities.RingBufferOwen;
 public class Intake {
     
     private DcMotor intakeDrive;
-    public Servo bumperOne;
-    public Servo bumperTwo;
+    public Servo bumperLeft;
+    public Servo bumperRight;
     private final static double RETRACTED = 0.38;
     private final static double ZERO_RING = 0.015;
-    private final static double ONE_RING = 0.07;
+    private final static double ONE_RING = 0.1;
     private final static double TWO_RING = 0.03;
     private final static double THREE_RING = 0.13;
     private final static double FOUR_RING = 0.25;
@@ -22,77 +22,77 @@ public class Intake {
     private final static double INTAKE_REVERSE = .75;
     private final static double TICKS_PER_ROTATION = 28;
     private double intakeRPM;
-    private ElapsedTime stallTime = new ElapsedTime();
+    private static ElapsedTime stallTime = new ElapsedTime();
     
     RingBufferOwen positionRing = new RingBufferOwen(5);
     RingBufferOwen timeRing = new RingBufferOwen(5);
     
-    private IntakeState currentIntakeState = IntakeState.STATE_OFF;
-    private IntakeState previousIntakeState = IntakeState.STATE_OFF;
+    public static IntakeState currentIntakeState = IntakeState.STATE_OFF;
+    public static IntakeState previousIntakeState = IntakeState.STATE_OFF;
     private StallState currentStallState = StallState.STATE_START;
-    private ReachState currentReachState = ReachState.STATE_RETRACT;
+    public static BumperState currentBumperState = BumperState.STATE_RETRACT;
     
-    public Intake(DcMotor intakeDrive, Servo bumperOne, Servo bumperTwo){
+    public Intake(DcMotor intakeDrive, Servo bumperLeft, Servo bumperRight){
         intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        bumperTwo.setDirection(Servo.Direction.REVERSE);
+        bumperRight.setDirection(Servo.Direction.REVERSE);
         this.intakeDrive = intakeDrive;
-        this.bumperOne = bumperOne;
-        this.bumperTwo = bumperTwo;
+        this.bumperLeft = bumperLeft;
+        this.bumperRight = bumperRight;
     }
     
     public void retractBumper(){
-        bumperOne.setPosition(RETRACTED);
-        bumperTwo.setPosition(RETRACTED - .06);
+        bumperLeft.setPosition(RETRACTED);
+        bumperRight.setPosition(RETRACTED - .06);
     }
     
     public void setBumperThreshold(int ringThreshold){
         switch (ringThreshold){
             case 0:
-                bumperOne.setPosition(ZERO_RING);
-                bumperTwo.setPosition(ZERO_RING - .04);
+                bumperLeft.setPosition(ZERO_RING);
+                bumperRight.setPosition(ZERO_RING - .04);
                 break;
     
             case 1:
-                bumperOne.setPosition(ONE_RING);
-                bumperTwo.setPosition(ONE_RING - .01);
+                bumperLeft.setPosition(ONE_RING);
+                bumperRight.setPosition(ONE_RING - .06);
                 break;
     
             case 2:
-                bumperOne.setPosition(TWO_RING);
-                bumperTwo.setPosition(TWO_RING - .04);
+                bumperLeft.setPosition(TWO_RING);
+                bumperRight.setPosition(TWO_RING - .04);
                 break;
     
             case 3:
-                bumperOne.setPosition(THREE_RING);
-                bumperTwo.setPosition(THREE_RING - .04);
+                bumperLeft.setPosition(THREE_RING);
+                bumperRight.setPosition(THREE_RING - .04);
                 break;
     
             case 4:
-                bumperOne.setPosition(FOUR_RING);
-                bumperTwo.setPosition(FOUR_RING - .04);
+                bumperLeft.setPosition(FOUR_RING);
+                bumperRight.setPosition(FOUR_RING - .06);
                 break;
         }
         
     }
     
-    public void reachState(boolean deployToggle, boolean rollingRings){
-        switch (currentReachState) {
+    public void bumperState(boolean deployToggle, boolean rollingRings){
+        switch (currentBumperState) {
             
             case STATE_RETRACT:
-                if (deployToggle) { newState(ReachState.STATE_DEPLOY); break; }
-                if (rollingRings) { newState(ReachState.STATE_ROLLING); break; }
+                if (deployToggle) { newState(BumperState.STATE_DEPLOY); break; }
+                if (rollingRings) { newState(BumperState.STATE_ROLLING); break; }
                 retractBumper();
                 break;
             
             case STATE_DEPLOY:
-                if (deployToggle) { newState(ReachState.STATE_RETRACT); newState(IntakeState.STATE_OFF); break; }
-                if (rollingRings) { newState(ReachState.STATE_ROLLING); break; }
+                if (deployToggle) { newState(BumperState.STATE_RETRACT); newState(IntakeState.STATE_OFF); break; }
+                if (rollingRings) { newState(BumperState.STATE_ROLLING); break; }
                 setBumperThreshold(1);
                 break;
     
             case STATE_ROLLING:
-                if (!rollingRings) { newState(ReachState.STATE_DEPLOY); break; }
+                if (!rollingRings) { newState(BumperState.STATE_DEPLOY); break; }
                 setBumperThreshold(4);
                 break;
         }
@@ -151,11 +151,16 @@ public class Intake {
             case STATE_OFF:
                 if (intakeOn) {
                     newState(IntakeState.STATE_ON);
-                    if(currentReachState == ReachState.STATE_RETRACT) { newState(ReachState.STATE_DEPLOY); }
-                    break; }
+                    if(currentBumperState == BumperState.STATE_RETRACT) { newState(BumperState.STATE_DEPLOY); }
+                    if(Shooter.currentShooterState != Shooter.ShooterState.STATE_OFF){
+                        Shooter.newState(Shooter.ShooterState.STATE_OFF);
+                    }
+                    break;
+                }
+                
                 if (intakeReverse) {
                     newState(IntakeState.STATE_REVERSE);
-                    if(currentReachState == ReachState.STATE_RETRACT) { newState(ReachState.STATE_DEPLOY); }
+                    if(currentBumperState == BumperState.STATE_RETRACT) { newState(BumperState.STATE_DEPLOY); }
                     break; }
                 intakeOff();
                 break;
@@ -174,6 +179,7 @@ public class Intake {
                     }
                 }
                 intakeReverse();
+                break;
                 
         }
     }
@@ -181,7 +187,7 @@ public class Intake {
     
     
     
-    private void newState(IntakeState newState) {
+    public static void newState(IntakeState newState) {
         stallTime.reset();
         previousIntakeState = currentIntakeState;
         currentIntakeState = newState;
@@ -192,11 +198,11 @@ public class Intake {
         currentStallState = newState;
     }
     
-    private void newState(ReachState newState) {
-        currentReachState = newState;
+    private void newState(BumperState newState) {
+        currentBumperState = newState;
     }
     
-    private enum IntakeState {
+    public static enum IntakeState {
         STATE_OFF,
         STATE_ON,
         STATE_REVERSE
@@ -208,7 +214,7 @@ public class Intake {
         STATE_START
     }
     
-    private enum ReachState {
+    public static enum BumperState {
         STATE_RETRACT,
         STATE_DEPLOY,
         STATE_ROLLING

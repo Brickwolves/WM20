@@ -42,6 +42,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Katana;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
@@ -66,6 +67,7 @@ public class OwenFinalTele extends OpMode {
 	private Shooter shooter;
 	private Intake intake;
 	private WobbleGripper wobble;
+	private Katana katana;
 	
 	@Override
 	public void init() {
@@ -74,12 +76,15 @@ public class OwenFinalTele extends OpMode {
 		Servo feeder = hardwareMap.get(Servo.class, "feeder");
 		Servo feederLock = hardwareMap.get(Servo.class, "feederlock");
 		
-		Servo reachOne = hardwareMap.get(Servo.class, "outerrollerone");
-		Servo reachTwo = hardwareMap.get(Servo.class, "outerrollertwo");
+		Servo bumperLeft = hardwareMap.get(Servo.class, "outerrollerone");
+		Servo bumperRight = hardwareMap.get(Servo.class, "outerrollertwo");
 		
 		Servo lifter = hardwareMap.get(Servo.class, "lifter");
 		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
 		Servo gripperTwo = hardwareMap.get(Servo.class, "grippertwo");
+		
+		Servo katanaLeft = hardwareMap.get(Servo.class, "katanaleft");
+		Servo katanaRight = hardwareMap.get(Servo.class, "katanaright");
 		
 		driver = new Controller(gamepad1);
 		operator = new Controller(gamepad2);
@@ -102,8 +107,9 @@ public class OwenFinalTele extends OpMode {
 		gyro = new Gyro(imu, 0);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
-		intake = new Intake(intakeDrive, reachOne, reachTwo);
+		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
+		katana = new Katana(katanaLeft, katanaRight);
 		
 		mainTime.reset();
 	}
@@ -121,7 +127,7 @@ public class OwenFinalTele extends OpMode {
 			ringCount = 4;
 			wobble.armFold();
 			wobble.gripperHalf();
-		}else if(intake.bumperOne.getPosition() < .2){
+		}else if(intake.bumperLeft.getPosition() < .2){
 			ringCount = 1;
 			wobble.armDown();
 			if(mainTime.seconds() > .4){ wobble.gripperGrip(); }
@@ -135,7 +141,7 @@ public class OwenFinalTele extends OpMode {
 		
 		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
 		
-		telemetry.addData("bumper position", intake.bumperOne.getPosition());
+		telemetry.addData("bumper position", intake.bumperLeft.getPosition());
 		telemetry.addData("ring count", ringCount);
 		telemetry.addData("angle offset", realMatch);
 		telemetry.update();
@@ -197,20 +203,26 @@ public class OwenFinalTele extends OpMode {
 		
 		
 		//operator controls
-		shooter.shooterState(operator.trianglePress(), operator.trianglePress() || shooterOff, operator.leftPress(), operator.rightPress());
+		shooter.shooterState(operator.trianglePress(), operator.trianglePress(), operator.leftPress(), operator.rightPress());
 		shooter.feederState(operator.square());
 		
-		intake.intakeState(operator.crossPress(), operator.crossPress() || intakeOff, operator.circle());
-		intake.reachState(operator.RSPressUpdate(), driver.LT() > .4);
+		intake.intakeState(operator.crossPress(), operator.crossPress(), operator.circle());
+		intake.bumperState(operator.RSPressUpdate(), driver.LT() > .4);
 		
-		wobble.armState(operator.LBPressUpdate(), operator.LBPressUpdate());
+		wobble.armState(operator.LBPressUpdate(), operator.LSPressUpdate());
 		wobble.gripperState(operator.RBPressUpdate());
+		
+		katana.katanaState(operator.upToggle());
 		
 		
 		//telemetry
 		telemetry.addData("time", mainTime.seconds());
 		telemetry.addData("shooter rpm", shooter.getRPM());
 		telemetry.update();
+		
+		if(driver.squarePressUpdate()){
+			robot.resetGyro(-90);
+		}
 		
 		
 		if(mainTime.seconds() > 87 && mainTime.seconds() < 88 && realMatch){

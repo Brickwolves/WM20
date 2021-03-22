@@ -42,7 +42,7 @@ public class OwenFinalAuto extends OpMode {
 	
 
 	private static double ringCount = 0;
-	private boolean ringsFound = false;
+	private final boolean ringsFound = false;
 
 	@Override
 	public void init() {
@@ -191,7 +191,7 @@ public class OwenFinalAuto extends OpMode {
 					case state6PS1:
 						shooter.powerShot();
 						
-						if (shooter.feederCount() < 1) {
+						if (Shooter.feederCount() < 1) {
 							robot.setPowerAuto(0, 0, 0);
 							if (mainTime.seconds() > .8) {
 								shooter.feederState(true);
@@ -209,7 +209,7 @@ public class OwenFinalAuto extends OpMode {
 					//shoot power shot 2, turn to power shot 3
 					case state7PS2:
 						shooter.powerShot();
-						if (shooter.feederCount() < 2) {
+						if (Shooter.feederCount() < 2) {
 							robot.setPowerAuto(0, 0, 6);
 							if (mainTime.seconds() > .2) {
 								shooter.feederState(true);
@@ -230,7 +230,7 @@ public class OwenFinalAuto extends OpMode {
 						wobble.armDown();
 						wobble.gripperOpen();
 						
-						if (shooter.feederCount() < 3) {
+						if (Shooter.feederCount() < 3) {
 							if (mainTime.seconds() > 0) {
 								shooter.feederState(true);
 							}
@@ -248,7 +248,7 @@ public class OwenFinalAuto extends OpMode {
 					
 					//drive to second wobble goal
 					case state9Drive:
-						robot.strafe(17, -37, 143, 1, 0, 0);
+						robot.strafe(14, -37, 143, 1, 0, 0);
 						if (robot.isStrafeComplete) {
 							newState(MainState.state10WobbleGoal);
 							robot.setPower(0, 0, 0, 1);
@@ -278,7 +278,7 @@ public class OwenFinalAuto extends OpMode {
 					case state11Drive:
 						wobble.armPosition(.15);
 						wobble.gripperGrip();
-						robot.strafe(25, 187, 7, 1, 0, 0);
+						robot.strafe(22, 187, 7, 1, 0, 0);
 						
 						if (robot.isStrafeComplete) {
 							newState(MainState.state13Turn);
@@ -374,7 +374,7 @@ public class OwenFinalAuto extends OpMode {
 					
 					//drive to power shot shooting position
 					case state4Drive:
-						robot.strafe(24.5, -126, -126, 1, 0, 0);
+						robot.strafe(22.5, -126, -126, 1, 0, 0);
 						
 						if (robot.isStrafeComplete) {
 							newState(MainState.state5Turn);
@@ -385,7 +385,7 @@ public class OwenFinalAuto extends OpMode {
 					//turn towards power shots
 					case state5Turn:
 						if (mainTime.seconds() > .8) {
-							robot.turn(-6, 1, 0);
+							robot.turn(-4, 1, 0);
 							shooter.powerShot();
 						}
 						
@@ -398,13 +398,13 @@ public class OwenFinalAuto extends OpMode {
 					case state6PS1:
 						shooter.powerShot();
 						
-						if (shooter.feederCount() < 1) {
-							robot.setPowerAuto(0, 0, 0);
+						if (Shooter.feederCount() < 1) {
+							robot.setPowerAuto(0, 0, 2);
 							if (mainTime.seconds() > .8) {
 								shooter.feederState(true);
 							}
 						} else {
-							robot.turn(6, 1, 1);
+							robot.turn(7, 1, 1);
 							
 							if (mainTime.seconds() > 1.7 && robot.isTurnComplete) {
 								newState(MainState.state7PS2);
@@ -416,8 +416,8 @@ public class OwenFinalAuto extends OpMode {
 					//shoot power shot 2, turn to power shot 3
 					case state7PS2:
 						shooter.powerShot();
-						if (shooter.feederCount() < 2) {
-							robot.setPowerAuto(0, 0, 6);
+						if (Shooter.feederCount() < 2) {
+							robot.setPowerAuto(0, 0, 7);
 							if (mainTime.seconds() > .2) {
 								shooter.feederState(true);
 							}
@@ -437,7 +437,7 @@ public class OwenFinalAuto extends OpMode {
 						wobble.armDown();
 						wobble.gripperOpen();
 						
-						if (shooter.feederCount() < 3) {
+						if (Shooter.feederCount() < 3) {
 							if (mainTime.seconds() > 0) {
 								shooter.feederState(true);
 							}
@@ -509,7 +509,7 @@ public class OwenFinalAuto extends OpMode {
 					//quickly push over stack and separate the rings
 					case state13Drive:
 						robot.strafe(24, 0, 0, .5, .2, .3);
-						intake.intakeOn();
+						intake.intakeStallControl();
 						if (mainTime.seconds() > .7 && robot.isStrafeComplete) {
 							shooter.shooterPID.resetIntegralSum();
 							robot.setPower(0, 0, 0, 1);
@@ -522,7 +522,7 @@ public class OwenFinalAuto extends OpMode {
 					//slowly advance forward with intake to get 3 rings
 					case state14Drive:
 						robot.strafe(8, 0, 0, .3, .3, 0);
-						intake.intakeOn();
+						intake.intakeStallControl();
 						
 						if (robot.isStrafeComplete) {
 							newState(MainState.state15Shoot);
@@ -533,17 +533,17 @@ public class OwenFinalAuto extends OpMode {
 					//shoot first three rings
 					case state15Shoot:
 						robot.setPowerAuto(0, 0, 0);
-						shooter.highTower();
+						shooter.setRPM(3100);
 						
-						if (mainTime.seconds() > .4) {
+						if (mainTime.seconds() > .8) {
 							intake.intakeOff();
 							intake.retractBumper();
 						}
 						
-						if (mainTime.seconds() > .8) {
+						if (mainTime.seconds() > 1) {
 							shooter.feederState(true);
 						}
-						if (mainTime.seconds() > 1.6 && shooter.feederCount() > 4) {
+						if (mainTime.seconds() > 1.6 && Shooter.feederCount() > 4) {
 							newState(MainState.state18Turn);
 						}
 						break;
@@ -552,7 +552,7 @@ public class OwenFinalAuto extends OpMode {
 					case state18Turn:
 						robot.turn(180, 1, 0);
 						shooter.shooterOff();
-						wobble.armPosition(.14);
+						wobble.armPosition(.3);
 						
 						if (mainTime.seconds() > .5 && robot.isTurnComplete) {
 							newState(MainState.state19Drive);
@@ -564,7 +564,7 @@ public class OwenFinalAuto extends OpMode {
 					
 					//drive to target B and open the gripper
 					case state19Drive:
-						robot.strafe(12.5, 180, 0, .6, .3, 0);
+						robot.strafe(14, 180, 0, .6, .3, 0);
 						
 						if (robot.isStrafeComplete) {
 							robot.setPower(0, 0, 0, 1);
@@ -647,7 +647,7 @@ public class OwenFinalAuto extends OpMode {
 					case state6PS1:
 						shooter.powerShot();
 						
-						if (shooter.feederCount() < 1) {
+						if (Shooter.feederCount() < 1) {
 							robot.setPowerAuto(0, 0, 0);
 							if (mainTime.seconds() > .5) {
 								shooter.feederState(true);
@@ -665,7 +665,7 @@ public class OwenFinalAuto extends OpMode {
 					//shoot power shot 2, turn to power shot 3
 					case state7PS2:
 						shooter.powerShot();
-						if (shooter.feederCount() < 2) {
+						if (Shooter.feederCount() < 2) {
 							robot.setPowerAuto(0, 0, 8);
 							if (mainTime.seconds() > 0) {
 								shooter.feederState(true);
@@ -686,7 +686,7 @@ public class OwenFinalAuto extends OpMode {
 						wobble.armDown();
 						wobble.gripperOpen();
 						
-						if (shooter.feederCount() < 3) {
+						if (Shooter.feederCount() < 3) {
 							if (mainTime.seconds() > 0) {
 								shooter.feederState(true);
 							}
@@ -806,7 +806,7 @@ public class OwenFinalAuto extends OpMode {
 						if (mainTime.seconds() > 1) {
 							shooter.feederState(true);
 						}
-						if (mainTime.seconds() > 1.6 && shooter.feederCount() >= 6) {
+						if (mainTime.seconds() > 1.6 && Shooter.feederCount() >= 6) {
 							newState(MainState.state17Drive);
 						}
 						break;

@@ -162,7 +162,7 @@ public class OwenTestTele extends OpMode {
 		shooter.feederState(driver.square());
 		
 		intake.intakeState(driver.crossPress(), driver.crossPress() || intakeOff, driver.circle());
-		intake.reachState(driver.RSPressUpdate(), driver.LT() > .4);
+		intake.bumperState(driver.RSPressUpdate(), driver.LT() > .4);
 		
 		wobble.gripperState(driver.RBPressUpdate());
 		wobble.armState(driver.LBPressUpdate(), driver.LSPressUpdate());

@@ -6,31 +6,31 @@ import org.firstinspires.ftc.utilities.MathUtils;
 
 public class Gyro {
 
-    private IMU imu;
-    private double datum;
-    private RingBuffer<Double> timeRing = new RingBuffer<>(4, 0.0);
-    private RingBuffer<Double> angleRing = new RingBuffer<>(4, 0.0);
+    private static IMU imu;
+    private static double datum;
+    private final RingBuffer<Double> timeRing = new RingBuffer<>(4, 0.0);
+    private final RingBuffer<Double> angleRing = new RingBuffer<>(4, 0.0);
 
     public Gyro(IMU imu, double datum) {
-        this.imu = imu;
-        this.datum = datum;
+        Gyro.imu = imu;
+        Gyro.datum = datum;
     }
 
     public void setImu(IMU imu) {
-        this.imu = imu;
+        Gyro.imu = imu;
     }
 
     public void setDatum(double datum) {
-        this.datum = datum;
+        Gyro.datum = datum;
     }
     
     public void reset() { datum = imu.getAngle(); }
 
-    public double getRawAngle() {
+    public static double getRawAngle() {
         return imu.getAngle() - datum;
     }
 
-    public double getModAngle() {
+    public static double getModAngle() {
         return (imu.getAngle() - datum) % 360;
     }
     
