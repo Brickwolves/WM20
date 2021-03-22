@@ -6,15 +6,15 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter.ShooterState;
 
 public class Katana {
 	
-	private static final double DOWN = 0.05;
-	private static final double UP = 0.38;
-	private static final double FULL_FOLD = 0.38;
-	private static final double HALF_FOLD = 0.38;
-	private static final double SHOOT = 0.38;
+	private static final double DOWN = 0.6;
+	private static final double UP = 0.3;
+	private static final double FULL_FOLD = 0;
+	private static final double HALF_FOLD = 0;
+	private static final double SHOOT = 0.3;
 	
 	Servo katanaLeft, katanaRight;
 	
-	public static KatanaState currentKatanaState = KatanaState.STATE_FOLD;
+	public static KatanaState currentKatanaState = KatanaState.STATE_DOWN;
 	
 	public Katana(Servo katanaLeft, Servo katanaRight){
 		this.katanaLeft = katanaLeft;
@@ -34,12 +34,12 @@ public class Katana {
 	
 	
 	
-	
+	//
 	
 	
 	public void katanaState(boolean foldToggle){
 		
-			if(foldToggle || (Gyro.getModAngle() > 115 || Gyro.getModAngle() < 65)){
+			if(foldToggle || Gyro.getModAngle() > 115 || Gyro.getModAngle() < 65){
 				if(Shooter.currentShooterState != ShooterState.STATE_OFF){ katanaShoot(); }
 				else if(Intake.currentBumperState == Intake.BumperState.STATE_RETRACT){ katanaHalfFold(); }
 				else{ katanaFullFold(); }
@@ -56,8 +56,9 @@ public class Katana {
 					
 					
 					case STATE_UP:
-						if(){}
-						
+						if(Intake.currentIntakeState == Intake.IntakeState.STATE_ON || Shooter.feederCount() > 0){
+							newState(KatanaState.STATE_DOWN);
+						}
 						katanaUp();
 						break;
 				}
@@ -66,10 +67,11 @@ public class Katana {
 	
 	
 	
+	
+	
 	public static enum KatanaState{
 		STATE_DOWN,
-		STATE_UP,
-		STATE_FOLD
+		STATE_UP
 	}
 	
 	public static void newState(KatanaState newKatanaState){

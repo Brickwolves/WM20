@@ -76,8 +76,8 @@ public class OwenFinalTele extends OpMode {
 		Servo feeder = hardwareMap.get(Servo.class, "feeder");
 		Servo feederLock = hardwareMap.get(Servo.class, "feederlock");
 		
-		Servo bumperLeft = hardwareMap.get(Servo.class, "outerrollerone");
-		Servo bumperRight = hardwareMap.get(Servo.class, "outerrollertwo");
+		Servo bumperLeft = hardwareMap.get(Servo.class, "bumperleft");
+		Servo bumperRight = hardwareMap.get(Servo.class, "bumperright");
 		
 		Servo lifter = hardwareMap.get(Servo.class, "lifter");
 		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
@@ -121,7 +121,7 @@ public class OwenFinalTele extends OpMode {
 		shooter.resetFeeder();
 		shooter.shooterOff();
 		intake.intakeOff();
-		
+		katana.katanaFullFold();
 		
 		if(wobble.lifter.getPosition() > .5){
 			ringCount = 4;

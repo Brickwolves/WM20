@@ -76,7 +76,7 @@ public class Shooter {
         switch (currentFeederState) {
             
             case STATE_IDLE:
-                if(trigger && getPower() >= .1){ newState(FeederState.STATE_FEED); }
+                if(trigger && getPower() >= .1 && currentShooterState != ShooterState.STATE_OFF){ newState(FeederState.STATE_FEED); }
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); isFeederLocked = false; }
                 else{ unlockFeeder(); isFeederLocked = false; }
                 resetFeeder();
@@ -84,17 +84,17 @@ public class Shooter {
             
             case STATE_FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); feedCount++; }
                     if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); feedCount++; }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
             case STATE_RESET:
-                if (feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); feedCount++; break; }
+                if (feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -108,7 +108,7 @@ public class Shooter {
     }
     
     public double getPower(){
-        return (shooterOne.getPower() + shooterTwo.getPower()) /2;
+        return (shooterOne.getPower() + shooterTwo.getPower()) / 2;
     }
 
     public void resetEncoders(){
@@ -166,7 +166,6 @@ public class Shooter {
                     if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
                         Intake.newState(Intake.IntakeState.STATE_OFF);
                     }
-                    feedCount = 0;
                     break;
                 }
                 
