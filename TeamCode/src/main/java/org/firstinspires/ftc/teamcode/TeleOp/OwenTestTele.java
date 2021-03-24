@@ -139,33 +139,27 @@ public class OwenTestTele extends OpMode {
 	public void loop() {
 		Controller.Thumbstick driverRightStick = driver.getRightThumbstick();
 		Controller.Thumbstick driverLeftStick = driver.getLeftThumbstick();
-		Controller.Thumbstick operatorRightStick = operator.getRightThumbstick();
-		Controller.Thumbstick operatorLeftStick = operator.getLeftThumbstick();
 
 		driverRightStick.setShift(gyro.getModAngle());
 		driverLeftStick.setShift(0);
-		operatorRightStick.setShift(0);
-		operatorLeftStick.setShift(0);
 		
-		boolean intakeOff = driver.trianglePressUpdate();
-		boolean shooterOff = driver.crossPressUpdate() || driver.circlePressUpdate();
-		
+		driver.update();
 		
 		//driver controls
-		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
-				driverLeftStick.getInvertedShiftedX(), driver.RT());
-		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), false);
+		robot.driveState(driverRightStick.shiftedY(), driverRightStick.shiftedX(),
+				driverLeftStick.shiftedX(), driver.RTFloat());
+		robot.setCardinalAngle(driver.upPress(), driver.rightPress(), driver.downPress(), driver.leftPress(), false);
 		
 		
 		//operator controls
-		shooter.shooterState(driver.trianglePress(), driver.trianglePress() || shooterOff, false, false);
+		shooter.shooterState(driver.trianglePress(), false, false);
 		shooter.feederState(driver.square());
 		
-		intake.intakeState(driver.crossPress(), driver.crossPress() || intakeOff, driver.circle());
-		intake.bumperState(driver.RSPressUpdate(), driver.LT() > .4);
+		intake.intakeState(driver.crossPress(), driver.circle());
+		intake.bumperState(driver.RSPress(), driver.LTFloat() > .4);
 		
-		wobble.gripperState(driver.RBPressUpdate());
-		wobble.armState(driver.LBPressUpdate(), driver.LSPressUpdate());
+		wobble.gripperState(driver.RBPress());
+		wobble.armState(driver.LBPress(), driver.LSPress());
 		
 		
 		//telemetry

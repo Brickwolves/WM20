@@ -18,6 +18,8 @@ public class Controller {
 	private boolean isRS;
 	private boolean isLB;
 	private boolean isRB;
+	private boolean isLT;
+	private boolean isRT;
 	private boolean toggleSq = false;
 	private boolean toggleTr = false;
 	private boolean toggleCr = false;
@@ -30,6 +32,8 @@ public class Controller {
 	private boolean toggleRS = false;
 	private boolean toggleLB = false;
 	private boolean toggleRB = false;
+	private boolean toggleLT = false;
+	private boolean toggleRT = false;
 	private boolean pressSq = false;
 	private boolean pressTr = false;
 	private boolean pressCr = false;
@@ -42,6 +46,8 @@ public class Controller {
 	private boolean pressRS = false;
 	private boolean pressLB = false;
 	private boolean pressRB = false;
+	private boolean pressLT = false;
+	private boolean pressRT = false;
 	
 	
 	public Controller(Gamepad gamepad) {
@@ -56,14 +62,53 @@ public class Controller {
 		return new Controller.Thumbstick(gamepad.left_stick_x, gamepad.left_stick_y);
 	}
 	
+	public void update(){
+		boolean wasCr = isCr;
+		pressCr = (isCr = gamepad.cross) && !wasCr;
+		
+		boolean wasCi = isCi;
+		pressCi = (isCi = gamepad.circle) && !wasCi;
+		
+		boolean wasSq = isSq;
+		pressSq = (isSq = gamepad.square) && !wasSq;
+		
+		boolean wasTr = isTr;
+		pressTr = (isTr = gamepad.triangle) && !wasTr;
+		
+		boolean wasUp = isUp;
+		pressUp = (isUp = gamepad.dpad_up) && !wasUp;
+		
+		boolean wasDown = isDown;
+		pressDown = (isDown = gamepad.dpad_down) && !wasDown;
+		
+		boolean wasLeft = isLeft;
+		pressLeft = (isLeft = gamepad.dpad_left) && !wasLeft;
+		
+		boolean wasRight = isRight;
+		pressRight = (isRight = gamepad.dpad_right) && !wasRight;
+		
+		boolean wasLS = isLS;
+		pressLS = (isLS = gamepad.left_stick_button) && !wasLS;
+		
+		boolean wasRS = isRS;
+		pressRS = (isRS = gamepad.right_stick_button) && !wasRS;
+		
+		boolean wasLB = isLB;
+		pressLB = (isLB = gamepad.left_bumper) && !wasLB;
+		
+		boolean wasRB = isRB;
+		pressRB = (isRB = gamepad.right_bumper) && !wasRB;
+		
+		boolean wasLT = isLT;
+		pressLT = (isLT = LT()) && !wasLT;
+		
+		boolean wasRT = isRT;
+		pressRT = (isRT = RT()) && !wasRT;
+	}
+	
 	//cross
 	public boolean cross() {
 		return gamepad.a;
-	}
-	
-	public boolean crossPressUpdate() {
-		boolean wasCr = isCr;
-		return (pressCr = (isCr = gamepad.a) && !wasCr);
 	}
 	
 	public boolean crossPress() {
@@ -71,8 +116,7 @@ public class Controller {
 	}
 	
 	public boolean crossToggle() {
-		boolean wasCr = isCr;
-		if ((isCr = gamepad.a) && !wasCr) {
+		if (crossPress()) {
 			toggleCr = !toggleCr;
 		}
 		return (toggleCr);
@@ -84,18 +128,12 @@ public class Controller {
 		return gamepad.b;
 	}
 	
-	public boolean circlePressUpdate() {
-		boolean wasCi = isCi;
-		return (pressCi = (isCi = gamepad.b) && !wasCi);
-	}
-	
 	public boolean circlePress() {
 		return pressCi;
 	}
 	
 	public boolean circleToggle() {
-		boolean wasCi = isCi;
-		if ((isCi = gamepad.b) && !wasCi) {
+		if (circlePress()) {
 			toggleCi = !toggleCi;
 		}
 		return (toggleCi);
@@ -107,18 +145,12 @@ public class Controller {
 		return gamepad.x;
 	}
 	
-	public boolean squarePressUpdate() {
-		boolean wasSq = isSq;
-		return (pressSq = (isSq = gamepad.x) && !wasSq);
-	}
-	
 	public boolean squarePress() {
 		return pressSq;
 	}
 	
 	public boolean squareToggle() {
-		boolean wasSq = isSq;
-		if ((isSq = gamepad.x) && !wasSq) {
+		if (squarePress()) {
 			toggleSq = !toggleSq;
 		}
 		return (toggleSq);
@@ -130,18 +162,12 @@ public class Controller {
 		return gamepad.y;
 	}
 	
-	public boolean trianglePressUpdate() {
-		boolean wasTr = isTr;
-		return (pressTr = (isTr = gamepad.y) && !wasTr);
-	}
-	
 	public boolean trianglePress() {
 		return pressTr;
 	}
 	
 	public boolean triangleToggle() {
-		boolean wasTr = isTr;
-		if ((isTr = gamepad.y) && !wasTr) {
+		if (trianglePress()) {
 			toggleTr = !toggleTr;
 		}
 		return (toggleTr);
@@ -153,18 +179,12 @@ public class Controller {
 		return gamepad.dpad_up;
 	}
 	
-	public boolean upPressUpdate() {
-		boolean wasUp = isUp;
-		return (pressUp = (isUp = gamepad.dpad_up) && !wasUp);
-	}
-	
 	public boolean upPress() {
 		return pressUp;
 	}
 	
 	public boolean upToggle() {
-		boolean wasUp = isUp;
-		if ((isUp = gamepad.dpad_up) && !wasUp) {
+		if (upPress()) {
 			toggleUp = !toggleUp;
 		}
 		return (toggleUp);
@@ -176,18 +196,13 @@ public class Controller {
 		return gamepad.dpad_down;
 	}
 	
-	public boolean downPressUpdate() {
-		boolean wasDown = isDown;
-		return (pressDown = (isDown = gamepad.dpad_down) && !wasDown);
-	}
-	
 	public boolean downPress() {
 		return pressDown;
 	}
 	
 	public boolean downToggle() {
 		boolean wasDown = isDown;
-		if ((isDown = gamepad.dpad_down) && !wasDown) {
+		if (downPress()) {
 			toggleDown = !toggleDown;
 		}
 		return (toggleDown);
@@ -199,18 +214,13 @@ public class Controller {
 		return gamepad.dpad_left;
 	}
 	
-	public boolean leftPressUpdate() {
-		boolean wasLeft = isLeft;
-		return (pressLeft = (isLeft = gamepad.dpad_left) && !wasLeft);
-	}
-	
 	public boolean leftPress() {
 		return pressLeft;
 	}
 	
 	public boolean leftToggle() {
 		boolean wasLeft = isLeft;
-		if ((isLeft = gamepad.dpad_left) && !wasLeft) {
+		if (leftPress()) {
 			toggleLeft = !toggleLeft;
 		}
 		return (toggleLeft);
@@ -222,18 +232,12 @@ public class Controller {
 		return gamepad.dpad_right;
 	}
 	
-	public boolean rightPressUpdate() {
-		boolean wasRight = isRight;
-		return (pressRight = (isRight = gamepad.dpad_right) && !wasRight);
-	}
-	
 	public boolean rightPress() {
 		return pressRight;
 	}
 	
 	public boolean rightToggle() {
-		boolean wasRight = isRight;
-		if ((isRight = gamepad.dpad_right) && !wasRight) {
+		if (rightPress()) {
 			toggleRight = !toggleRight;
 		}
 		return (toggleRight);
@@ -245,18 +249,13 @@ public class Controller {
 		return gamepad.left_stick_button;
 	}
 	
-	public boolean LSPressUpdate() {
-		boolean wasLS = isLS;
-		return (pressLS = (isLS = gamepad.left_stick_button) && !wasLS);
-	}
-	
 	public boolean LSPress() {
 		return pressLS;
 	}
 	
 	public boolean LSToggle() {
 		boolean wasLS = isLS;
-		if ((isLS = gamepad.left_stick_button) && !wasLS) {
+		if (LSPress()) {
 			toggleLS = !toggleLS;
 		}
 		return (toggleLS);
@@ -268,18 +267,12 @@ public class Controller {
 		return gamepad.right_stick_button;
 	}
 	
-	public boolean RSPressUpdate() {
-		boolean wasRS = isRS;
-		return (pressRS = (isRS = gamepad.right_stick_button) && !wasRS);
-	}
-	
 	public boolean RSPress() {
 		return pressRS;
 	}
 	
 	public boolean RSToggle() {
-		boolean wasRS = isRS;
-		if ((isRS = gamepad.right_stick_button) && !wasRS) {
+		if (RSPress()) {
 			toggleRS = !toggleRS;
 		}
 		return (toggleRS);
@@ -291,18 +284,12 @@ public class Controller {
 		return gamepad.left_bumper;
 	}
 	
-	public boolean LBPressUpdate() {
-		boolean wasLB = isLB;
-		return (pressLB = (isLB = gamepad.left_bumper) && !wasLB);
-	}
-	
 	public boolean LBPress() {
 		return pressLB;
 	}
 	
 	public boolean LBToggle() {
-		boolean wasLB = isLB;
-		if ((isLB = gamepad.left_bumper) && !wasLB) {
+		if (LBPress()) {
 			toggleLB = !toggleLB;
 		}
 		return (toggleLB);
@@ -314,18 +301,12 @@ public class Controller {
 		return gamepad.right_bumper;
 	}
 	
-	public boolean RBPressUpdate() {
-		boolean wasRB = isRB;
-		return (pressRB = (isRB = gamepad.right_bumper) && !wasRB);
-	}
-	
 	public boolean RBPress() {
 		return pressRB;
 	}
 	
 	public boolean RBToggle() {
-		boolean wasRB = isRB;
-		if ((isRB = gamepad.right_bumper) && !wasRB) {
+		if (RBPress()) {
 			toggleRB = !toggleRB;
 		}
 		return (toggleRB);
@@ -333,15 +314,44 @@ public class Controller {
 	
 	
 	//left trigger
-	public float LT() {
+	public float LTFloat() {
 		return gamepad.left_trigger;
 	}
 	
+	public boolean LT() { return gamepad.left_trigger > .4; }
+	
+	public boolean LTPress(){
+		return pressLT;
+	}
+	
+	public boolean LTToggle() {
+		if (LTPress()) {
+			toggleLT = !toggleLT;
+		}
+		return toggleLT;
+	}
+	
+	
+	
 	
 	//right trigger
-	public float RT() {
+	public float RTFloat() {
 		return gamepad.right_trigger;
 	}
+	
+	public boolean RT() { return gamepad.right_trigger > .4; }
+	
+	public boolean RTPress(){
+		return pressRT;
+	}
+	
+	public boolean RTToggle() {
+		if (RTPress()) {
+			toggleRT = !toggleRT;
+		}
+		return (toggleRT);
+	}
+	
 	
 	
 	public boolean options() {
@@ -415,19 +425,19 @@ public class Controller {
 			return rawY * -1;
 		}
 		
-		public double getInvertedShiftedX() {
+		public double shiftedX() {
 			return shiftedX * -1;
 		}
 		
-		public double getInvertedShiftedY() {
+		public double shiftedY() {
 			return shiftedY * -1;
 		}
 		
-		public double getInvertedShiftedX(Double shiftAngle) {
+		public double shiftedX(Double shiftAngle) {
 			return (this.rawX * Math.sin(Math.toRadians(shiftAngle))) + (this.rawY * Math.cos(Math.toRadians(shiftAngle))) * -1;
 		}
 		
-		public double getInvertedShiftedY(Double shiftAngle) {
+		public double shiftedY(Double shiftAngle) {
 			return (this.rawX * Math.sin(Math.toRadians(shiftAngle))) + (this.rawY * Math.cos(Math.toRadians(shiftAngle))) * -1;
 		}
 		

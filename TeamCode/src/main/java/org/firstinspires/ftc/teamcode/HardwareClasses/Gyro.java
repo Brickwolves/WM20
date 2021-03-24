@@ -29,6 +29,10 @@ public class Gyro {
     public static double getRawAngle() {
         return imu.getAngle() - datum;
     }
+    
+    public static double getIMUAngle() {
+        return imu.getAngle();
+    }
 
     public static double getModAngle() {
         return (imu.getAngle() - datum) % 360;

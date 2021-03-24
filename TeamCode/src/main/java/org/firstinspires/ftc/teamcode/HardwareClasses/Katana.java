@@ -34,20 +34,22 @@ public class Katana {
 	
 	
 	
-	//
-	
-	
-	public void katanaState(boolean foldToggle){
-		
-			if(foldToggle || Gyro.getModAngle() > 115 || Gyro.getModAngle() < 65){
-				if(Shooter.currentShooterState != ShooterState.STATE_OFF){ katanaShoot(); }
-				else if(Intake.currentBumperState == Intake.BumperState.STATE_RETRACT){ katanaHalfFold(); }
-				else{ katanaFullFold(); }
+	public void katanaState(boolean foldToggle, boolean forceDown){
+			if(forceDown) {
+				katanaDown();
+				
+			}else if(foldToggle || Gyro.getModAngle() > 115 || Gyro.getModAngle() < 65) {
+				if (Shooter.currentShooterState != ShooterState.STATE_OFF) {
+					katanaShoot();
+				} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT) {
+					katanaHalfFold();
+				} else {
+					katanaFullFold();
+				}
 				
 			}else{
 				switch(currentKatanaState){
 					case STATE_DOWN:
-						
 						if(Intake.currentIntakeState == Intake.IntakeState.STATE_OFF && Shooter.feederCount() < 1){
 							newState(KatanaState.STATE_UP);
 						}
@@ -64,9 +66,6 @@ public class Katana {
 				}
 			}
 	}
-	
-	
-	
 	
 	
 	public static enum KatanaState{

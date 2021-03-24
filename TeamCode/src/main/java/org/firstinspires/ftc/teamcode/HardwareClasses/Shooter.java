@@ -156,11 +156,11 @@ public class Shooter {
 
     public void shooterOff(){ setPower(0.0); }
     
-    public void shooterState(boolean shooterOn, boolean shooterOff, boolean powerShot, boolean topGoal){
+    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal){
         switch (currentShooterState) {
             
             case STATE_OFF:
-                if (shooterOn || topGoal) {
+                if (shooterOnOff || topGoal) {
                     newState(ShooterState.STATE_TOP_GOAL);
                     shooterPID.resetIntegralSum();
                     if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
@@ -176,13 +176,13 @@ public class Shooter {
                 
             case STATE_TOP_GOAL:
                 if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
-                if (shooterOff) { newState(ShooterState.STATE_OFF); break; }
+                if (shooterOnOff) { newState(ShooterState.STATE_OFF); break; }
                 highTower();
                 break;
                 
             case STATE_POWER_SHOT:
                 if (topGoal) { newState(ShooterState.STATE_TOP_GOAL); shooterPID.resetIntegralSum(); break; }
-                if (shooterOff) { newState(ShooterState.STATE_OFF); break; }
+                if (shooterOnOff) { newState(ShooterState.STATE_OFF); break; }
                 powerShot();
                 break;
         }

@@ -123,6 +123,8 @@ public class OwenFinalTele extends OpMode {
 		intake.intakeOff();
 		katana.katanaFullFold();
 		
+		driver.update();
+		
 		if(wobble.lifter.getPosition() > .5){
 			ringCount = 4;
 			wobble.armFold();
@@ -139,11 +141,11 @@ public class OwenFinalTele extends OpMode {
 		
 		realMatch = !driver.crossToggle();
 		
-		robot.setPower(0,0, gamepad1.left_stick_x*-1, .5);
+		robot.setPower(0,0, gamepad1.left_stick_x*-1, (((driver.RTFloat() + 1) / -2) + 1.5) * .6);
 		
 		telemetry.addData("bumper position", intake.bumperLeft.getPosition());
 		telemetry.addData("ring count", ringCount);
-		telemetry.addData("angle offset", realMatch);
+		telemetry.addData("real match", realMatch);
 		telemetry.update();
 	}
 	
@@ -183,36 +185,31 @@ public class OwenFinalTele extends OpMode {
 	public void loop() {
 		Controller.Thumbstick driverRightStick = driver.getRightThumbstick();
 		Controller.Thumbstick driverLeftStick = driver.getLeftThumbstick();
-		Controller.Thumbstick operatorRightStick = operator.getRightThumbstick();
-		Controller.Thumbstick operatorLeftStick = operator.getLeftThumbstick();
 
-		driverRightStick.setShift(gyro.getModAngle());
+		driverRightStick.setShift(Gyro.getModAngle());
 		driverLeftStick.setShift(0);
-		operatorRightStick.setShift(0);
-		operatorLeftStick.setShift(0);
 		
-		boolean intakeOff = operator.trianglePressUpdate() || (operator.leftPressUpdate() || operator.rightPressUpdate());
-		boolean shooterOff = operator.crossPressUpdate() || operator.circlePressUpdate();
 		
+		driver.update();
+		operator.update();
 		
 		//driver controls
-		robot.driveState(driverRightStick.getInvertedShiftedY(), driverRightStick.getInvertedShiftedX(),
-				driverLeftStick.getInvertedShiftedX(), driver.RT());
-		robot.setCardinalAngle(driver.upPressUpdate(), driver.rightPressUpdate(), driver.downPressUpdate(), driver.leftPressUpdate(), false);
-		robot.adjustmentState(driver.RBPressUpdate(), driver.LBPressUpdate(), 10);
+		robot.driveState(driverRightStick.shiftedY(), driverRightStick.shiftedX(), driverLeftStick.shiftedX(), driver.RTFloat());
+		robot.setCardinalAngle(driver.upPress(), driver.rightPress(), driver.downPress(), driver.leftPress(), false);
+		robot.adjustmentState(driver.RBPress(), driver.LBPress(), 10);
 		
 		
 		//operator controls
-		shooter.shooterState(operator.trianglePress(), operator.trianglePress(), operator.leftPress(), operator.rightPress());
+		shooter.shooterState(operator.trianglePress(), operator.leftPress(), operator.rightPress());
 		shooter.feederState(operator.square());
 		
-		intake.intakeState(operator.crossPress(), operator.crossPress(), operator.circle());
-		intake.bumperState(operator.RSPressUpdate(), driver.LT() > .4);
+		intake.intakeState(operator.crossPress(), operator.circle());
+		intake.bumperState(operator.RSPress(), driver.LT());
 		
-		wobble.armState(operator.LBPressUpdate(), operator.LSPressUpdate());
-		wobble.gripperState(operator.RBPressUpdate());
+		wobble.armState(operator.LBPress(), operator.LSPress());
+		wobble.gripperState(operator.RBPress());
 		
-		katana.katanaState(operator.upToggle());
+		katana.katanaState(operator.LTToggle(), operator.RT());
 		
 		
 		//telemetry
@@ -220,7 +217,7 @@ public class OwenFinalTele extends OpMode {
 		telemetry.addData("shooter rpm", shooter.getRPM());
 		telemetry.update();
 		
-		if(driver.squarePressUpdate()){
+		if(driver.squarePress()){
 			robot.resetGyro(-90);
 		}
 		
@@ -230,15 +227,9 @@ public class OwenFinalTele extends OpMode {
 		}
 		
 		
-		if(realMatch && mainTime.seconds() > 121) {
+		if((realMatch && mainTime.seconds() > 121) || driver.touchpad()) {
 			requestOpModeStop();
 		}
-		
-		if(driver.touchpad()){
-			requestOpModeStop();
-		}
-		
-		
 		
 	}
 	

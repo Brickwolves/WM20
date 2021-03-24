@@ -145,11 +145,11 @@ public class Intake {
     
     public void intakeReverse(){ intakeDrive.setPower(INTAKE_ON * -INTAKE_REVERSE); }
     
-    public void intakeState(boolean intakeOn, boolean intakeOff, boolean intakeReverse){
+    public void intakeState(boolean intakeOnOff, boolean intakeReverse){
         switch (currentIntakeState) {
             
             case STATE_OFF:
-                if (intakeOn) {
+                if (intakeOnOff) {
                     newState(IntakeState.STATE_ON);
                     if(currentBumperState == BumperState.STATE_RETRACT) { newState(BumperState.STATE_DEPLOY); }
                     if(Shooter.currentShooterState != Shooter.ShooterState.STATE_OFF){
@@ -165,9 +165,10 @@ public class Intake {
                 intakeOff();
                 break;
             
+                
             case STATE_ON:
                 if (intakeReverse) { newState(IntakeState.STATE_REVERSE); break; }
-                if (intakeOff) { newState(IntakeState.STATE_OFF); break; }
+                if (intakeOnOff) { newState(IntakeState.STATE_OFF); break; }
                 intakeStallControl();
                 break;
                 
