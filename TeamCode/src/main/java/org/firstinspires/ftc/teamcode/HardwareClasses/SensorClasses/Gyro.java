@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.HardwareClasses;
+package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
 import org.firstinspires.ftc.utilities.RingBuffer;
 import org.firstinspires.ftc.utilities.IMU;
@@ -6,35 +6,35 @@ import org.firstinspires.ftc.utilities.MathUtils;
 
 public class Gyro {
 
-    private static IMU imu;
-    private static double datum;
+    private IMU imu;
+    private double datum;
     private final RingBuffer<Double> timeRing = new RingBuffer<>(4, 0.0);
     private final RingBuffer<Double> angleRing = new RingBuffer<>(4, 0.0);
 
     public Gyro(IMU imu, double datum) {
-        Gyro.imu = imu;
-        Gyro.datum = datum;
+        this.imu = imu;
+        this.datum = datum;
     }
 
     public void setImu(IMU imu) {
-        Gyro.imu = imu;
+        this.imu = imu;
     }
 
     public void setDatum(double datum) {
-        Gyro.datum = datum;
+        this.datum = datum;
     }
     
     public void reset() { datum = imu.getAngle(); }
 
-    public static double getRawAngle() {
+    public double getRawAngle() {
         return imu.getAngle() - datum;
     }
     
-    public static double getIMUAngle() {
+    public double getIMUAngle() {
         return imu.getAngle();
     }
 
-    public static double getModAngle() {
+    public double getModAngle() {
         return (imu.getAngle() - datum) % 360;
     }
     

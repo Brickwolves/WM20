@@ -38,7 +38,7 @@ public class Katana {
 			if(forceDown) {
 				katanaDown();
 				
-			}else if(foldToggle || Gyro.getModAngle() > 115 || Gyro.getModAngle() < 65) {
+			}else if(foldToggle || (!(Sensors.gyro.getModAngle() < 122 && Sensors.gyro.getModAngle() > 58) && !(Sensors.gyro.getModAngle() < -238 && Sensors.gyro.getModAngle() > -302))) {
 				if (Shooter.currentShooterState != ShooterState.STATE_OFF) {
 					katanaShoot();
 				} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT) {

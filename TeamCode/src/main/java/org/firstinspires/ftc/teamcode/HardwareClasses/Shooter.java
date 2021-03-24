@@ -10,10 +10,10 @@ import org.firstinspires.ftc.utilities.RingBufferOwen;
 
 public class Shooter {
 
-    private DcMotor shooterOne;
-    private DcMotor shooterTwo;
-    private Servo feeder;
-    private Servo feederLock;
+    private final DcMotor shooterOne;
+    private final DcMotor shooterTwo;
+    private final Servo feeder;
+    private final Servo feederLock;
     public PID shooterPID = new PID(.00014, 0.00001, 0.00003, 0, false);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -199,7 +199,7 @@ public class Shooter {
         STATE_FEED
     }
     
-    public static enum ShooterState {
+    public enum ShooterState {
         STATE_OFF,
         STATE_TOP_GOAL,
         STATE_POWER_SHOT

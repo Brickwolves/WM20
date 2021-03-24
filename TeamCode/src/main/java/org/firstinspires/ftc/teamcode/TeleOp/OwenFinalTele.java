@@ -40,10 +40,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Katana;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
@@ -68,6 +69,7 @@ public class OwenFinalTele extends OpMode {
 	private Intake intake;
 	private WobbleGripper wobble;
 	private Katana katana;
+	private Sensors sensors;
 	
 	@Override
 	public void init() {
@@ -105,11 +107,12 @@ public class OwenFinalTele extends OpMode {
 		IMU imu = new IMU("imu");
 		
 		gyro = new Gyro(imu, 0);
-		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
+		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
 		katana = new Katana(katanaLeft, katanaRight);
+		sensors = new Sensors(imu, null, null,null, null);
 		
 		mainTime.reset();
 	}
@@ -186,7 +189,7 @@ public class OwenFinalTele extends OpMode {
 		Controller.Thumbstick driverRightStick = driver.getRightThumbstick();
 		Controller.Thumbstick driverLeftStick = driver.getLeftThumbstick();
 
-		driverRightStick.setShift(Gyro.getModAngle());
+		driverRightStick.setShift(Sensors.gyro.getModAngle());
 		driverLeftStick.setShift(0);
 		
 		
@@ -215,6 +218,7 @@ public class OwenFinalTele extends OpMode {
 		//telemetry
 		telemetry.addData("time", mainTime.seconds());
 		telemetry.addData("shooter rpm", shooter.getRPM());
+		telemetry.addData("mod angle", Sensors.gyro.getModAngle());
 		telemetry.update();
 		
 		if(driver.squarePress()){

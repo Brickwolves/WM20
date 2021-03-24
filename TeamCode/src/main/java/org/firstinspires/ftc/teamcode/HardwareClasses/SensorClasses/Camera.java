@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.HardwareClasses;
+package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -14,11 +14,15 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class Camera {
 	
 	OpenCvWebcam webcam;
-	RingDetectingPipeline pipeline = new RingDetectingPipeline();
+	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
+	public TowerPipeline towerPipeline = new TowerPipeline();
 	
 	public Camera(OpenCvWebcam webcam){
-		webcam.setPipeline(pipeline);
 		this.webcam = webcam;
+	}
+	
+	public void setPipeline(OpenCvPipeline pipeline){
+		webcam.setPipeline(pipeline);
 	}
 	
 	public void optimizeView(){ webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW); }
@@ -33,12 +37,12 @@ public class Camera {
 		});
 	}
 	
-	public int getStackAnalysis(){ return pipeline.getStackAnalysis(); }
+	public int getStackAnalysis(){ return startingStackPipeline.getStackAnalysis(); }
 	
-	public int getRingCount(){ return pipeline.ringCount; }
+	public int getRingCount(){ return startingStackPipeline.ringCount; }
 	
 	
-	public static class RingDetectingPipeline extends OpenCvPipeline {
+	public static class StartingStackPipeline extends OpenCvPipeline {
 		
 		private int ringCount;
 		int avgBottom;
@@ -107,6 +111,46 @@ public class Camera {
 		}
 		
 		public int getStackAnalysis() { return avgBottom; }
+	}
+	
+	
+	
+	public static class TowerPipeline extends OpenCvPipeline {
+		
+		static final Scalar RED = new Scalar(255, 0, 0);
+		
+		
+		static final Point TOPLEFT_ANCHOR_POINT = new Point(1500,560);
+		static final int BOTTOM_WIDTH = 150;
+		static final int BOTTOM_HEIGHT = 250;
+		
+		final int ONE_RING_THRESHOLD = 129;
+		final int FOUR_RING_THRESHOLD = 142;
+		
+		Point pointA = new Point(
+				TOPLEFT_ANCHOR_POINT.x,
+				TOPLEFT_ANCHOR_POINT.y);
+		Point bottom_pointB = new Point(
+				TOPLEFT_ANCHOR_POINT.x + BOTTOM_WIDTH,
+				TOPLEFT_ANCHOR_POINT.y + BOTTOM_HEIGHT);
+		
+		
+		@Override
+		public void init(Mat firstFrame) {
+		
+		}
+		
+		@Override
+		public Mat processFrame(Mat input) {
+			
+			Imgproc.rectangle(
+					input, // Buffer to draw on
+					pointA, // First point which defines the rectangle
+					bottom_pointB, // Second point which defines the rectangle
+					RED, // The color the rectangle is drawn in
+					12); // Thickness of the rectangle line
+			return input;
+		}
 	}
 	
 }

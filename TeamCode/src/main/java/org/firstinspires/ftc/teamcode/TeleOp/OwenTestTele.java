@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
@@ -100,7 +100,7 @@ public class OwenTestTele extends OpMode {
 		IMU imu = new IMU("imu");
 		
 		gyro = new Gyro(imu, 0);
-		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
+		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, reachOne, reachTwo);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);

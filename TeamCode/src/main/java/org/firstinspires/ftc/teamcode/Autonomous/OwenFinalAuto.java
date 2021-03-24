@@ -11,11 +11,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Camera;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Camera;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
@@ -34,7 +35,7 @@ public class OwenFinalAuto extends OpMode {
 	private Shooter shooter;
 	private Intake intake;
 	private WobbleGripper wobble;
-	private Camera camera;
+	private Sensors sensors;
 	
 	
 	private MainState currentMainState = MainState.state1Drive;
@@ -49,8 +50,8 @@ public class OwenFinalAuto extends OpMode {
 		Servo feeder = hardwareMap.get(Servo.class, "feeder");
 		Servo feederLock = hardwareMap.get(Servo.class, "feederlock");
 		
-		Servo outerRollerOne = hardwareMap.get(Servo.class, "outerrollerone");
-		Servo outerRollerTwo = hardwareMap.get(Servo.class, "outerrollertwo");
+		Servo bumperLeft = hardwareMap.get(Servo.class, "bumperleft");
+		Servo bumperRight = hardwareMap.get(Servo.class, "bumperright");
 		
 		Servo lifter = hardwareMap.get(Servo.class, "lifter");
 		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
@@ -66,21 +67,22 @@ public class OwenFinalAuto extends OpMode {
 		DcMotor intakeDrive = hardwareMap.get(DcMotor.class, "intake");
 		
 		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-		WebcamName webcamName = hardwareMap.get(WebcamName.class, "Camera");
-		OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+		WebcamName backCamName = hardwareMap.get(WebcamName.class, "Back Camera");
+		OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName, cameraMonitorViewId);
 		
 		
 		operator = new Controller(gamepad2);
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
-		Gyro gyro = new Gyro(imu, 0);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
-		intake = new Intake(intakeDrive, outerRollerOne, outerRollerTwo);
-		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
+		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
+		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
-		camera = new Camera(webcam);
+		sensors = new Sensors(imu, null, webcam, null, null);
 		
-		camera.openCamera();
+		Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
+		Sensors.backCamera.setPipeline(Sensors.backCamera.towerPipeline);
+		Sensors.backCamera.openCamera();
 	}
 	
 	public void init_loop(){
@@ -99,8 +101,9 @@ public class OwenFinalAuto extends OpMode {
 			intake.retractBumper();
 		}
 		
-		telemetry.addData("Stack Analysis = ", camera.getStackAnalysis());
-		telemetry.addData("Ring Count = ", camera.getRingCount());
+		
+		telemetry.addData("Stack Analysis = ", Sensors.backCamera.getStackAnalysis());
+		telemetry.addData("Ring Count = ", Sensors.backCamera.getRingCount());
 		telemetry.update();
 		
 		sleep(50);
@@ -110,7 +113,7 @@ public class OwenFinalAuto extends OpMode {
 		mainTime.reset();
 		robot.resetGyro(180);
 		robot.resetWithoutEncoders();
-		ringCount = camera.getRingCount();
+		ringCount = Sensors.backCamera.getRingCount();
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)

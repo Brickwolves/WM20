@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.HardwareClasses.Gyro;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
@@ -66,7 +66,7 @@ public class CollinAuto extends OpMode {
 		gyro = new Gyro(imu, 0);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, outerRollerOne,outerRollerTwo);
-		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight, gyro);
+		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
 	}
 	
 	public void init_loop(){
