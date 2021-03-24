@@ -35,36 +35,36 @@ public class Katana {
 	
 	
 	public void katanaState(boolean foldToggle, boolean forceDown){
-			if(forceDown) {
-				katanaDown();
+		if(forceDown) {
+			katanaDown();
 				
-			}else if(foldToggle || (!(Sensors.gyro.getModAngle() < 122 && Sensors.gyro.getModAngle() > 58) && !(Sensors.gyro.getModAngle() < -238 && Sensors.gyro.getModAngle() > -302))) {
-				if (Shooter.currentShooterState != ShooterState.STATE_OFF) {
-					katanaShoot();
-				} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT) {
-					katanaHalfFold();
-				} else {
-					katanaFullFold();
-				}
-				
-			}else{
-				switch(currentKatanaState){
-					case STATE_DOWN:
-						if(Intake.currentIntakeState == Intake.IntakeState.STATE_OFF && Shooter.feederCount() < 1){
-							newState(KatanaState.STATE_UP);
-						}
-						katanaDown();
-						break;
-					
-					
-					case STATE_UP:
-						if(Intake.currentIntakeState == Intake.IntakeState.STATE_ON || Shooter.feederCount() > 0){
-							newState(KatanaState.STATE_DOWN);
-						}
-						katanaUp();
-						break;
-				}
+		}else if(foldToggle || (!(Sensors.gyro.getModAngle() < 122 && Sensors.gyro.getModAngle() > 58) &&
+					                                                  !(Sensors.gyro.getModAngle() < -238 && Sensors.gyro.getModAngle() > -302))) {
+			if (Shooter.currentShooterState != ShooterState.STATE_OFF) {
+				katanaShoot();
+			} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT) {
+				katanaHalfFold();
+			} else {
+				katanaFullFold();
 			}
+			
+		}else{
+			switch(currentKatanaState){
+				case STATE_DOWN:
+					if(Intake.currentIntakeState == Intake.IntakeState.STATE_OFF && Shooter.feederCount() < 1){
+						newState(KatanaState.STATE_UP);
+					}
+					katanaDown();
+					break;
+					
+				case STATE_UP:
+					if(Intake.currentIntakeState == Intake.IntakeState.STATE_ON || Shooter.feederCount() > 0){
+						newState(KatanaState.STATE_DOWN);
+					}
+					katanaUp();
+					break;
+			}
+		}
 	}
 	
 	

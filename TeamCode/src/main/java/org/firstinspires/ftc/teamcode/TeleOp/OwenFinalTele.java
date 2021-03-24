@@ -106,13 +106,13 @@ public class OwenFinalTele extends OpMode {
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
 		
-		gyro = new Gyro(imu, 0);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
+		sensors = new Sensors(imu, null, null,null, null);
+		
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
 		katana = new Katana(katanaLeft, katanaRight);
-		sensors = new Sensors(imu, null, null,null, null);
 		
 		mainTime.reset();
 	}
