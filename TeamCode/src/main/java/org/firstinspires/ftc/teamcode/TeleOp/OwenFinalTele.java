@@ -124,7 +124,7 @@ public class OwenFinalTele extends OpMode {
 		shooter.resetFeeder();
 		shooter.shooterOff();
 		intake.intakeOff();
-		katana.katanaFullFold();
+		katana.katanaUp();
 		
 		driver.update();
 		

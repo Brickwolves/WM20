@@ -6,11 +6,11 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter.ShooterState;
 
 public class Katana {
 	
-	private static final double DOWN = 0.6;
-	private static final double UP = 0.3;
-	private static final double FULL_FOLD = 0;
-	private static final double HALF_FOLD = 0;
-	private static final double SHOOT = 0.3;
+	private static final double DOWN = 0.04;
+	private static final double UP = 0.2;
+	private static final double FULL_FOLD = 0.44;
+	private static final double HALF_FOLD = .4;
+	private static final double SHOOT = 0.315;
 	
 	Servo katanaLeft, katanaRight;
 	
@@ -22,15 +22,15 @@ public class Katana {
 		this.katanaRight.setDirection(Servo.Direction.REVERSE);
 	}
 	
-	public void katanaDown(){ katanaRight.setPosition(DOWN); katanaLeft.setPosition(DOWN); }
+	public void katanaDown(){ katanaRight.setPosition(DOWN); katanaLeft.setPosition(DOWN+.24); }
 	
-	public void katanaUp(){ katanaRight.setPosition(UP); katanaLeft.setPosition(UP); }
+	public void katanaUp(){ katanaRight.setPosition(UP); katanaLeft.setPosition(UP +.24); }
 	
-	public void katanaShoot(){ katanaRight.setPosition(SHOOT); katanaLeft.setPosition(SHOOT); }
+	public void katanaShoot(){ katanaRight.setPosition(SHOOT); katanaLeft.setPosition(SHOOT +.24); }
 	
-	public void katanaFullFold(){ katanaRight.setPosition(FULL_FOLD); katanaLeft.setPosition(FULL_FOLD); }
+	public void katanaFullFold(){ katanaRight.setPosition(FULL_FOLD); katanaLeft.setPosition(FULL_FOLD+.24); }
 	
-	public void katanaHalfFold(){ katanaRight.setPosition(HALF_FOLD); katanaLeft.setPosition(HALF_FOLD); }
+	public void katanaHalfFold(){ katanaRight.setPosition(HALF_FOLD); katanaLeft.setPosition(HALF_FOLD+.24); }
 	
 	
 	
