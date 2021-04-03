@@ -39,7 +39,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.GoalFinderPipeline;
 import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Katana;
@@ -49,6 +52,8 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @TeleOp(name = "Owen Final Tele", group = "TeleOp")
 //@Disabled
@@ -61,7 +66,8 @@ public class OwenFinalTele extends OpMode {
 	private Controller.Thumbstick driverRightStick, driverLeftStick;
 	
 	private ElapsedTime mainTime = new ElapsedTime();
-	
+
+	private GoalFinderPipeline goalFinder = new GoalFinderPipeline();
 	
 	private Gyro gyro;
 	private MecanumChassis robot;
@@ -70,9 +76,20 @@ public class OwenFinalTele extends OpMode {
 	private WobbleGripper wobble;
 	private Katana katana;
 	private Sensors sensors;
-	
-	
-	
+
+
+
+	public void startVision(){
+        /*
+        Set up camera, and pipeline
+         */
+		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+		VisionUtils.webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Front Camera"), cameraMonitorViewId);
+
+		VisionUtils.webcam.setPipeline(goalFinder);
+		VisionUtils.webcam.openCameraDeviceAsync(() -> VisionUtils.webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
+	}
+
 	@Override
 	public void init() {
 		telemetry.addData("Status", "Initialized");
@@ -89,7 +106,9 @@ public class OwenFinalTele extends OpMode {
 		
 		Servo katanaLeft = hardwareMap.get(Servo.class, "katanaleft");
 		Servo katanaRight = hardwareMap.get(Servo.class, "katanaright");
-		
+
+		startVision();
+
 		driver = new Controller(gamepad1);
 		operator = new Controller(gamepad2);
 		driverRightStick = driver.getRightThumbstick();
@@ -199,9 +218,11 @@ public class OwenFinalTele extends OpMode {
 		operator.update();
 		
 		//driver controls
+
 		robot.driveState(driverRightStick.shiftedY(), driverRightStick.shiftedX(), driverLeftStick.shiftedX(), driver.RTFloat());
 		robot.setCardinalAngle(driver.upPress(), driver.rightPress(), driver.downPress(), driver.leftPress(), false);
 		robot.adjustmentState(driver.RBPress(), driver.LBPress(), 10);
+		robot.towerAim(driver.squarePress(), goalFinder.getDegreeError());
 		
 		
 		//operator controls
@@ -223,7 +244,7 @@ public class OwenFinalTele extends OpMode {
 		telemetry.addData("mod angle", Sensors.gyro.getModAngle());
 		telemetry.update();
 		
-		if(driver.squarePress()){
+		if(driver.crossPress()){
 			robot.resetGyro(-90);
 		}
 		

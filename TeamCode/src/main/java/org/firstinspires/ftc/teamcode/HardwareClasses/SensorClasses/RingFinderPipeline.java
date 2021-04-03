@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
+import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.Utils;
 import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
 import org.firstinspires.ftc.utilities.Dash_GoalFinder;
 import org.opencv.core.Core;
@@ -61,6 +62,9 @@ public class RingFinderPipeline extends OpenCvPipeline
     // Init mats here so we don't repeat
     private Mat modified = new Mat();
     private Mat output = new Mat();
+    private Mat hierarchy = new Mat();
+    private List<MatOfPoint> contours;
+    private MatOfPoint widest_rect;
 
     // Thresholding values
     Scalar MIN_YCrCb, MAX_YCrCb;
@@ -77,17 +81,17 @@ public class RingFinderPipeline extends OpenCvPipeline
         // Rotate due to camera
         rotate(input, input, Core.ROTATE_90_CLOCKWISE);
 
+        // Get height and width
+        IMG_HEIGHT = input.rows();
+        IMG_WIDTH = input.cols();
+
         // Take bottom portion
-        double horizonY = VisionUtils.IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
+        double horizonY = (int) IMG_HEIGHT * horizonLineRatio;
         Rect bottomRect = new Rect(new Point(0, horizonY), new Point(IMG_WIDTH, IMG_HEIGHT));
         input = input.submat(bottomRect);
 
         // Copy to output
         input.copyTo(output);
-
-        // Get height and width
-        IMG_HEIGHT = input.rows();
-        IMG_WIDTH = input.cols();
 
         // Convert & Copy to outPut image
         cvtColor(input, modified, Imgproc.COLOR_RGB2YCrCb);
@@ -106,7 +110,6 @@ public class RingFinderPipeline extends OpenCvPipeline
 
         // Find contours
         List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
         findContours(modified, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
         // Check if we have detected any orange objects and assume ring_count is 0
@@ -118,46 +121,79 @@ public class RingFinderPipeline extends OpenCvPipeline
             MatOfPoint widest_contour = widest_contours.get(0);
             Rect widest_rect = boundingRect(widest_contour);
 
-            // Check if it is below horizon line
-            double horizonLine = VisionUtils.IMG_HEIGHT * horizonLineRatio;
-            line(output, new Point(0, horizonLine), new Point(IMG_WIDTH, horizonLine), color, thickness);
-            if (widest_rect.y < horizonLine) return output;
-
             // Calculate error
             int center_x = widest_rect.x + (widest_rect.width / 2);
             int center_y = widest_rect.y + (widest_rect.height / 2);
             Point center = new Point(center_x, center_y);
-            double pixel_error = (VisionUtils.IMG_WIDTH / 2) - center_x;
+            double pixel_error = (IMG_WIDTH / 2) - center_x;
             degrees_error = pixels2Degrees(pixel_error);
-            line(output, center, new Point(center_x + pixel_error, center_y), new Scalar(0, 0, 255), thickness);
 
-            // Log center
-            //String coords = "(" + center_x + ", " + center_y + ")";
-            //putText(output, coords, center, font, 0.5, color);
+            // Update ring count
+            ring_count = (widest_rect.height < (0.5 * widest_rect.width)) ? 1 : 4;
 
-            Point text_center = new Point(5, IMG_HEIGHT - 50);
-            putText(output, "Degree Error: " + degrees_error, text_center, font, 0.4, new Scalar(255, 255, 0));
-            putText(output, "Pixel Error: " + pixel_error, new Point(5, IMG_HEIGHT - 40), font, 0.4, new Scalar(255, 255, 0));
+            // Get distance to ring
+            double distance2Ring = getDistance2Object(widest_rect.height, RING_HEIGHT);
 
-
+            // Box 3 closest rings
             for (MatOfPoint cnt : widest_contours){
                 Rect rect = boundingRect(cnt);
                 rectangle(output, rect, color, thickness);
             }
 
-            // Update ring count
-            ring_count = (widest_rect.height < (0.5 * widest_rect.width)) ? 1 : 4;
-            double distance2Ring = getDistance2Object(widest_rect.height, RING_HEIGHT);
+
+            /*
+
+                            L O G G I N G
+
+                                                       */
+
+            // Log center
+            //String coords = "(" + center_x + ", " + center_y + ")";
+            //putText(output, coords, center, font, 0.5, color);
+
+            // Log data on screen
+            Point text_center = new Point(5, IMG_HEIGHT - 50);
+            putText(output, "Degree Error: " + degrees_error, text_center, font, 0.4, new Scalar(255, 255, 0));
+            putText(output, "Pixel Error: " + pixel_error, new Point(5, IMG_HEIGHT - 40), font, 0.4, new Scalar(255, 255, 0));
+            line(output, center, new Point(center_x + pixel_error, center_y), new Scalar(0, 0, 255), thickness);
+
+            /*
+            Utils.multTelemetry.addData("Ring Count", ring_count);
+            Utils.multTelemetry.addData("Pixel Error", pixel_error);
+            Utils.multTelemetry.addData("Degree Error", degrees_error);
+            Utils.multTelemetry.addData("IMU Angle", RingFinder.imu.getAngle());
+            //Utils.multTelemetry.addData("Distance2Object", distance2Ring);
+            Utils.multTelemetry.update();
+             */
         }
+
+        // Release all captures
+        input.release();
+        releaseAllCaptures();
 
         // Return altered image
         return output;
+    }
+
+    public void releaseAllCaptures(){
+        modified.release();
+        hierarchy.release();
+        if (contours != null){
+            for (MatOfPoint cnt : contours){
+                cnt.release();
+            }
+        }
+
+        if (widest_rect != null) widest_rect.release();
     }
 
     public int getRingCount(){
         return ring_count;
     }
 
+    public double getRingAngle(){
+        return degrees_error;
+    }
 
     @Override
     public void onViewportTapped() {

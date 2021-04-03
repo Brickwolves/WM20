@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
+import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.Utils;
 import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
 import org.firstinspires.ftc.utilities.Dash_GoalFinder;
 import org.opencv.core.Core;
@@ -30,6 +31,7 @@ import static org.firstinspires.ftc.utilities.Dash_GoalFinder.blur;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.goalWidth;
+import static org.firstinspires.ftc.utilities.Dash_GoalFinder.horizonLineRatio;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.Core.rotate;
 import static org.opencv.core.CvType.CV_8U;
@@ -56,6 +58,8 @@ public class GoalFinderPipeline extends OpenCvPipeline {
     private Mat modified = new Mat();
     private Mat output = new Mat();
     private Mat hierarchy = new Mat();
+    private List<MatOfPoint> new_contours;
+    private List<MatOfPoint> contours;
 
     // Thresholding values
     Scalar MIN_HSV, MAX_HSV;
@@ -68,20 +72,20 @@ public class GoalFinderPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
 
-// Rotate due to camera
+        // Rotate due to camera
         rotate(input, input, Core.ROTATE_90_CLOCKWISE);
 
-        // Take upper portion
-        double horizonY = IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
+        // Get height and width
+        IMG_HEIGHT = input.rows();
+        IMG_WIDTH = input.cols();
+
+        // Take bottom portion
+        double horizonY = (int) IMG_HEIGHT * horizonLineRatio;
         Rect upperRect = new Rect(new Point(0, 0), new Point(IMG_WIDTH, horizonY));
         input = input.submat(upperRect);
 
         // Copy to output
         input.copyTo(output);
-
-        // Get height and width
-        IMG_HEIGHT = input.rows();
-        IMG_WIDTH = input.cols();
 
         // Convert & Copy to outPut image
         cvtColor(input, modified, Imgproc.COLOR_RGB2HSV);
@@ -99,24 +103,15 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         dilate(modified, modified, new Mat(dilate_const, dilate_const, CV_8U));
 
         // Find contours of goal
-        List<MatOfPoint> contours = new ArrayList<>();
+        contours = new ArrayList<>();
         findContours(modified, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
         if (contours.size() == 0) return output;
 
         // Retrieve goal contours
-        List<MatOfPoint> new_contours = findNLargestContours(2, contours);
+        new_contours = findNLargestContours(2, contours);
 
         // Get goalRectangle
         Rect goalRect = getGoalRect(new_contours);
-
-        // Check if it is below horizon line
-        double horizonLine = IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
-        line(output, new Point(0, horizonLine), new Point(IMG_WIDTH, horizonLine), color, thickness);
-        if (goalRect.y > horizonLine) return output;
-
-
-
-        // Draw bounding rect
         rectangle(output, goalRect, color, thickness);
 
 
@@ -127,7 +122,12 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         double pixel_error = (IMG_WIDTH / 2) - center_x;
         degree_error = pixels2Degrees(pixel_error);
         line(output, center, new Point(center_x + pixel_error, center_y), new Scalar(0, 0, 255), thickness);
-        
+
+
+        Utils.multTelemetry.addData("Pixel Error", pixel_error);
+        Utils.multTelemetry.addData("Degree Error", degree_error);
+        Utils.multTelemetry.update();
+
 
         // Log center
         //String coords = "(" + center_x + ", " + center_y + ")";
@@ -136,6 +136,11 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         Point text_center = new Point(5, IMG_HEIGHT - 50);
         putText(output, "Degree Error: " + degree_error, text_center, font, 0.4, new Scalar(255, 255, 0));
         putText(output, "Pixel Error: " + pixel_error, new Point(5, IMG_HEIGHT - 40), font, 0.4, new Scalar(255, 255, 0));
+
+
+        // Release all captures
+        input.release();
+        releaseAllCaptures();
 
         // Return altered image
         return output;
@@ -185,6 +190,20 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         }
 
         return goalRect;
+    }
+
+    public double getDegreeError(){
+        return degree_error;
+    }
+
+    public void releaseAllCaptures(){
+        modified.release();
+        hierarchy.release();
+        if (contours != null){
+            for (MatOfPoint cnt : contours){
+                cnt.release();
+            }
+        }
     }
 
     @Override
