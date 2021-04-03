@@ -15,7 +15,7 @@ public class Camera {
 	
 	OpenCvWebcam webcam;
 	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
-	public TowerPipeline towerPipeline = new TowerPipeline();
+	public TowerTrackPipeline towerTrackPipeline = new TowerTrackPipeline();
 	
 	public Camera(OpenCvWebcam webcam){
 		this.webcam = webcam;
@@ -115,24 +115,9 @@ public class Camera {
 	
 	
 	
-	public static class TowerPipeline extends OpenCvPipeline {
+	public static class TowerTrackPipeline extends OpenCvPipeline {
 		
-		static final Scalar RED = new Scalar(255, 0, 0);
-		
-		
-		static final Point TOPLEFT_ANCHOR_POINT = new Point(1500,560);
-		static final int BOTTOM_WIDTH = 150;
-		static final int BOTTOM_HEIGHT = 250;
-		
-		final int ONE_RING_THRESHOLD = 129;
-		final int FOUR_RING_THRESHOLD = 142;
-		
-		Point pointA = new Point(
-				TOPLEFT_ANCHOR_POINT.x,
-				TOPLEFT_ANCHOR_POINT.y);
-		Point bottom_pointB = new Point(
-				TOPLEFT_ANCHOR_POINT.x + BOTTOM_WIDTH,
-				TOPLEFT_ANCHOR_POINT.y + BOTTOM_HEIGHT);
+		double angleTarget;
 		
 		
 		@Override
@@ -142,6 +127,9 @@ public class Camera {
 		
 		@Override
 		public Mat processFrame(Mat input) {
+			
+			
+			
 			
 			Imgproc.rectangle(
 					input, // Buffer to draw on

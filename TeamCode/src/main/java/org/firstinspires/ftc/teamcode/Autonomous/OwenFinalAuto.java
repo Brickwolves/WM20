@@ -11,9 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Camera;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
-import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
@@ -81,7 +79,7 @@ public class OwenFinalAuto extends OpMode {
 		sensors = new Sensors(imu, null, webcam, null, null);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
-		Sensors.backCamera.setPipeline(Sensors.backCamera.towerPipeline);
+		Sensors.backCamera.setPipeline(Sensors.backCamera.towerTrackPipeline);
 		Sensors.backCamera.openCamera();
 	}
 	
