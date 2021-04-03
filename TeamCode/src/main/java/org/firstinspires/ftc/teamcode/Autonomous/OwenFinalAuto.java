@@ -79,7 +79,7 @@ public class OwenFinalAuto extends OpMode {
 		sensors = new Sensors(imu, null, webcam, null, null);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
-		Sensors.backCamera.setPipeline(Sensors.backCamera.towerTrackPipeline);
+		//Sensors.backCamera.setPipeline(Sensors.backCamera.towerTrackPipeline);
 		Sensors.backCamera.openCamera();
 	}
 	

@@ -222,7 +222,9 @@ public class OwenFinalTele extends OpMode {
 		robot.driveState(driverRightStick.shiftedY(), driverRightStick.shiftedX(), driverLeftStick.shiftedX(), driver.RTFloat());
 		robot.setCardinalAngle(driver.upPress(), driver.rightPress(), driver.downPress(), driver.leftPress(), false);
 		robot.adjustmentState(driver.RBPress(), driver.LBPress(), 10);
-		robot.towerAim(driver.squarePress(), goalFinder.getDegreeError());
+		robot.towerAim(driver.squareToggle(), goalFinder.getDegreeError());
+		
+		telemetry.addData("goal error", goalFinder.getDegreeError());
 		
 		
 		//operator controls

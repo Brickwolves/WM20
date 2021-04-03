@@ -72,9 +72,6 @@ public class GoalFinderPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
 
-        // Rotate due to camera
-        rotate(input, input, Core.ROTATE_90_CLOCKWISE);
-
         // Get height and width
         IMG_HEIGHT = input.rows();
         IMG_WIDTH = input.cols();
@@ -123,11 +120,11 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         degree_error = pixels2Degrees(pixel_error);
         line(output, center, new Point(center_x + pixel_error, center_y), new Scalar(0, 0, 255), thickness);
 
-
+        /*
         Utils.multTelemetry.addData("Pixel Error", pixel_error);
         Utils.multTelemetry.addData("Degree Error", degree_error);
         Utils.multTelemetry.update();
-
+        */
 
         // Log center
         //String coords = "(" + center_x + ", " + center_y + ")";

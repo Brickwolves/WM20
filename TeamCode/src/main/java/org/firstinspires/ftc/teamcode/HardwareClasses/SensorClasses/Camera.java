@@ -15,7 +15,7 @@ public class Camera {
 	
 	OpenCvWebcam webcam;
 	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
-	public TowerTrackPipeline towerTrackPipeline = new TowerTrackPipeline();
+	//public TowerTrackPipeline towerTrackPipeline = new TowerTrackPipeline();
 	
 	public Camera(OpenCvWebcam webcam){
 		this.webcam = webcam;
@@ -115,7 +115,7 @@ public class Camera {
 	
 	
 	
-	public static class TowerTrackPipeline extends OpenCvPipeline {
+	/*public static class TowerTrackPipeline extends OpenCvPipeline {
 		
 		double angleTarget;
 		
@@ -125,20 +125,7 @@ public class Camera {
 		
 		}
 		
-		@Override
-		public Mat processFrame(Mat input) {
-			
-			
-			
-			
-			Imgproc.rectangle(
-					input, // Buffer to draw on
-					pointA, // First point which defines the rectangle
-					bottom_pointB, // Second point which defines the rectangle
-					RED, // The color the rectangle is drawn in
-					12); // Thickness of the rectangle line
-			return input;
-		}
-	}
+		
+	}*/
 	
 }

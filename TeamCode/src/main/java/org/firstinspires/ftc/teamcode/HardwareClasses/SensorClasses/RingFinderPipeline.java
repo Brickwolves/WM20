@@ -78,9 +78,6 @@ public class RingFinderPipeline extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
 
-        // Rotate due to camera
-        rotate(input, input, Core.ROTATE_90_CLOCKWISE);
-
         // Get height and width
         IMG_HEIGHT = input.rows();
         IMG_WIDTH = input.cols();
