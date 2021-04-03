@@ -2,27 +2,25 @@ package org.firstinspires.ftc.teamcode.Autonomous.lupineAutos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.Utils.multTelemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Hardware.Controls.ButtonControls;
-import org.firstinspires.ftc.teamcode.Hardware.Sensors.IMU;
-import org.firstinspires.ftc.teamcode.Utilities.Utils;
-import org.firstinspires.ftc.teamcode.Vision.GoalFinderPipeline;
-import org.firstinspires.ftc.teamcode.Vision.VisionUtils;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.GoalFinderPipeline;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
+import org.firstinspires.ftc.utilities.IMU;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import static com.qualcomm.hardware.bosch.BNO055IMU.SensorMode.IMU;
 
 @Autonomous(name="GoalFinder", group="Autonomous Linear Opmode")
 public class GoalFinder extends LinearOpMode
 {
     private GoalFinderPipeline goalFinder = new GoalFinderPipeline();
-    public static IMU imu;
-    private ButtonControls BC;
+    private static Sensors sensors;
 
     public void initialize(){
         Utils.setOpMode(this);
-        imu = new IMU("imu");
-        BC = new ButtonControls(gamepad1);
+        sensors = new Sensors(new IMU("imu"), null, null,null, null);
         initVision();
     }
 
@@ -39,13 +37,13 @@ public class GoalFinder extends LinearOpMode
 
         initialize();
 
-        Utils.multTelemetry.addLine("Waiting for start");
-        Utils.multTelemetry.update();
+        multTelemetry.addLine("Waiting for start");
+        multTelemetry.update();
         waitForStart();
 
         while (opModeIsActive()){
-            Utils.multTelemetry.addData("FPS", String.format("%.2f", VisionUtils.webcam.getFps()));
-            Utils.multTelemetry.update();
+            multTelemetry.addData("FPS", String.format("%.2f", VisionUtils.webcam.getFps()));
+            multTelemetry.update();
         }
     }
 }

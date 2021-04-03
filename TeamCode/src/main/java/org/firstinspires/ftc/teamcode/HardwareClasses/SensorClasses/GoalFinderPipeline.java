@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.GoalFinder;
+import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
 import org.firstinspires.ftc.utilities.Dash_GoalFinder;
-import org.firstinspires.ftc.utilities.Utils;
-import org.firstinspires.ftc.utilities.Dash_GoalFinder;
-import org.firstinspires.ftc.utilities.VisionUtils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -19,7 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.abs;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.*;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_WIDTH;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.findNLargestContours;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.pixels2Degrees;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_H;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_S;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_V;
@@ -30,11 +30,6 @@ import static org.firstinspires.ftc.utilities.Dash_GoalFinder.blur;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.goalWidth;
-import static org.firstinspires.ftc.utilities.Dash_RingFinder.horizonLineRatio;
-import static org.firstinspires.ftc.utilities.VisionUtils.IMG_HEIGHT;
-import static org.firstinspires.ftc.utilities.VisionUtils.IMG_WIDTH;
-import static org.firstinspires.ftc.utilities.VisionUtils.findNLargestContours;
-import static org.firstinspires.ftc.utilities.VisionUtils.pixels2Degrees;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.Core.rotate;
 import static org.opencv.core.CvType.CV_8U;
@@ -60,6 +55,7 @@ public class GoalFinderPipeline extends OpenCvPipeline {
     // Init mats here so we don't repeat
     private Mat modified = new Mat();
     private Mat output = new Mat();
+    private Mat hierarchy = new Mat();
 
     // Thresholding values
     Scalar MIN_HSV, MAX_HSV;
@@ -72,10 +68,18 @@ public class GoalFinderPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
 
-        // Copy to output
+// Rotate due to camera
         rotate(input, input, Core.ROTATE_90_CLOCKWISE);
+
+        // Take upper portion
+        double horizonY = IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
+        Rect upperRect = new Rect(new Point(0, 0), new Point(IMG_WIDTH, horizonY));
+        input = input.submat(upperRect);
+
+        // Copy to output
         input.copyTo(output);
 
+        // Get height and width
         IMG_HEIGHT = input.rows();
         IMG_WIDTH = input.cols();
 
@@ -96,7 +100,6 @@ public class GoalFinderPipeline extends OpenCvPipeline {
 
         // Find contours of goal
         List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
         findContours(modified, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
         if (contours.size() == 0) return output;
 
@@ -107,7 +110,7 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         Rect goalRect = getGoalRect(new_contours);
 
         // Check if it is below horizon line
-        double horizonLine = VisionUtils.IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
+        double horizonLine = IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
         line(output, new Point(0, horizonLine), new Point(IMG_WIDTH, horizonLine), color, thickness);
         if (goalRect.y > horizonLine) return output;
 
@@ -187,7 +190,7 @@ public class GoalFinderPipeline extends OpenCvPipeline {
     @Override
     public void onViewportTapped() {
         viewportPaused = !viewportPaused;
-        if (viewportPaused)  VisionUtils.webcam.pauseViewport();
-        else                VisionUtils.webcam.resumeViewport();
+        if (viewportPaused)     VisionUtils.webcam.pauseViewport();
+        else                    VisionUtils.webcam.resumeViewport();
     }
 }

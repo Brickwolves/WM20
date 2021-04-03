@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.RingFinder;
-import org.firstinspires.ftc.teamcode.Utilities.Utils;
-import org.firstinspires.ftc.utilities.VisionUtils;
+import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
+import org.firstinspires.ftc.utilities.Dash_GoalFinder;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -16,23 +15,22 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.*;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.MAX_Cb;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.MAX_Cr;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.MAX_Y;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.MIN_Cb;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.MIN_Cr;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.MIN_Y;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.blur;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.dilate_const;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.erode_const;
-import static org.firstinspires.ftc.teamcode.Utilities.DashConstants.Dash_RingFinder.horizonLineRatio;
-import static org.firstinspires.ftc.teamcode.Vision.VisionUtils.IMG_HEIGHT;
-import static org.firstinspires.ftc.teamcode.Vision.VisionUtils.IMG_WIDTH;
-import static org.firstinspires.ftc.teamcode.Vision.VisionUtils.RING_HEIGHT;
-import static org.firstinspires.ftc.teamcode.Vision.VisionUtils.findNWidestContours;
-import static org.firstinspires.ftc.teamcode.Vision.VisionUtils.getDistance2Object;
-import static org.firstinspires.ftc.teamcode.Vision.VisionUtils.pixels2Degrees;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_WIDTH;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.RING_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.findNWidestContours;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.getDistance2Object;
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.pixels2Degrees;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.MAX_Cb;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.MAX_Cr;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.MAX_Y;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.MIN_Cb;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.MIN_Cr;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.MIN_Y;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.blur;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.dilate_const;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.erode_const;
+import static org.firstinspires.ftc.utilities.Dash_RingFinder.horizonLineRatio;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.Core.rotate;
 import static org.opencv.core.CvType.CV_8U;
@@ -48,6 +46,9 @@ import static org.opencv.imgproc.Imgproc.findContours;
 import static org.opencv.imgproc.Imgproc.line;
 import static org.opencv.imgproc.Imgproc.putText;
 import static org.opencv.imgproc.Imgproc.rectangle;
+
+//Front Camera
+//Back Camera
 
 public class RingFinderPipeline extends OpenCvPipeline
 {
@@ -73,10 +74,18 @@ public class RingFinderPipeline extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
 
-        // Copy to output
+        // Rotate due to camera
         rotate(input, input, Core.ROTATE_90_CLOCKWISE);
+
+        // Take bottom portion
+        double horizonY = VisionUtils.IMG_HEIGHT * Dash_GoalFinder.horizonLineRatio;
+        Rect bottomRect = new Rect(new Point(0, horizonY), new Point(IMG_WIDTH, IMG_HEIGHT));
+        input = input.submat(bottomRect);
+
+        // Copy to output
         input.copyTo(output);
 
+        // Get height and width
         IMG_HEIGHT = input.rows();
         IMG_WIDTH = input.cols();
 
@@ -139,10 +148,6 @@ public class RingFinderPipeline extends OpenCvPipeline
             // Update ring count
             ring_count = (widest_rect.height < (0.5 * widest_rect.width)) ? 1 : 4;
             double distance2Ring = getDistance2Object(widest_rect.height, RING_HEIGHT);
-            Utils.multTelemetry.addData("Ring Count", ring_count);
-            Utils.multTelemetry.addData("Distance2Object", distance2Ring);
-            Utils.multTelemetry.addData("IMU Angle", RingFinder.imu.getAngle());
-            Utils.multTelemetry.update();
         }
 
         // Return altered image
@@ -157,7 +162,7 @@ public class RingFinderPipeline extends OpenCvPipeline
     @Override
     public void onViewportTapped() {
         viewportPaused = !viewportPaused;
-        if (viewportPaused)  VisionUtils.webcam.pauseViewport();
-        else                VisionUtils.webcam.resumeViewport();
+        if (viewportPaused)     VisionUtils.webcam.pauseViewport();
+        else                    VisionUtils.webcam.resumeViewport();
     }
 }

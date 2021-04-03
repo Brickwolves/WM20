@@ -2,24 +2,25 @@ package org.firstinspires.ftc.teamcode.Autonomous.lupineAutos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
+import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.Utils.multTelemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Hardware.Sensors.IMU;
-import org.firstinspires.ftc.teamcode.Utilities.Utils;
-import org.firstinspires.ftc.teamcode.Vision.RingFinderPipeline;
-import org.firstinspires.ftc.teamcode.Vision.VisionUtils;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.RingFinderPipeline;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
+import org.firstinspires.ftc.utilities.IMU;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+
+
 
 @Autonomous(name="RingFinder", group="Autonomous Linear Opmode")
 public class RingFinder extends LinearOpMode
 {
     private RingFinderPipeline ringFinder = new RingFinderPipeline();
-    public static IMU imu;
+    private static Sensors sensors;
 
     public void initialize(){
         Utils.setOpMode(this);
-        imu = new IMU("imu");
+        sensors = new Sensors(new IMU("imu"), null, null,null, null);
         initVision();
     }
 
@@ -36,14 +37,14 @@ public class RingFinder extends LinearOpMode
 
         initialize();
 
-        Utils.multTelemetry.addLine("Waiting for start");
-        Utils.multTelemetry.update();
+        multTelemetry.addLine("Waiting for start");
+        multTelemetry.update();
         waitForStart();
 
         while (opModeIsActive()){
-            Utils.multTelemetry.addData("Ring Count", ringFinder.getRingCount());
-            Utils.multTelemetry.addData("FPS", String.format("%.2f", VisionUtils.webcam.getFps()));
-            Utils.multTelemetry.update();
+            multTelemetry.addData("Ring Count", ringFinder.getRingCount());
+            multTelemetry.addData("FPS", String.format("%.2f", VisionUtils.webcam.getFps()));
+            multTelemetry.update();
         }
     }
 }
