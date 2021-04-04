@@ -200,7 +200,7 @@ public class Intake {
         currentStallState = newState;
     }
     
-    private void newState(BumperState newState) {
+    public static void newState(BumperState newState) {
         bumperTime.reset();
         currentBumperState = newState;
     }

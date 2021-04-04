@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.lupineAutos;
+package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
 import org.opencv.core.MatOfPoint;
 import org.openftc.easyopencv.OpenCvCamera;

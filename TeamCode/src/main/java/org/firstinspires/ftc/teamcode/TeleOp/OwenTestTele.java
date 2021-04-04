@@ -148,7 +148,7 @@ public class OwenTestTele extends OpMode {
 		//driver controls
 		robot.driveState(driverRightStick.shiftedY(), driverRightStick.shiftedX(),
 				driverLeftStick.shiftedX(), driver.RTFloat());
-		robot.setCardinalAngle(driver.upPress(), driver.rightPress(), driver.downPress(), driver.leftPress());
+		robot.cardinalState(driver.upPress(), driver.rightPress(), driver.downPress(), driver.leftPress());
 		
 		
 		//operator controls

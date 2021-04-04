@@ -124,7 +124,7 @@ public class WobbleGripper {
         STATE_HALF
     }
     
-    public void newState(ArmState newState) { currentArmState = newState; }
+    public static void newState(ArmState newState) { currentArmState = newState; }
     
     public enum ArmState {
         STATE_CONTROL,
