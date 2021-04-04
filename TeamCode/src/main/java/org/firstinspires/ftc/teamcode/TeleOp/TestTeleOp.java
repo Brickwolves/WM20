@@ -48,9 +48,9 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 
-@TeleOp(name = "TEST Tele", group = "TeleOp")
+@TeleOp(name = "Test Tele Op", group = "TeleOp")
 //@Disabled
-public class OwenTestTele extends OpMode {
+public class TestTeleOp extends OpMode {
 	
 	private boolean angleOffset = false;
 	private boolean timeStop = true;
@@ -74,8 +74,8 @@ public class OwenTestTele extends OpMode {
 		Servo feeder = hardwareMap.get(Servo.class, "feeder");
 		Servo feederLock = hardwareMap.get(Servo.class, "feederlock");
 		
-		Servo reachOne = hardwareMap.get(Servo.class, "outerrollerone");
-		Servo reachTwo = hardwareMap.get(Servo.class, "outerrollertwo");
+		Servo bumperLeft = hardwareMap.get(Servo.class, "bumperleft");
+		Servo bumperRight = hardwareMap.get(Servo.class, "bumperright");
 		
 		Servo lifter = hardwareMap.get(Servo.class, "lifter");
 		Servo gripperOne = hardwareMap.get(Servo.class, "gripperone");
@@ -102,7 +102,7 @@ public class OwenTestTele extends OpMode {
 		gyro = new Gyro(imu, 0);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
-		intake = new Intake(intakeDrive, reachOne, reachTwo);
+		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
 	}
 	

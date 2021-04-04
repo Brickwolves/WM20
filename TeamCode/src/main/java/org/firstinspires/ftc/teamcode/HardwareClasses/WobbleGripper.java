@@ -24,7 +24,7 @@ public class WobbleGripper {
     private static final double ARM_FOLD = 1;
     private static final double ARM_CONTROL_RATE = -.00005;
     
-    private ArmState currentArmState = ArmState.STATE_UP;
+    private static ArmState currentArmState = ArmState.STATE_UP;
     private GripperState currentGripperState = GripperState.STATE_GRIP;
     private ElapsedTime gripperTime = new ElapsedTime();
 
