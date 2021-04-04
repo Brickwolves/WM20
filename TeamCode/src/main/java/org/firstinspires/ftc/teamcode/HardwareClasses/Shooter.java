@@ -14,7 +14,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.00014, 0.00001, 0.00003, 0, false);
+    public PID shooterPID = new PID(.00014, 0.00001, 0.00003, 2000.0);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -22,7 +22,7 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3500;
+    private static final int TOP_GOAL = 3400;
     private static final int POWER_SHOT = 3050;
     
     private static final double FEED_TIME = .23;
@@ -30,7 +30,6 @@ public class Shooter {
     private static final double LOCK_TIME = .8;
     private static final double UNLOCK_TIME = .1;
     
-    private double shooterPower = 0.0;
     private boolean isFeederLocked;
     private double shooterRPM;
     private static int feedCount = 0;
@@ -143,7 +142,7 @@ public class Shooter {
     }
 
     public void setRPM(int targetRPM){
-        shooterPower = shooterPID.update( targetRPM - updateRPM());
+        double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
         setPower(shooterPower);
