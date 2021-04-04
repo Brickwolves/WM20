@@ -152,7 +152,7 @@ public class OwenTestTele extends OpMode {
 		
 		
 		//operator controls
-		shooter.shooterState(driver.trianglePress(), false, false);
+		shooter.shooterState(driver.trianglePress(), false, false, 0);
 		shooter.feederState(driver.square());
 		
 		intake.intakeState(driver.crossPress(), driver.circle());

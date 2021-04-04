@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -76,8 +80,11 @@ public class Shooter {
             
             case STATE_IDLE:
                 if(trigger && getPower() >= .1 && currentShooterState != ShooterState.STATE_OFF){ newState(FeederState.STATE_FEED); }
-                if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); isFeederLocked = false; }
-                else{ unlockFeeder(); isFeederLocked = false; }
+                
+                if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
+                else{ unlockFeeder(); }
+                
+                isFeederLocked = false;
                 resetFeeder();
                 break;
             
@@ -141,6 +148,7 @@ public class Shooter {
         return shooterRPM;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void setRPM(int targetRPM){
         shooterPID.setFComponent(targetRPM / 10000.0);
         
@@ -151,13 +159,19 @@ public class Shooter {
     }
     
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void highTower(){ setRPM(TOP_GOAL); }
+    
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void highTower(double distance){ setRPM((int) (TOP_GOAL + (distance  - 70) * 10)); }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void powerShot(){ setRPM(POWER_SHOT); }
 
     public void shooterOff(){ setPower(0.0); }
     
-    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal){
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, double towerDistance){
         switch (currentShooterState) {
             
             case STATE_OFF:
