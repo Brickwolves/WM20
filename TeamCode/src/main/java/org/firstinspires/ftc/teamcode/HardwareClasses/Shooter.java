@@ -14,7 +14,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.00014, 0.00001, 0.00003, 2000.0);
+    public PID shooterPID = new PID(.00025, 0.000002, 0.00009, 0.3, 40);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.05;
@@ -142,6 +142,8 @@ public class Shooter {
     }
 
     public void setRPM(int targetRPM){
+        shooterPID.setFComponent(targetRPM / 10000.0);
+        
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
@@ -168,20 +170,27 @@ public class Shooter {
                     break;
                 }
                 
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
+                if (powerShot) {
+                    newState(ShooterState.STATE_POWER_SHOT);
+                    shooterPID.resetIntegralSum();
+                    if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
+                        Intake.newState(Intake.IntakeState.STATE_OFF);
+                    }
+                    break;
+                }
                 feedCount = 0;
                 shooterOff();
                 break;
                 
             case STATE_TOP_GOAL:
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterPID.resetIntegralSum(); break; }
-                if (shooterOnOff) { newState(ShooterState.STATE_OFF); break; }
+                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT);  break; }
+                if (shooterOnOff || topGoal) { newState(ShooterState.STATE_OFF); break; }
                 highTower();
                 break;
                 
             case STATE_POWER_SHOT:
-                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL); shooterPID.resetIntegralSum(); break; }
-                if (shooterOnOff) { newState(ShooterState.STATE_OFF); break; }
+                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  break; }
+                if (shooterOnOff || powerShot) { newState(ShooterState.STATE_OFF); break; }
                 powerShot();
                 break;
         }

@@ -56,7 +56,7 @@ public class PID {
     public double update(double error){
     
         integralSum += error;
-        if(integralSum != 0){ integralSum -= integralBuffer.getValue(error); }
+        if(integralLength != 0){ integralSum -= integralBuffer.getValue(error); }
         
         
         double currentTime = System.currentTimeMillis();
@@ -82,6 +82,10 @@ public class PID {
     
     public double getResult() {
         return result;
+    }
+    
+    public void setFComponent(double fComponent){
+        this.fComponent = fComponent;
     }
     
     public void resetIntegralSum(){
