@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.Utils;
-import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
-import org.firstinspires.ftc.utilities.Dash_GoalFinder;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -16,12 +12,12 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_WIDTH;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_HEIGHT;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.RING_HEIGHT;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.findNWidestContours;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.getDistance2Object;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.pixels2Degrees;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_WIDTH;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_HEIGHT;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.RING_HEIGHT;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.findNWidestContours;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.getDistance2Object;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.pixels2Degrees;
 import static org.firstinspires.ftc.utilities.Dash_RingFinder.MAX_Cb;
 import static org.firstinspires.ftc.utilities.Dash_RingFinder.MAX_Cr;
 import static org.firstinspires.ftc.utilities.Dash_RingFinder.MAX_Y;
@@ -33,7 +29,6 @@ import static org.firstinspires.ftc.utilities.Dash_RingFinder.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_RingFinder.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_RingFinder.horizonLineRatio;
 import static org.opencv.core.Core.inRange;
-import static org.opencv.core.Core.rotate;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_COMPLEX;

@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.Utils;
-import org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils;
-import org.firstinspires.ftc.utilities.Dash_GoalFinder;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -17,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.abs;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_HEIGHT;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.IMG_WIDTH;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.findNLargestContours;
-import static org.firstinspires.ftc.teamcode.Autonomous.lupineAutos.VisionUtils.pixels2Degrees;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_HEIGHT;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_WIDTH;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.findNLargestContours;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.pixels2Degrees;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_H;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_S;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_V;
@@ -33,7 +29,6 @@ import static org.firstinspires.ftc.utilities.Dash_GoalFinder.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.goalWidth;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.horizonLineRatio;
 import static org.opencv.core.Core.inRange;
-import static org.opencv.core.Core.rotate;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_COMPLEX;
@@ -48,7 +43,7 @@ import static org.opencv.imgproc.Imgproc.line;
 import static org.opencv.imgproc.Imgproc.putText;
 import static org.opencv.imgproc.Imgproc.rectangle;
 
-public class GoalFinderPipeline extends OpenCvPipeline {
+public class TowerAimPipeline extends OpenCvPipeline {
     private boolean viewportPaused;
 
 
@@ -119,16 +114,7 @@ public class GoalFinderPipeline extends OpenCvPipeline {
         double pixel_error = (IMG_WIDTH / 2) - center_x;
         degree_error = pixels2Degrees(pixel_error);
         line(output, center, new Point(center_x + pixel_error, center_y), new Scalar(0, 0, 255), thickness);
-
-        /*
-        Utils.multTelemetry.addData("Pixel Error", pixel_error);
-        Utils.multTelemetry.addData("Degree Error", degree_error);
-        Utils.multTelemetry.update();
-        */
-
-        // Log center
-        //String coords = "(" + center_x + ", " + center_y + ")";
-        //putText(output, coords, center, font, 0.5, color);
+        
 
         Point text_center = new Point(5, IMG_HEIGHT - 50);
         putText(output, "Degree Error: " + degree_error, text_center, font, 0.4, new Scalar(255, 255, 0));

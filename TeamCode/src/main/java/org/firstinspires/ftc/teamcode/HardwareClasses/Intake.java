@@ -23,6 +23,7 @@ public class Intake {
     private final static double TICKS_PER_ROTATION = 28;
     private double intakeRPM;
     private static ElapsedTime stallTime = new ElapsedTime();
+    public static ElapsedTime bumperTime = new ElapsedTime();
     
     RingBufferOwen positionRing = new RingBufferOwen(5);
     RingBufferOwen timeRing = new RingBufferOwen(5);
@@ -199,7 +200,8 @@ public class Intake {
         currentStallState = newState;
     }
     
-    private void newState(BumperState newState) {
+    public static void newState(BumperState newState) {
+        bumperTime.reset();
         currentBumperState = newState;
     }
     

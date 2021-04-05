@@ -1,4 +1,8 @@
 package org.firstinspires.ftc.utilities;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import static java.lang.Math.floorMod;
 
 public class PIDRingBuffer extends RingBuffer<PIDRingBuffer.DataPoint> {
@@ -23,6 +27,7 @@ public class PIDRingBuffer extends RingBuffer<PIDRingBuffer.DataPoint> {
     /**
      * @return Returns DataPoint containing the integral (sum of all values in RingBuffer) and derivative (rate of change between last two values of RingBuffer where x is time and y is error)
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public IntegralDerivativePair update(Double currentError, long currentTime) {
         System.out.println(list.size());
         int previousIndex = floorMod(index - derivateBuffer, list.size());
@@ -37,7 +42,7 @@ public class PIDRingBuffer extends RingBuffer<PIDRingBuffer.DataPoint> {
     }
 
     @Override
-public DataPoint getValue(DataPoint current) {
+    public DataPoint getValue(DataPoint current) {
         return list.get(index);
     }
 

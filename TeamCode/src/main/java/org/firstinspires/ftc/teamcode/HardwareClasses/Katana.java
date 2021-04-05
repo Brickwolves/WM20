@@ -9,7 +9,7 @@ public class Katana {
 	private static final double DOWN = 0.04;
 	private static final double UP = 0.2;
 	private static final double FULL_FOLD = 0.44;
-	private static final double HALF_FOLD = .4;
+	private static final double HALF_FOLD = .39;
 	private static final double SHOOT = 0.315;
 	
 	Servo katanaLeft, katanaRight;
@@ -42,9 +42,9 @@ public class Katana {
 					                                                  !(Sensors.gyro.getModAngle() < -238 && Sensors.gyro.getModAngle() > -302))) {
 			if (Shooter.currentShooterState != ShooterState.STATE_OFF) {
 				katanaShoot();
-			} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT) {
+			} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT && Intake.bumperTime.seconds() > .2) {
 				katanaHalfFold();
-			} else {
+			} else if (Intake.bumperTime.seconds() > .15){
 				katanaFullFold();
 			}
 			

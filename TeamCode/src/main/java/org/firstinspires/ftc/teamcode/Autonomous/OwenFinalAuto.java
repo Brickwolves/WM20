@@ -33,7 +33,7 @@ public class OwenFinalAuto extends OpMode {
 	private Shooter shooter;
 	private Intake intake;
 	private WobbleGripper wobble;
-	private Sensors sensors;
+	private static Sensors sensors;
 	
 	
 	private MainState currentMainState = MainState.state1Drive;
@@ -69,9 +69,11 @@ public class OwenFinalAuto extends OpMode {
 		OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName, cameraMonitorViewId);
 		
 		
-		operator = new Controller(gamepad2);
+		
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
+		
+		operator = new Controller(gamepad2);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
@@ -80,7 +82,7 @@ public class OwenFinalAuto extends OpMode {
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
 		//Sensors.backCamera.setPipeline(Sensors.backCamera.towerTrackPipeline);
-		Sensors.backCamera.openCamera();
+		Sensors.backCamera.startVision();
 	}
 	
 	public void init_loop(){
@@ -100,8 +102,8 @@ public class OwenFinalAuto extends OpMode {
 		}
 		
 		
-		telemetry.addData("Stack Analysis = ", Sensors.backCamera.getStackAnalysis());
-		telemetry.addData("Ring Count = ", Sensors.backCamera.getRingCount());
+		telemetry.addData("Stack Analysis = ", Sensors.backCamera.startingStackAnalysis());
+		telemetry.addData("Ring Count = ", Sensors.backCamera.startingStackCount());
 		telemetry.update();
 		
 		sleep(50);
@@ -111,7 +113,7 @@ public class OwenFinalAuto extends OpMode {
 		mainTime.reset();
 		robot.resetGyro(180);
 		robot.resetWithoutEncoders();
-		ringCount = Sensors.backCamera.getRingCount();
+		ringCount = Sensors.backCamera.startingStackCount();
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)
