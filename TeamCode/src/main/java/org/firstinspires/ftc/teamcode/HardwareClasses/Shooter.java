@@ -21,18 +21,19 @@ public class Shooter {
     public PID shooterPID = new PID(.00025, 0.000002, 0.00009, 0.3, 40);
 
     private static final double TICKS_PER_ROTATION = 28;
-    private static final double RING_FEED = 0.05;
-    private static final double RESET = 0.38;
+    private static final double RING_FEED = 0.04;
+    
+    private static final double RESET = 0.31;
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
     private static final int TOP_GOAL = 3400;
     private static final int POWER_SHOT = 3050;
     
-    private static final double FEED_TIME = .23;
-    private static final double RESET_TIME = .2;
+    private static final double FEED_TIME = .12;
+    private static final double RESET_TIME = .1;
     private static final double LOCK_TIME = .8;
-    private static final double UNLOCK_TIME = .1;
+    private static final double UNLOCK_TIME = .06;
     
     private boolean isFeederLocked;
     private double shooterRPM;
@@ -79,7 +80,7 @@ public class Shooter {
         switch (currentFeederState) {
             
             case STATE_IDLE:
-                if(trigger && getPower() >= .1 && currentShooterState != ShooterState.STATE_OFF){ newState(FeederState.STATE_FEED); }
+                if(trigger){ newState(FeederState.STATE_FEED); }
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
                 else{ unlockFeeder(); }
