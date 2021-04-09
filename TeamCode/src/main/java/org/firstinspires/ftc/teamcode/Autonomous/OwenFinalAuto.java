@@ -64,10 +64,10 @@ public class OwenFinalAuto extends OpMode {
 		DcMotor shooterTwo = hardwareMap.get(DcMotor.class, "shootertwo");
 		DcMotor intakeDrive = hardwareMap.get(DcMotor.class, "intake");
 		
-		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-		WebcamName backCamName = hardwareMap.get(WebcamName.class, "Back Camera");
-		OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName, cameraMonitorViewId);
-		
+//		int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//		WebcamName backCamName = hardwareMap.get(WebcamName.class, "Back Camera");
+//		OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName, cameraMonitorViewId);
+//
 		
 		
 		Utils.setHardwareMap(hardwareMap);
@@ -78,14 +78,15 @@ public class OwenFinalAuto extends OpMode {
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
-		sensors = new Sensors(imu, null, webcam, null, null);
+		sensors = new Sensors(imu, null, null, null, null);
 		
-		Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
+		//Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
 		//Sensors.backCamera.setPipeline(Sensors.backCamera.towerTrackPipeline);
-		Sensors.backCamera.startVision();
+		//Sensors.backCamera.startVision();
 	}
 	
 	public void init_loop(){
+		operator.update();
 		shooter.resetFeeder();
 		shooter.lockFeeder();
 		if(operator.RBToggle()){
@@ -102,8 +103,8 @@ public class OwenFinalAuto extends OpMode {
 		}
 		
 		
-		telemetry.addData("Stack Analysis = ", Sensors.backCamera.startingStackAnalysis());
-		telemetry.addData("Ring Count = ", Sensors.backCamera.startingStackCount());
+		//telemetry.addData("Stack Analysis = ", Sensors.backCamera.startingStackAnalysis());
+		//telemetry.addData("Ring Count = ", Sensors.backCamera.startingStackCount());
 		telemetry.update();
 		
 		sleep(50);
@@ -113,7 +114,7 @@ public class OwenFinalAuto extends OpMode {
 		mainTime.reset();
 		robot.resetGyro(180);
 		robot.resetWithoutEncoders();
-		ringCount = Sensors.backCamera.startingStackCount();
+		ringCount = 4;
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)
@@ -592,7 +593,7 @@ public class OwenFinalAuto extends OpMode {
 				switch (currentMainState) {
 					//drive to target C
 					case state1Drive:
-						robot.strafe(76, 180, 0, 1, .2, 0);
+						robot.strafe(75, 180, 0, 1, .2, 0);
 						
 						if (robot.currentInches > 60) {
 							wobble.armDown();
@@ -636,7 +637,7 @@ public class OwenFinalAuto extends OpMode {
 					//turn towards power shots
 					case state5Turn:
 						if (mainTime.seconds() > .8) {
-							robot.turn(-5, 1, 0);
+							robot.turn(-2, 1, 0);
 							shooter.powerShot();
 						}
 						
@@ -662,6 +663,7 @@ public class OwenFinalAuto extends OpMode {
 								newState(MainState.state7PS2);
 							}
 						}
+						telemetry.addData("dbgkvsdhbwkduegf", Shooter.feederCount());
 						break;
 					
 					
@@ -799,7 +801,7 @@ public class OwenFinalAuto extends OpMode {
 						
 					case state16Shoot:
 						robot.setPowerAuto(0, 0, 0);
-						shooter.setRPM(3100);
+						shooter.highTower();
 						
 						if (mainTime.seconds() > 1.2) {
 							intake.intakeOff();

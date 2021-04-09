@@ -51,27 +51,27 @@ public class Intake {
         switch (ringThreshold){
             case 0:
                 bumperLeft.setPosition(ZERO_RING);
-                bumperRight.setPosition(ZERO_RING - .04);
+                bumperRight.setPosition(ZERO_RING - .09);
                 break;
     
             case 1:
                 bumperLeft.setPosition(ONE_RING);
-                bumperRight.setPosition(ONE_RING - .06);
+                bumperRight.setPosition(ONE_RING - .09);
                 break;
     
             case 2:
                 bumperLeft.setPosition(TWO_RING);
-                bumperRight.setPosition(TWO_RING - .04);
+                bumperRight.setPosition(TWO_RING - .09);
                 break;
     
             case 3:
                 bumperLeft.setPosition(THREE_RING);
-                bumperRight.setPosition(THREE_RING - .04);
+                bumperRight.setPosition(THREE_RING - .09);
                 break;
     
             case 4:
                 bumperLeft.setPosition(FOUR_RING);
-                bumperRight.setPosition(FOUR_RING - .06);
+                bumperRight.setPosition(FOUR_RING - .09);
                 break;
         }
         

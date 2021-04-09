@@ -91,4 +91,8 @@ public class PID {
     public void resetIntegralSum(){
         integralSum = 0;
     }
+    
+    public void setIntegralSum(double integralSum){
+        this.integralSum = integralSum;
+    }
 }

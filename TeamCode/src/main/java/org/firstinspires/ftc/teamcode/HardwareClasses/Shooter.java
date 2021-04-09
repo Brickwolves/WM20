@@ -18,7 +18,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.00025, 0.000002, 0.00009, 0.3, 40);
+    public PID shooterPID = new PID(.00021, 0.00003, 0.00011, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.04;
@@ -27,7 +27,7 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3400;
+    private static final int TOP_GOAL = 3550;
     private static final int POWER_SHOT = 3050;
     
     private static final double FEED_TIME = .1;
@@ -38,6 +38,7 @@ public class Shooter {
     private boolean isFeederLocked;
     private double shooterRPM;
     private static int feedCount = 0;
+    public static boolean highTowerJustOn = false;
 
     RingBufferOwen timeRing = new RingBufferOwen(5);
     RingBufferOwen positionRing = new RingBufferOwen(5);
@@ -73,6 +74,8 @@ public class Shooter {
     public void unlockFeeder(){
         feederLock.setPosition(FEEDER_UNLOCK);
     }
+    
+    public static void setFeederCount(int feederCount){ feedCount = feederCount; }
     
     public static double feederCount(){ return feedCount; }
     
@@ -153,8 +156,14 @@ public class Shooter {
     public void setRPM(int targetRPM){
         shooterPID.setFComponent(targetRPM / 10000.0);
         
+        
+        
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
+        if(getRPM() < targetRPM * .9){
+            shooterPID.setIntegralSum(4000);
+        }
+        
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
         setPower(shooterPower);
     }
@@ -173,6 +182,7 @@ public class Shooter {
     
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, double towerDistance){
+        highTowerJustOn = false;
         switch (currentShooterState) {
             
             case STATE_OFF:
@@ -182,6 +192,7 @@ public class Shooter {
                     if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
                         Intake.newState(Intake.IntakeState.STATE_OFF);
                     }
+                    highTowerJustOn = true;
                     break;
                 }
                 
@@ -204,7 +215,7 @@ public class Shooter {
                 break;
                 
             case STATE_POWER_SHOT:
-                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  break; }
+                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  highTowerJustOn = true; break; }
                 if (shooterOnOff || powerShot) { newState(ShooterState.STATE_OFF); break; }
                 powerShot();
                 break;
