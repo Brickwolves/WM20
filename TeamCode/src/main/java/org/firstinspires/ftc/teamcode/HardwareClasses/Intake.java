@@ -18,6 +18,7 @@ public class Intake {
     private final static double TWO_RING = 0.03;
     private final static double THREE_RING = 0.13;
     private final static double FOUR_RING = 0.25;
+    private final static double SERVO_DIFF = .09;
     private final static double INTAKE_ON = .87;
     private final static double INTAKE_REVERSE = .75;
     private final static double TICKS_PER_ROTATION = 28;
@@ -51,27 +52,27 @@ public class Intake {
         switch (ringThreshold){
             case 0:
                 bumperLeft.setPosition(ZERO_RING);
-                bumperRight.setPosition(ZERO_RING - .09);
+                bumperRight.setPosition(ZERO_RING - SERVO_DIFF);
                 break;
     
             case 1:
                 bumperLeft.setPosition(ONE_RING);
-                bumperRight.setPosition(ONE_RING - .09);
+                bumperRight.setPosition(ONE_RING - SERVO_DIFF);
                 break;
     
             case 2:
                 bumperLeft.setPosition(TWO_RING);
-                bumperRight.setPosition(TWO_RING - .09);
+                bumperRight.setPosition(TWO_RING - SERVO_DIFF);
                 break;
     
             case 3:
                 bumperLeft.setPosition(THREE_RING);
-                bumperRight.setPosition(THREE_RING - .09);
+                bumperRight.setPosition(THREE_RING - SERVO_DIFF);
                 break;
     
             case 4:
                 bumperLeft.setPosition(FOUR_RING);
-                bumperRight.setPosition(FOUR_RING - .09);
+                bumperRight.setPosition(FOUR_RING - SERVO_DIFF);
                 break;
         }
         
