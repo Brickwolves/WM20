@@ -17,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Visio
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_WIDTH;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.findNLargestContours;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.pixels2Degrees;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.getDistance2Tower;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_H;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_S;
 import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_V;
@@ -63,6 +64,8 @@ public class TowerAimPipeline extends OpenCvPipeline {
     private Scalar color = new Scalar(255, 0, 255);
     private int thickness = 2;
     private int font = FONT_HERSHEY_COMPLEX;
+    public boolean isTowerFound;
+    private double goalDistance;
 
     @Override
     public Mat processFrame(Mat input) {
@@ -97,7 +100,8 @@ public class TowerAimPipeline extends OpenCvPipeline {
         // Find contours of goal
         contours = new ArrayList<>();
         findContours(modified, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        if (contours.size() == 0) return output;
+        if (contours.size() == 0) { isTowerFound = false; return output; }
+        else isTowerFound = true;
 
         // Retrieve goal contours
         new_contours = findNLargestContours(2, contours);
@@ -105,6 +109,8 @@ public class TowerAimPipeline extends OpenCvPipeline {
         // Get goalRectangle
         Rect goalRect = getGoalRect(new_contours);
         rectangle(output, goalRect, color, thickness);
+        
+        goalDistance = getDistance2Tower(goalRect.y);
 
 
         // Calculate error
@@ -173,6 +179,10 @@ public class TowerAimPipeline extends OpenCvPipeline {
         }
 
         return goalRect;
+    }
+    
+    public double distance2Goal() {
+        return goalDistance;
     }
 
     public double getDegreeError(){

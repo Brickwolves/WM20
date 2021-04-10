@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
@@ -15,7 +10,9 @@ public class Camera {
 	
 	OpenCvWebcam webcam;
 	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
+	public RingFinderPipeline ringFinderPipeline = new RingFinderPipeline();
 	public TowerAimPipeline towerAimPipeline = new TowerAimPipeline();
+	public OpenCvPipeline currentPipeline;
 	
 	public Camera(OpenCvWebcam webcam){
 		this.webcam = webcam;
@@ -23,25 +20,30 @@ public class Camera {
 	
 	public void setPipeline(OpenCvPipeline pipeline){
 		webcam.setPipeline(pipeline);
+		OpenCvPipeline currentPipeline = pipeline;
 	}
 	
 	public void optimizeView(){ webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW); }
 	
 	public void optimizeEfficiency(){ webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.MAXIMIZE_EFFICIENCY); }
 	
-	public void startVision() {
+	public void startVision(int width, int height) {
 		webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
 			
 			@Override
-			public void onOpened() { webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT); }
+			public void onOpened() { webcam.startStreaming(width, height, OpenCvCameraRotation.UPRIGHT); }
 		});
 	}
 	
 	public int startingStackAnalysis(){ return startingStackPipeline.getStackAnalysis(); }
 	
-	public int startingStackCount(){ return startingStackPipeline.getRingCount(); }
+	public int startingStackCount(){ return ringFinderPipeline.getRingCount(); }
 	
 	public double towerAimError(){ return towerAimPipeline.getDegreeError(); }
+	
+	public double towerDistance(){ return towerAimPipeline.distance2Goal(); }
+	
+	public boolean isTowerFound(){ return towerAimPipeline.isTowerFound; }
 	
 	
 }

@@ -32,13 +32,15 @@ public class Shooter {
     
     private static final double FEED_TIME = .1;
     private static final double RESET_TIME = .09;
+    private static final double PS_RESET_TIME = 1;
     private static final double LOCK_TIME = .8;
     private static final double UNLOCK_TIME = .06;
     
     private boolean isFeederLocked;
     private double shooterRPM;
     private static int feedCount = 0;
-    public static boolean highTowerJustOn = false;
+    public static boolean shooterJustOn = false;
+    public static boolean feederJustOn = false;
 
     RingBufferOwen timeRing = new RingBufferOwen(5);
     RingBufferOwen positionRing = new RingBufferOwen(5);
@@ -80,10 +82,11 @@ public class Shooter {
     public static double feederCount(){ return feedCount; }
     
     public void feederState(boolean trigger){
+        feederJustOn = false;
         switch (currentFeederState) {
             
             case STATE_IDLE:
-                if(trigger && getPower() > .1 && currentShooterState != ShooterState.STATE_OFF){ newState(FeederState.STATE_FEED); }
+                if(trigger && getPower() > .1){ newState(FeederState.STATE_FEED); }
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
                 else{ unlockFeeder(); }
@@ -94,17 +97,18 @@ public class Shooter {
             
             case STATE_FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); feederJustOn = false; feedCount++; }
                     if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); feederJustOn = false; feedCount++; }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
             case STATE_RESET:
-                if (feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
+                if (currentShooterState != ShooterState.STATE_POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
+                if (currentShooterState == ShooterState.STATE_POWER_SHOT && feederTime.seconds() > PS_RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -161,7 +165,7 @@ public class Shooter {
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
         if(getRPM() < targetRPM * .9){
-            shooterPID.setIntegralSum(4000);
+            shooterPID.setIntegralSum(targetRPM * 1.126760563);
         }
         
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
@@ -182,7 +186,7 @@ public class Shooter {
     
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, double towerDistance){
-        highTowerJustOn = false;
+        shooterJustOn = false;
         switch (currentShooterState) {
             
             case STATE_OFF:
@@ -192,7 +196,7 @@ public class Shooter {
                     if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
                         Intake.newState(Intake.IntakeState.STATE_OFF);
                     }
-                    highTowerJustOn = true;
+                    shooterJustOn = true;
                     break;
                 }
                 
@@ -202,6 +206,7 @@ public class Shooter {
                     if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
                         Intake.newState(Intake.IntakeState.STATE_OFF);
                     }
+                    shooterJustOn = true;
                     break;
                 }
                 feedCount = 0;
@@ -209,13 +214,13 @@ public class Shooter {
                 break;
                 
             case STATE_TOP_GOAL:
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT);  break; }
+                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterJustOn = true; break; }
                 if (shooterOnOff || topGoal) { newState(ShooterState.STATE_OFF); break; }
                 highTower();
                 break;
                 
             case STATE_POWER_SHOT:
-                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  highTowerJustOn = true; break; }
+                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  shooterJustOn = true; break; }
                 if (shooterOnOff || powerShot) { newState(ShooterState.STATE_OFF); break; }
                 powerShot();
                 break;

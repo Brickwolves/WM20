@@ -15,17 +15,31 @@ public class VisionUtils {
     public static double IMG_WIDTH = 320;
     public static double IMG_HEIGHT = 240;
     public static final double FOV = 72;
-    public static final double FOCAL_LENGTH = 1;
+    public static final double VFOV = 43.3;
     public static final double RING_HEIGHT = 20;
     public static final double SENSOR_HEIGHT = 1;
 
-    public static double getDistance2Object(double object_pixel_height, double object_height) {
+    /*public static double getDistance2Object(double object_pixel_height, double object_height) {
         if (object_pixel_height == 0) return 0;
-        return (FOCAL_LENGTH * object_height * IMG_HEIGHT) / (object_pixel_height * SENSOR_HEIGHT);
+        return ((object_pixel_height * SENSOR_HEIGHT) / (FOCAL_LENGTH * object_height * IMG_HEIGHT));
+    }*/
+    
+    
+    public static double getDistance2Tower(double yValue) {
+        if (yValue == 0) return 0;
+        double towerHeight = 211 - yValue;
+        double theta = (towerHeight / IMG_HEIGHT) * .75;
+        return 100/Math.tan(theta);
     }
+    
+    
 
     public static double pixels2Degrees(double pixels) {
         return pixels * (FOV / IMG_WIDTH);
+    }
+
+    public static enum CONTOUR_OPTION {
+        AREA, WIDTH, HEIGHT
     }
 
     public static int findWidestContourIndex(List<MatOfPoint> contours){
@@ -51,6 +65,11 @@ public class VisionUtils {
             contours.remove(largest_index);
             if (contours.size() == 0) break;
         }
+
+        for (MatOfPoint cnt : contours){
+            cnt.release();
+        }
+
         return widest_contours;
     }
 
@@ -78,6 +97,11 @@ public class VisionUtils {
             contours.remove(largest_index);
             if (contours.size() == 0) break;
         }
+
+        for (MatOfPoint cnt : contours){
+            cnt.release();
+        }
+
         return new_contours;
     }
 

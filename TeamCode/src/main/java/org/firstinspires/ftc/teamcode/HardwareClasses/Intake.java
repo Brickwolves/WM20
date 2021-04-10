@@ -16,7 +16,7 @@ public class Intake {
     private final static double ZERO_RING = 0.015;
     private final static double ONE_RING = 0.1;
     private final static double TWO_RING = 0.03;
-    private final static double THREE_RING = 0.13;
+    private final static double THREE_RING = 0.14;
     private final static double FOUR_RING = 0.25;
     private final static double SERVO_DIFF = .09;
     private final static double INTAKE_ON = .87;

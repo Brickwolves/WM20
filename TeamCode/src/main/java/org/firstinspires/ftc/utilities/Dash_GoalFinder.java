@@ -19,6 +19,6 @@ public class Dash_GoalFinder {
     public static int erode_const = 5;
     public static int dilate_const = 5;
     public static int goalWidth = 100;
-    public static double horizonLineRatio = 0.5;
+    public static double horizonLineRatio = 1;
 
 }
