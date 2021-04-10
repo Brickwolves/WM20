@@ -18,7 +18,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.00021, 0.00003, 0.00011, 0.3, 50);
+    public PID shooterPID = new PID(.0002, 0.00003, 0.00019, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.04;
@@ -41,6 +41,7 @@ public class Shooter {
     private static int feedCount = 0;
     public static boolean shooterJustOn = false;
     public static boolean feederJustOn = false;
+    public static double targetRPM;
 
     RingBufferOwen timeRing = new RingBufferOwen(5);
     RingBufferOwen positionRing = new RingBufferOwen(5);
@@ -160,8 +161,6 @@ public class Shooter {
     public void setRPM(int targetRPM){
         shooterPID.setFComponent(targetRPM / 10000.0);
         
-        
-        
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
         if(getRPM() < targetRPM * .9){
@@ -174,7 +173,12 @@ public class Shooter {
     
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void highTower(){ setRPM(TOP_GOAL); }
+    public void highTower(){
+        double towerDistance = Sensors.frontCamera.towerDistance() / 100;
+        int RPM = (int) ((137)    * Math.sqrt((9.8 * Math.pow(towerDistance, 4))     /     (1.58 * (0.47 * towerDistance - .8))));
+        targetRPM = RPM;
+        setRPM(RPM);
+    }
     
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void highTower(double distance){ setRPM((int) (TOP_GOAL + (distance  - 70) * 10)); }

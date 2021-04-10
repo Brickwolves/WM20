@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.opencv.core.Mat;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
@@ -12,6 +11,7 @@ public class Camera {
 	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
 	public RingFinderPipeline ringFinderPipeline = new RingFinderPipeline();
 	public TowerAimPipeline towerAimPipeline = new TowerAimPipeline();
+	public PSAimPipeline PSAimPipeline = new PSAimPipeline();
 	public OpenCvPipeline currentPipeline;
 	
 	public Camera(OpenCvWebcam webcam){
@@ -44,6 +44,14 @@ public class Camera {
 	public double towerDistance(){ return towerAimPipeline.distance2Goal(); }
 	
 	public boolean isTowerFound(){ return towerAimPipeline.isTowerFound; }
+	
+	public double leftPSAimError(){ return PSAimPipeline.getPSError(org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.PSAimPipeline.PS.LEFT); }
+	
+	public double centerPSAimError(){ return PSAimPipeline.getPSError(org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.PSAimPipeline.PS.CENTER); }
+	
+	public double rightPSAimError(){ return PSAimPipeline.getPSError(org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.PSAimPipeline.PS.RIGHT); }
+	
+	public boolean arePSFound(){ return PSAimPipeline.arePSFound; }
 	
 	
 }

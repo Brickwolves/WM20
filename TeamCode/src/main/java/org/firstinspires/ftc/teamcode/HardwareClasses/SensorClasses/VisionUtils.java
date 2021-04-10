@@ -15,31 +15,54 @@ public class VisionUtils {
     public static double IMG_WIDTH = 320;
     public static double IMG_HEIGHT = 240;
     public static final double FOV = 72;
-    public static final double VFOV = 43.3;
     public static final double RING_HEIGHT = 20;
-    public static final double SENSOR_HEIGHT = 1;
-
-    /*public static double getDistance2Object(double object_pixel_height, double object_height) {
-        if (object_pixel_height == 0) return 0;
-        return ((object_pixel_height * SENSOR_HEIGHT) / (FOCAL_LENGTH * object_height * IMG_HEIGHT));
-    }*/
+    public static final double TOWER_HEIGHT = 211;
     
     
     public static double getDistance2Tower(double yValue) {
         if (yValue == 0) return 0;
-        double towerHeight = 211 - yValue;
+        double towerHeight = TOWER_HEIGHT - yValue;
         double theta = (towerHeight / IMG_HEIGHT) * .75;
         return 100/Math.tan(theta);
     }
     
-    
-
     public static double pixels2Degrees(double pixels) {
         return pixels * (FOV / IMG_WIDTH);
     }
 
     public static enum CONTOUR_OPTION {
         AREA, WIDTH, HEIGHT
+    }
+    
+    public static int findLeftMostContourIndex(List<MatOfPoint> contours){
+        int index = 0;
+        double minX = Integer.MAX_VALUE;
+        for (int i=0; i < contours.size(); i++){
+            MatOfPoint cnt = contours.get(i);
+            double x = boundingRect(cnt).x;
+            if (x < minX) {
+                minX = x;
+                index = i;
+            }
+        }
+        return index;
+    }
+    
+    public static List<MatOfPoint> findNLeftMostContours(int n, List<MatOfPoint> contours){
+        List<MatOfPoint> widest_contours = new ArrayList<>();
+        for (int j=0; j < n; j++){
+            int largest_index = findLeftMostContourIndex(contours);
+            widest_contours.add(contours.get(largest_index));
+            
+            contours.remove(largest_index);
+            if (contours.size() == 0) break;
+        }
+        
+        for (MatOfPoint cnt : contours){
+            cnt.release();
+        }
+        
+        return widest_contours;
     }
 
     public static int findWidestContourIndex(List<MatOfPoint> contours){
