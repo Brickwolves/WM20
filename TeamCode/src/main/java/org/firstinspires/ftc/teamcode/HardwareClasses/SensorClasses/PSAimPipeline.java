@@ -12,9 +12,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.blur;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.dilate_const;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.erode_const;
+import static org.firstinspires.ftc.utilities.Dash_PSFinder.blur;
+import static org.firstinspires.ftc.utilities.Dash_PSFinder.dilate_const;
+import static org.firstinspires.ftc.utilities.Dash_PSFinder.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_PSFinder.MAX_Cb;
 import static org.firstinspires.ftc.utilities.Dash_PSFinder.MAX_Cr;
 import static org.firstinspires.ftc.utilities.Dash_PSFinder.MAX_Y;
@@ -113,6 +113,24 @@ public class PSAimPipeline extends OpenCvPipeline {
         // Find contours of goal
         contours = new ArrayList<>();
         findContours(modified, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+    
+        ArrayList<Integer> indexes2Remove = new ArrayList<>();
+        for (int i=0; i < contours.size(); i++){
+            Rect rect = boundingRect(contours.get(i));
+            if (rect.width > rect.height) indexes2Remove.add(i);
+        }
+        for (int i =0; i < indexes2Remove.size(); i++){
+            int index1 = indexes2Remove.get(i);
+            if (contours.size() > 0) contours.remove(index1);
+            else return output;
+        
+            // adjust other indexes that move down
+            for (int j=0; j < indexes2Remove.size(); j++){
+                int index2 = indexes2Remove.get(j);
+                if (index1 < index2) indexes2Remove.set(j, index2 - 1);
+            }
+        }
+        
         if (contours.size() == 0) return output;
 
         // Remove contour if it's the size of the FREAKING SCREEN
@@ -156,7 +174,7 @@ public class PSAimPipeline extends OpenCvPipeline {
 
             // Calculate error
             double pixel_error = (IMG_WIDTH / 2) - center_x;
-            degree_error = pixels2Degrees(pixel_error)-2;
+            degree_error = pixels2Degrees(pixel_error);
             ps_errors[c] = degree_error;
 
             // Visually identify power shots

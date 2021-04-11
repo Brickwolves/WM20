@@ -98,18 +98,18 @@ public class Shooter {
             
             case STATE_FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); feederJustOn = false; feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET);  feedCount++; }
                     if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); feederJustOn = false; feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET);  feedCount++; }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
             case STATE_RESET:
-                if (currentShooterState != ShooterState.STATE_POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
-                if (currentShooterState == ShooterState.STATE_POWER_SHOT && feederTime.seconds() > PS_RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
+                if (currentShooterState != ShooterState.STATE_POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE);  break; }
+                if (currentShooterState == ShooterState.STATE_POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE);  feederJustOn = true;break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -175,13 +175,15 @@ public class Shooter {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void highTower(){
         double towerDistance = Sensors.frontCamera.towerDistance() / 100;
-        int RPM = (int) ((137)    * Math.sqrt((9.8 * Math.pow(towerDistance, 4))     /     (1.58 * (0.47 * towerDistance - .8))));
+        int RPM;
+        if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound()){
+             RPM = TOP_GOAL;
+        }else {
+            RPM = (int) ((137) * Math.sqrt((9.8 * Math.pow(towerDistance, 4)) / (.7426 * towerDistance - 1.264)));
+        }
         targetRPM = RPM;
         setRPM(RPM);
     }
-    
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void highTower(double distance){ setRPM((int) (TOP_GOAL + (distance  - 70) * 10)); }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void powerShot(){ setRPM(POWER_SHOT); }
