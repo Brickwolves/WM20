@@ -12,8 +12,20 @@ public class Sensors {
 	public static Gyro gyro;
 	public static Camera frontCamera, backCamera;
 	public static DistanceSensor backDist, rightDist;
-
-	public Sensors(IMU imu, OpenCvWebcam frontCamera, OpenCvWebcam backCamera, DistanceSensor backDist, DistanceSensor rightDist){
+	
+	public static void mapSensors(IMU imu) {
+		mapSensors(imu, null, null, null, null);
+	}
+	
+	public static void mapSensors(IMU imu, OpenCvWebcam frontCamera) {
+		mapSensors(imu, frontCamera, null, null, null);
+	}
+	
+	public static void mapSensors(IMU imu, OpenCvWebcam frontCamera, OpenCvWebcam backCamera) {
+		mapSensors(imu, frontCamera, backCamera, null, null);
+	}
+	
+	public static void mapSensors(IMU imu, OpenCvWebcam frontCamera, OpenCvWebcam backCamera, DistanceSensor backDist, DistanceSensor rightDist){
 		Sensors.gyro = new Gyro(imu, 0);
 		Sensors.frontCamera = new Camera(frontCamera);
 		Sensors.backCamera = new Camera(backCamera);

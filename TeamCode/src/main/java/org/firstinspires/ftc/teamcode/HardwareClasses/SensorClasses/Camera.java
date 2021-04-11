@@ -29,6 +29,8 @@ public class Camera {
 		webcam.openCameraDeviceAsync(() -> webcam.startStreaming(width, height, OpenCvCameraRotation.UPRIGHT));
 	}
 	
+	public void stopVision(){ webcam.closeCameraDevice(); }
+	
 	public int startingStackAnalysis(){ return startingStackPipeline.getStackAnalysis(); }
 	
 	public int startingStackCount(){ return ringFinderPipeline.getRingCount(); }

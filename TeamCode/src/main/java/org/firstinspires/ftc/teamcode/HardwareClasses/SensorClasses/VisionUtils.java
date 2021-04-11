@@ -12,7 +12,7 @@ import static org.opencv.imgproc.Imgproc.contourArea;
 public class VisionUtils {
 
     public static OpenCvCamera webcam;
-    public static double IMG_WIDTH = 320;
+    public static double IMG_WIDTH = 432;
     public static double IMG_HEIGHT = 240;
     public static final double FOV = 72;
     public static final double RING_HEIGHT = 20;

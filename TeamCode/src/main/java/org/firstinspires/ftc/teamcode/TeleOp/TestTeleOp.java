@@ -42,7 +42,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
-import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
+import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumDrive;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
 import org.firstinspires.ftc.utilities.IMU;
@@ -62,7 +62,7 @@ public class TestTeleOp extends OpMode {
 	
 	
 	private Gyro gyro;
-	private MecanumChassis robot;
+	private MecanumDrive robot;
 	private Shooter shooter;
 	private Intake intake;
 	private WobbleGripper wobble;
@@ -100,7 +100,7 @@ public class TestTeleOp extends OpMode {
 		IMU imu = new IMU("imu");
 		
 		gyro = new Gyro(imu, 0);
-		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
+		robot = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);

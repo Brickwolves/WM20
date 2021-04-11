@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Katana;
-import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumChassis;
+import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumDrive;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.WobbleGripper;
@@ -30,7 +30,7 @@ import static android.os.SystemClock.sleep;
 public class RealAutonomous extends OpMode {
 	
 	private Controller operator;
-	private MecanumChassis robot;
+	private MecanumDrive robot;
 	private Shooter shooter;
 	private Intake intake;
 	private WobbleGripper wobble;
@@ -83,10 +83,10 @@ public class RealAutonomous extends OpMode {
 		operator = new Controller(gamepad2);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
-		robot = new MecanumChassis(frontLeft, frontRight, backLeft, backRight);
+		robot = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
 		katana = new Katana(katanaLeft, katanaRight);
-		sensors = new Sensors(imu, null, backCam, null, null);
+		Sensors.mapSensors(imu, null, backCam);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.ringFinderPipeline);
 		Sensors.backCamera.startVision(1920, 1080);
@@ -120,6 +120,9 @@ public class RealAutonomous extends OpMode {
 		robot.resetGyro(180);
 		robot.resetWithoutEncoders();
 		ringCount = Sensors.backCamera.startingStackCount();
+		Sensors.backCamera.stopVision();
+		Sensors.frontCamera.startVision(480, 240);
+		Sensors.frontCamera.setPipeline(Sensors.frontCamera.autoAimPipeline);
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)

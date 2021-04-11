@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.MathUtils;
 import org.firstinspires.ftc.utilities.RingBuffer;
@@ -8,12 +13,13 @@ public class Gyro {
 
     private IMU imu;
     private double datum;
-    private final RingBuffer<Double> timeRing = new RingBuffer<>(4, 0.0);
-    private final RingBuffer<Double> angleRing = new RingBuffer<>(4, 0.0);
+    private final RingBuffer<Double> angleRing = new RingBuffer<>(4,0.0);
+    private final RingBuffer<Long> angleTimeRing = new RingBuffer<>(4, (long)0);
     
     private double imuAngle = 0;
     private double rawAngle = 0;
     private double modAngle = 0;
+    private double rateOfChange = 0;
 
     public Gyro(IMU imu, double datum) {
         this.imu = imu;
@@ -24,6 +30,15 @@ public class Gyro {
         imuAngle = imu.getAngle();
         rawAngle = imu.getAngle() - datum;
         modAngle = MathUtils.mod(rawAngle, 360);
+    
+        long currentTime = System.currentTimeMillis();
+        long deltaMili = currentTime - angleTimeRing.getValue(currentTime);
+        double deltaSeconds = deltaMili / 1000.0;
+    
+        double currentAngle = Sensors.gyro.getRawAngle();
+        double deltaAngle = currentAngle - angleRing.getValue(currentAngle);
+        
+        rateOfChange = deltaAngle/deltaSeconds;
     }
 
     public void setImu(IMU imu) {
@@ -54,26 +69,14 @@ public class Gyro {
         
         if(maxAngle < minAngle) return modAngle > minAngle || modAngle < maxAngle;
         else return modAngle > minAngle && modAngle < maxAngle;
-        
-        
     }
     
     public double rateOfChange(){
-        double retVal;
-
-        double currentTime = System.currentTimeMillis();
-        double deltaMili = currentTime - timeRing.getValue(currentTime);
-        double deltaSeconds = deltaMili / 1000.0;
-
-        double currentAngle = getRawAngle();
-        double deltaAngle = currentAngle - angleRing.getValue(currentAngle);
-
-        retVal = deltaAngle / deltaSeconds;
-
-        return retVal;
+        return rateOfChange;
     }
 
     //TODO Make this work with more accuracy. Curse you, floorMod(int)!
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public double absToRel(int targetAbsoluteAngle){
         double retval = MathUtils.floorModDouble((360) + imu.getAngle(), 360);
         return (retval <= 180) ? retval : -1 * (360 - retval);
