@@ -29,10 +29,10 @@ public class Intake {
     RingBufferOwen positionRing = new RingBufferOwen(5);
     RingBufferOwen timeRing = new RingBufferOwen(5);
     
-    public static IntakeState currentIntakeState = IntakeState.STATE_OFF;
-    public static IntakeState previousIntakeState = IntakeState.STATE_OFF;
-    private StallState currentStallState = StallState.STATE_START;
-    public static BumperState currentBumperState = BumperState.STATE_RETRACT;
+    public static IntakeState currentIntakeState = IntakeState.OFF;
+    public static IntakeState previousIntakeState = IntakeState.OFF;
+    private StallState currentStallState = StallState.START;
+    public static BumperState currentBumperState = BumperState.RETRACT;
     
     public Intake(DcMotor intakeDrive, Servo bumperLeft, Servo bumperRight){
         intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -81,20 +81,20 @@ public class Intake {
     public void bumperState(boolean deployToggle, boolean rollingRings){
         switch (currentBumperState) {
             
-            case STATE_RETRACT:
-                if (deployToggle) { newState(BumperState.STATE_DEPLOY); break; }
-                if (rollingRings) { newState(BumperState.STATE_ROLLING); break; }
+            case RETRACT:
+                if (deployToggle) { newState(BumperState.DEPLOY); break; }
+                if (rollingRings) { newState(BumperState.ROLLING); break; }
                 retractBumper();
                 break;
             
-            case STATE_DEPLOY:
-                if (deployToggle) { newState(BumperState.STATE_RETRACT); newState(IntakeState.STATE_OFF); break; }
-                if (rollingRings) { newState(BumperState.STATE_ROLLING); break; }
+            case DEPLOY:
+                if (deployToggle) { newState(BumperState.RETRACT); newState(IntakeState.OFF); break; }
+                if (rollingRings) { newState(BumperState.ROLLING); break; }
                 setBumperThreshold(1);
                 break;
     
-            case STATE_ROLLING:
-                if (!rollingRings) { newState(BumperState.STATE_DEPLOY); break; }
+            case ROLLING:
+                if (!rollingRings) { newState(BumperState.DEPLOY); break; }
                 setBumperThreshold(4);
                 break;
         }
@@ -122,22 +122,22 @@ public class Intake {
     
     public void intakeStallControl(){
         switch(currentStallState){
-            case STATE_START:
+            case START:
                 intakeOn();
-                newState(StallState.STATE_ON);
+                newState(StallState.ON);
                 break;
                 
-            case STATE_ON:
+            case ON:
                 intakeOn();
                 if(updateRPM() < 200 && stallTime.seconds() > .3){
-                    newState(StallState.STATE_REVERSE);
+                    newState(StallState.REVERSE);
                 }
                 break;
                 
-            case STATE_REVERSE:
+            case REVERSE:
                 intakeReverse();
                 if(stallTime.seconds() > .2){
-                    newState(StallState.STATE_ON);
+                    newState(StallState.ON);
                 }
                 break;
         }
@@ -150,35 +150,35 @@ public class Intake {
     public void intakeState(boolean intakeOnOff, boolean intakeReverse){
         switch (currentIntakeState) {
             
-            case STATE_OFF:
+            case OFF:
                 if (intakeOnOff) {
-                    newState(IntakeState.STATE_ON);
-                    if(currentBumperState == BumperState.STATE_RETRACT) { newState(BumperState.STATE_DEPLOY); }
-                    if(Shooter.currentShooterState != Shooter.ShooterState.STATE_OFF){
-                        Shooter.newState(Shooter.ShooterState.STATE_OFF);
+                    newState(IntakeState.ON);
+                    if(currentBumperState == BumperState.RETRACT) { newState(BumperState.DEPLOY); }
+                    if(Shooter.currentShooterState != Shooter.ShooterState.OFF){
+                        Shooter.newState(Shooter.ShooterState.OFF);
                     }
                     break;
                 }
                 
                 if (intakeReverse) {
-                    newState(IntakeState.STATE_REVERSE);
-                    if(currentBumperState == BumperState.STATE_RETRACT) { newState(BumperState.STATE_DEPLOY); }
+                    newState(IntakeState.REVERSE);
+                    if(currentBumperState == BumperState.RETRACT) { newState(BumperState.DEPLOY); }
                     break; }
                 intakeOff();
                 break;
             
                 
-            case STATE_ON:
-                if (intakeReverse) { newState(IntakeState.STATE_REVERSE); break; }
-                if (intakeOnOff) { newState(IntakeState.STATE_OFF); break; }
+            case ON:
+                if (intakeReverse) { newState(IntakeState.REVERSE); break; }
+                if (intakeOnOff) { newState(IntakeState.OFF); break; }
                 intakeStallControl();
                 break;
                 
-            case STATE_REVERSE:
+            case REVERSE:
                 if(!intakeReverse){
                     switch(previousIntakeState){
-                        case STATE_ON: newState(IntakeState.STATE_ON); break;
-                        case STATE_OFF: newState(IntakeState.STATE_OFF); break;
+                        case ON: newState(IntakeState.ON); break;
+                        case OFF: newState(IntakeState.OFF); break;
                     }
                 }
                 intakeReverse();
@@ -207,21 +207,21 @@ public class Intake {
     }
     
     public static enum IntakeState {
-        STATE_OFF,
-        STATE_ON,
-        STATE_REVERSE
+        OFF,
+        ON,
+        REVERSE
     }
     
     private enum StallState {
-        STATE_ON,
-        STATE_REVERSE,
-        STATE_START
+        ON,
+        REVERSE,
+        START
     }
     
     public static enum BumperState {
-        STATE_RETRACT,
-        STATE_DEPLOY,
-        STATE_ROLLING
+        RETRACT,
+        DEPLOY,
+        ROLLING
     }
     
 }

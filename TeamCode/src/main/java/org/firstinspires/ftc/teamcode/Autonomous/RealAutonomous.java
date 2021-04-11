@@ -108,11 +108,7 @@ public class RealAutonomous extends OpMode {
 			intake.retractBumper();
 		}
 		
-		if(operator.upPress()) Sensors.backCamera.setPipeline(Sensors.backCamera.ringFinderPipeline);
-		if(operator.downPress()) Sensors.backCamera.setPipeline(Sensors.backCamera.startingStackPipeline);
-		
 		telemetry.addData("Ring Count = ", Sensors.backCamera.startingStackCount());
-		telemetry.addData("current pipeline", Sensors.backCamera.startingStackAnalysis());
 		telemetry.update();
 		
 		sleep(50);

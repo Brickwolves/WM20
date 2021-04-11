@@ -127,8 +127,8 @@ public class TestTeleOp extends OpMode {
 	public void start() {
 		robot.resetGyro(0);
 		
-		wobble.newState(WobbleGripper.ArmState.STATE_FOLD);
-		wobble.newState(WobbleGripper.GripperState.STATE_HALF);
+		wobble.newState(WobbleGripper.ArmState.FOLD);
+		wobble.newState(WobbleGripper.GripperState.HALF);
 		
 		mainTime.reset();
 	}

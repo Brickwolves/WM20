@@ -18,7 +18,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.0002, 0.00003, 0.00019, 0.3, 50);
+    public PID shooterPID = new PID(.0002, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.04;
@@ -46,8 +46,8 @@ public class Shooter {
     RingBufferOwen timeRing = new RingBufferOwen(5);
     RingBufferOwen positionRing = new RingBufferOwen(5);
     
-    public static FeederState currentFeederState = FeederState.STATE_IDLE;
-    public static ShooterState currentShooterState = ShooterState.STATE_OFF;
+    public static FeederState currentFeederState = FeederState.IDLE;
+    public static ShooterState currentShooterState = ShooterState.OFF;
     
     public ElapsedTime feederTime = new ElapsedTime();
     
@@ -86,8 +86,8 @@ public class Shooter {
         feederJustOn = false;
         switch (currentFeederState) {
             
-            case STATE_IDLE:
-                if(trigger && getPower() > .1){ newState(FeederState.STATE_FEED); }
+            case IDLE:
+                if(trigger && getPower() > .1){ newState(FeederState.FEED); }
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
                 else{ unlockFeeder(); }
@@ -96,20 +96,20 @@ public class Shooter {
                 resetFeeder();
                 break;
             
-            case STATE_FEED:
+            case FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET);  feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.RESET);feedCount++; }
                     if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET);  feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.RESET); feedCount++; }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
-            case STATE_RESET:
-                if (currentShooterState != ShooterState.STATE_POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE);  break; }
-                if (currentShooterState == ShooterState.STATE_POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE);  feederJustOn = true;break; }
+            case RESET:
+                if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  break; }
+                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  feederJustOn = true;break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -195,22 +195,22 @@ public class Shooter {
         shooterJustOn = false;
         switch (currentShooterState) {
             
-            case STATE_OFF:
+            case OFF:
                 if (shooterOnOff || topGoal) {
-                    newState(ShooterState.STATE_TOP_GOAL);
+                    newState(ShooterState.TOP_GOAL);
                     shooterPID.resetIntegralSum();
-                    if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
-                        Intake.newState(Intake.IntakeState.STATE_OFF);
+                    if(Intake.currentIntakeState != Intake.IntakeState.OFF){
+                        Intake.newState(Intake.IntakeState.OFF);
                     }
                     shooterJustOn = true;
                     break;
                 }
                 
                 if (powerShot) {
-                    newState(ShooterState.STATE_POWER_SHOT);
+                    newState(ShooterState.POWER_SHOT);
                     shooterPID.resetIntegralSum();
-                    if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
-                        Intake.newState(Intake.IntakeState.STATE_OFF);
+                    if(Intake.currentIntakeState != Intake.IntakeState.OFF){
+                        Intake.newState(Intake.IntakeState.OFF);
                     }
                     shooterJustOn = true;
                     break;
@@ -219,15 +219,15 @@ public class Shooter {
                 shooterOff();
                 break;
                 
-            case STATE_TOP_GOAL:
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT); shooterJustOn = true; break; }
-                if (shooterOnOff || topGoal) { newState(ShooterState.STATE_OFF); break; }
+            case TOP_GOAL:
+                if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
+                if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
                 highTower();
                 break;
                 
-            case STATE_POWER_SHOT:
-                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  shooterJustOn = true; break; }
-                if (shooterOnOff || powerShot) { newState(ShooterState.STATE_OFF); break; }
+            case POWER_SHOT:
+                if (topGoal) { newState(ShooterState.TOP_GOAL);  shooterJustOn = true; break; }
+                if (shooterOnOff || powerShot) { newState(ShooterState.OFF); break; }
                 powerShot();
                 break;
         }
@@ -239,15 +239,15 @@ public class Shooter {
     public static void newState(ShooterState newState) { currentShooterState = newState; }
     
     private enum FeederState {
-        STATE_IDLE,
-        STATE_RESET,
-        STATE_FEED
+        IDLE,
+        RESET,
+        FEED
     }
     
     public enum ShooterState {
-        STATE_OFF,
-        STATE_TOP_GOAL,
-        STATE_POWER_SHOT
+        OFF,
+        TOP_GOAL,
+        POWER_SHOT
     }
     
 
