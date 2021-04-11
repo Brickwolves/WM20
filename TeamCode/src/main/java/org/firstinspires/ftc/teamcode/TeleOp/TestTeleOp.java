@@ -152,7 +152,7 @@ public class TestTeleOp extends OpMode {
 		
 		
 		//operator controls
-		shooter.shooterState(driver.trianglePress(), false, false, 0);
+		shooter.shooterState(driver.trianglePress(), false, false, false);
 		shooter.feederState(driver.square());
 		
 		intake.intakeState(driver.crossPress(), driver.circle());

@@ -21,8 +21,8 @@ public class Sensors {
 		Sensors.rightDist = rightDist;
 	}
 	
-	public double XCoordinate(){
-		return 2;
+	public static void update(){
+		gyro.update();
 	}
 
 

@@ -18,7 +18,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.0002, 0.00003, 0.00012, 0.3, 50);
+    public PID shooterPID = new PID(.00018, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.04;
@@ -43,8 +43,8 @@ public class Shooter {
     public static boolean feederJustOn = false;
     public static double targetRPM;
 
-    RingBufferOwen timeRing = new RingBufferOwen(5);
-    RingBufferOwen positionRing = new RingBufferOwen(5);
+    RingBufferOwen timeRing = new RingBufferOwen(3);
+    RingBufferOwen positionRing = new RingBufferOwen(3);
     
     public static FeederState currentFeederState = FeederState.IDLE;
     public static ShooterState currentShooterState = ShooterState.OFF;
@@ -164,7 +164,7 @@ public class Shooter {
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
         if(getRPM() < targetRPM * .9){
-            shooterPID.setIntegralSum(targetRPM * 1.126760563);
+            shooterPID.setIntegralSum(targetRPM * .8);
         }
         
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
@@ -173,10 +173,10 @@ public class Shooter {
     
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void highTower(){
+    public void highTower(boolean autoPower){
         double towerDistance = Sensors.frontCamera.towerDistance() / 100;
         int RPM;
-        if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound()){
+        if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
             RPM = (int) ((137) * Math.sqrt((9.8 * Math.pow(towerDistance, 4)) / (.7426 * towerDistance - 1.264)));
@@ -191,7 +191,7 @@ public class Shooter {
     public void shooterOff(){ setPower(0.0); }
     
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal){
+    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, boolean autoPower){
         shooterJustOn = false;
         switch (currentShooterState) {
             
@@ -222,7 +222,7 @@ public class Shooter {
             case TOP_GOAL:
                 if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
                 if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
-                highTower();
+                highTower(autoPower);
                 break;
                 
             case POWER_SHOT:

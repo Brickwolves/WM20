@@ -13,7 +13,9 @@ public class MathUtils {
     }
 
 
-
+    public static double mod(double value, int base){
+        return ((value % base) + base) % base;
+    }
 
     //TODO  I need to do a lot more documentation on my code as I write it -  so I can do a better job of maintenance
     //TODO Make these actually have input for accuracy like a normal function

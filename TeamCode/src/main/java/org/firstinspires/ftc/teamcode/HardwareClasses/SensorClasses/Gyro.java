@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
-import org.firstinspires.ftc.utilities.RingBuffer;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.MathUtils;
+import org.firstinspires.ftc.utilities.RingBuffer;
 
 public class Gyro {
 
@@ -10,10 +10,20 @@ public class Gyro {
     private double datum;
     private final RingBuffer<Double> timeRing = new RingBuffer<>(4, 0.0);
     private final RingBuffer<Double> angleRing = new RingBuffer<>(4, 0.0);
+    
+    private double imuAngle = 0;
+    private double rawAngle = 0;
+    private double modAngle = 0;
 
     public Gyro(IMU imu, double datum) {
         this.imu = imu;
         this.datum = datum;
+    }
+    
+    public void update(){
+        imuAngle = imu.getAngle();
+        rawAngle = imu.getAngle() - datum;
+        modAngle = MathUtils.mod(rawAngle, 360);
     }
 
     public void setImu(IMU imu) {
@@ -27,15 +37,25 @@ public class Gyro {
     public void reset() { datum = imu.getAngle(); }
 
     public double getRawAngle() {
-        return imu.getAngle() - datum;
+        return rawAngle;
     }
     
     public double getIMUAngle() {
-        return imu.getAngle();
+        return imuAngle;
     }
 
     public double getModAngle() {
-        return (imu.getAngle() - datum) % 360;
+        return modAngle;
+    }
+    
+    public boolean angleRange(double minAngle, double maxAngle){
+        minAngle = MathUtils.mod(minAngle, 360);
+        maxAngle = MathUtils.mod(maxAngle, 360);
+        
+        if(maxAngle < minAngle) return modAngle > minAngle || modAngle < maxAngle;
+        else return modAngle > minAngle && modAngle < maxAngle;
+        
+        
     }
     
     public double rateOfChange(){

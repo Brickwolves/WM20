@@ -698,7 +698,7 @@ public class RealAutonomous extends OpMode {
 						
 					case state16Shoot:
 						robot.setPowerAuto(0, 0, 0);
-						shooter.highTower();
+						shooter.highTower(true);
 						katana.katanaShoot();
 						
 						if (mainTime.seconds() > 1.2) {
