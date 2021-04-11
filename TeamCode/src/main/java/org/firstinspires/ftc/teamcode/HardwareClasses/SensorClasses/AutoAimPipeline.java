@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
+import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -13,21 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.abs;
+import static java.lang.StrictMath.atan2;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_HEIGHT;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_WIDTH;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.findNLargestContours;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.pixels2Degrees;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_H;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_S;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MAX_V;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MIN_H;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MIN_S;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.MIN_V;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.blur;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.dilate_const;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.erode_const;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.goalWidth;
-import static org.firstinspires.ftc.utilities.Dash_GoalFinder.horizonLineRatio;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.getDistance2Tower;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_H;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_S;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_V;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_H;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_S;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_V;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_LEFT_DIST;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_CENTER_DIST;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_RIGHT_DIST;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.blur;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.dilate_const;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.erode_const;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.goalWidth;
+import static org.firstinspires.ftc.utilities.Dash_AutoAim.horizonLineRatio;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
@@ -43,11 +49,11 @@ import static org.opencv.imgproc.Imgproc.line;
 import static org.opencv.imgproc.Imgproc.putText;
 import static org.opencv.imgproc.Imgproc.rectangle;
 
-public class TowerAimPipeline extends OpenCvPipeline {
+public class AutoAimPipeline extends OpenCvPipeline {
     private boolean viewportPaused;
 
 
-    private double degree_error = 0;
+    private double degreeError = 0;
 
     // Init mats here so we don't repeat
     private Mat modified = new Mat();
@@ -63,6 +69,8 @@ public class TowerAimPipeline extends OpenCvPipeline {
     private Scalar color = new Scalar(255, 0, 255);
     private int thickness = 2;
     private int font = FONT_HERSHEY_COMPLEX;
+    public boolean isTowerFound;
+    private double goalDistance;
 
     @Override
     public Mat processFrame(Mat input) {
@@ -97,7 +105,8 @@ public class TowerAimPipeline extends OpenCvPipeline {
         // Find contours of goal
         contours = new ArrayList<>();
         findContours(modified, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        if (contours.size() == 0) return output;
+        if (contours.size() == 0) { isTowerFound = false; return output; }
+        else isTowerFound = true;
 
         // Retrieve goal contours
         new_contours = findNLargestContours(2, contours);
@@ -105,6 +114,8 @@ public class TowerAimPipeline extends OpenCvPipeline {
         // Get goalRectangle
         Rect goalRect = getGoalRect(new_contours);
         rectangle(output, goalRect, color, thickness);
+        
+        goalDistance = getDistance2Tower(goalRect.y);
 
 
         // Calculate error
@@ -112,12 +123,12 @@ public class TowerAimPipeline extends OpenCvPipeline {
         int center_y = goalRect.y + (goalRect.height / 2);
         Point center = new Point(center_x, center_y);
         double pixel_error = (IMG_WIDTH / 2) - center_x;
-        degree_error = pixels2Degrees(pixel_error);
+        degreeError = pixels2Degrees(pixel_error);
         line(output, center, new Point(center_x + pixel_error, center_y), new Scalar(0, 0, 255), thickness);
         
 
         Point text_center = new Point(5, IMG_HEIGHT - 50);
-        putText(output, "Degree Error: " + degree_error, text_center, font, 0.4, new Scalar(255, 255, 0));
+        putText(output, "Degree Error: " + degreeError, text_center, font, 0.4, new Scalar(255, 255, 0));
         putText(output, "Pixel Error: " + pixel_error, new Point(5, IMG_HEIGHT - 40), font, 0.4, new Scalar(255, 255, 0));
 
 
@@ -174,9 +185,33 @@ public class TowerAimPipeline extends OpenCvPipeline {
 
         return goalRect;
     }
+    
+    public double distance2Goal() {
+        return goalDistance;
+    }
 
     public double getDegreeError(){
-        return degree_error;
+        return degreeError;
+    }
+    
+    public double getPSDegreeError(PowerShot powerShot){
+        double yDistance = goalDistance * Math.cos(Math.toRadians(Sensors.gyro.getRawAngle() + degreeError));
+        double zDistance = goalDistance * Math.sin(Math.toRadians(Sensors.gyro.getRawAngle() + degreeError));
+        double dDistance;
+        switch (powerShot){
+            case PS_LEFT:
+                dDistance = zDistance - PS_LEFT_DIST;
+                break;
+            case PS_CENTER:
+                dDistance = zDistance - PS_CENTER_DIST;
+                break;
+            case PS_RIGHT:
+                dDistance = zDistance - PS_RIGHT_DIST;
+                break;
+            default:
+                dDistance = 0;
+        }
+        return atan2(dDistance, yDistance);
     }
 
     public void releaseAllCaptures(){
@@ -187,6 +222,12 @@ public class TowerAimPipeline extends OpenCvPipeline {
                 cnt.release();
             }
         }
+    }
+    
+    public enum PowerShot{
+        PS_LEFT,
+        PS_CENTER,
+        PS_RIGHT
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Shooter {
     private final DcMotor shooterTwo;
     private final Servo feeder;
     private final Servo feederLock;
-    public PID shooterPID = new PID(.00025, 0.000002, 0.00009, 0.3, 40);
+    public PID shooterPID = new PID(.0002, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     private static final double RING_FEED = 0.04;
@@ -27,23 +27,27 @@ public class Shooter {
     private static final double FEEDER_LOCK = .46;
     private static final double FEEDER_UNLOCK = 0.2;
     
-    private static final int TOP_GOAL = 3400;
+    private static final int TOP_GOAL = 3550;
     private static final int POWER_SHOT = 3050;
     
-    private static final double FEED_TIME = .12;
-    private static final double RESET_TIME = .1;
+    private static final double FEED_TIME = .1;
+    private static final double RESET_TIME = .09;
+    private static final double PS_RESET_TIME = 1;
     private static final double LOCK_TIME = .8;
     private static final double UNLOCK_TIME = .06;
     
     private boolean isFeederLocked;
     private double shooterRPM;
     private static int feedCount = 0;
+    public static boolean shooterJustOn = false;
+    public static boolean feederJustOn = false;
+    public static double targetRPM;
 
     RingBufferOwen timeRing = new RingBufferOwen(5);
     RingBufferOwen positionRing = new RingBufferOwen(5);
     
-    public static FeederState currentFeederState = FeederState.STATE_IDLE;
-    public static ShooterState currentShooterState = ShooterState.STATE_OFF;
+    public static FeederState currentFeederState = FeederState.IDLE;
+    public static ShooterState currentShooterState = ShooterState.OFF;
     
     public ElapsedTime feederTime = new ElapsedTime();
     
@@ -74,13 +78,16 @@ public class Shooter {
         feederLock.setPosition(FEEDER_UNLOCK);
     }
     
+    public static void setFeederCount(int feederCount){ feedCount = feederCount; }
+    
     public static double feederCount(){ return feedCount; }
     
     public void feederState(boolean trigger){
+        feederJustOn = false;
         switch (currentFeederState) {
             
-            case STATE_IDLE:
-                if(trigger){ newState(FeederState.STATE_FEED); }
+            case IDLE:
+                if(trigger && getPower() > .1){ newState(FeederState.FEED); }
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
                 else{ unlockFeeder(); }
@@ -89,19 +96,20 @@ public class Shooter {
                 resetFeeder();
                 break;
             
-            case STATE_FEED:
+            case FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.STATE_RESET); feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.RESET);feedCount++; }
                     if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.STATE_RESET); feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.RESET); feedCount++; }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
-            case STATE_RESET:
-                if (feederTime.seconds() > RESET_TIME) { newState(FeederState.STATE_IDLE); break; }
+            case RESET:
+                if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  break; }
+                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  feederJustOn = true;break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -155,16 +163,27 @@ public class Shooter {
         
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
+        if(getRPM() < targetRPM * .9){
+            shooterPID.setIntegralSum(targetRPM * 1.126760563);
+        }
+        
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
         setPower(shooterPower);
     }
     
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void highTower(){ setRPM(TOP_GOAL); }
-    
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void highTower(double distance){ setRPM((int) (TOP_GOAL + (distance  - 70) * 10)); }
+    public void highTower(){
+        double towerDistance = Sensors.frontCamera.towerDistance() / 100;
+        int RPM;
+        if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound()){
+             RPM = TOP_GOAL;
+        }else {
+            RPM = (int) ((137) * Math.sqrt((9.8 * Math.pow(towerDistance, 4)) / (.7426 * towerDistance - 1.264)));
+        }
+        targetRPM = RPM;
+        setRPM(RPM);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void powerShot(){ setRPM(POWER_SHOT); }
@@ -173,39 +192,42 @@ public class Shooter {
     
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, double towerDistance){
+        shooterJustOn = false;
         switch (currentShooterState) {
             
-            case STATE_OFF:
+            case OFF:
                 if (shooterOnOff || topGoal) {
-                    newState(ShooterState.STATE_TOP_GOAL);
+                    newState(ShooterState.TOP_GOAL);
                     shooterPID.resetIntegralSum();
-                    if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
-                        Intake.newState(Intake.IntakeState.STATE_OFF);
+                    if(Intake.currentIntakeState != Intake.IntakeState.OFF){
+                        Intake.newState(Intake.IntakeState.OFF);
                     }
+                    shooterJustOn = true;
                     break;
                 }
                 
                 if (powerShot) {
-                    newState(ShooterState.STATE_POWER_SHOT);
+                    newState(ShooterState.POWER_SHOT);
                     shooterPID.resetIntegralSum();
-                    if(Intake.currentIntakeState != Intake.IntakeState.STATE_OFF){
-                        Intake.newState(Intake.IntakeState.STATE_OFF);
+                    if(Intake.currentIntakeState != Intake.IntakeState.OFF){
+                        Intake.newState(Intake.IntakeState.OFF);
                     }
+                    shooterJustOn = true;
                     break;
                 }
                 feedCount = 0;
                 shooterOff();
                 break;
                 
-            case STATE_TOP_GOAL:
-                if (powerShot) { newState(ShooterState.STATE_POWER_SHOT);  break; }
-                if (shooterOnOff || topGoal) { newState(ShooterState.STATE_OFF); break; }
+            case TOP_GOAL:
+                if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
+                if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
                 highTower();
                 break;
                 
-            case STATE_POWER_SHOT:
-                if (topGoal) { newState(ShooterState.STATE_TOP_GOAL);  break; }
-                if (shooterOnOff || powerShot) { newState(ShooterState.STATE_OFF); break; }
+            case POWER_SHOT:
+                if (topGoal) { newState(ShooterState.TOP_GOAL);  shooterJustOn = true; break; }
+                if (shooterOnOff || powerShot) { newState(ShooterState.OFF); break; }
                 powerShot();
                 break;
         }
@@ -217,15 +239,15 @@ public class Shooter {
     public static void newState(ShooterState newState) { currentShooterState = newState; }
     
     private enum FeederState {
-        STATE_IDLE,
-        STATE_RESET,
-        STATE_FEED
+        IDLE,
+        RESET,
+        FEED
     }
     
     public enum ShooterState {
-        STATE_OFF,
-        STATE_TOP_GOAL,
-        STATE_POWER_SHOT
+        OFF,
+        TOP_GOAL,
+        POWER_SHOT
     }
     
 

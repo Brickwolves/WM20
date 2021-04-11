@@ -14,7 +14,6 @@ public class WobbleGripper {
     private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
     
     private double armPosition;
-    private static final double BAT = .58;
     private static final double GRIP = .53;
     private static final double OPEN = 0.07;
     private static final double HALF = 0.35;
@@ -24,8 +23,8 @@ public class WobbleGripper {
     private static final double ARM_FOLD = 1;
     private static final double ARM_CONTROL_RATE = -.00005;
     
-    private static ArmState currentArmState = ArmState.STATE_UP;
-    private GripperState currentGripperState = GripperState.STATE_GRIP;
+    private static ArmState currentArmState = ArmState.UP;
+    private GripperState currentGripperState = GripperState.GRIP;
     private ElapsedTime gripperTime = new ElapsedTime();
 
     public WobbleGripper(Servo gripperOne, Servo gripperTwo, Servo lifter){
@@ -36,31 +35,28 @@ public class WobbleGripper {
     }
     
     
-    
     public void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP+.02); }
     
     public void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN+.02); }
     
     public void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF+.02); }
     
-    public void gripperBAT() { gripperOne.setPosition(BAT); gripperTwo.setPosition(BAT + .02);}
-    
     public void gripperState(boolean openClose){
         switch (currentGripperState){
     
-            case STATE_GRIP:
-                if(openClose && currentArmState != ArmState.STATE_FOLD) { newState(GripperState.STATE_OPEN); break; }
+            case GRIP:
+                if(openClose && currentArmState != ArmState.FOLD) { newState(GripperState.OPEN); break; }
                 gripperGrip();
                 break;
     
-            case STATE_OPEN:
-                if(openClose) { newState(GripperState.STATE_GRIP); break; }
-                if(currentArmState == ArmState.STATE_FOLD) { newState(GripperState.STATE_HALF); break; }
+            case OPEN:
+                if(openClose) { newState(GripperState.GRIP); break; }
+                if(currentArmState == ArmState.FOLD) { newState(GripperState.HALF); break; }
                 gripperOpen();
                 break;
                 
-            case STATE_HALF:
-                if(currentArmState != ArmState.STATE_FOLD) { newState(GripperState.STATE_OPEN); break; }
+            case HALF:
+                if(currentArmState != ArmState.FOLD) { newState(GripperState.OPEN); break; }
                 gripperHalf();
                 break;
         }
@@ -92,22 +88,22 @@ public class WobbleGripper {
     public void armState(boolean armUpDown, boolean armFold){
         switch(currentArmState){
                 
-            case STATE_UP:
-                if(armUpDown) { newState(ArmState.STATE_DOWN); break; }
-                if(armFold) { newState(ArmState.STATE_FOLD); break; }
+            case UP:
+                if(armUpDown) { newState(ArmState.DOWN); break; }
+                if(armFold) { newState(ArmState.FOLD); break; }
                 armUp();
                 break;
     
-            case STATE_DOWN:
-                if(armUpDown) { newState(ArmState.STATE_UP); break; }
-                if(armFold) { newState(ArmState.STATE_FOLD); break; }
+            case DOWN:
+                if(armUpDown) { newState(ArmState.UP); break; }
+                if(armFold) { newState(ArmState.FOLD); break; }
                 armDown();
                 break;
     
-            case STATE_FOLD:
-                if(armUpDown) { newState(ArmState.STATE_UP); break; }
-                if(armFold) { newState(ArmState.STATE_DOWN); break; }
-                if(currentGripperState != GripperState.STATE_GRIP ){ armFold(); }
+            case FOLD:
+                if(armUpDown) { newState(ArmState.UP); break; }
+                if(armFold) { newState(ArmState.DOWN); break; }
+                if(currentGripperState != GripperState.GRIP){ armFold(); }
                 else{ armTele(); }
                 break;
         }
@@ -119,17 +115,17 @@ public class WobbleGripper {
     }
     
     public enum GripperState {
-        STATE_GRIP,
-        STATE_OPEN,
-        STATE_HALF
+        GRIP,
+        OPEN,
+        HALF
     }
     
     public static void newState(ArmState newState) { currentArmState = newState; }
     
     public enum ArmState {
         STATE_CONTROL,
-        STATE_UP,
-        STATE_DOWN,
-        STATE_FOLD
+        UP,
+        DOWN,
+        FOLD
     }
 }

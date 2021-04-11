@@ -14,7 +14,7 @@ public class Katana {
 	
 	Servo katanaLeft, katanaRight;
 	
-	public static KatanaState currentKatanaState = KatanaState.STATE_DOWN;
+	public static KatanaState currentKatanaState = KatanaState.DOWN;
 	
 	public Katana(Servo katanaLeft, Servo katanaRight){
 		this.katanaLeft = katanaLeft;
@@ -40,9 +40,9 @@ public class Katana {
 				
 		}else if(foldToggle || (!(Sensors.gyro.getModAngle() < 122 && Sensors.gyro.getModAngle() > 58) &&
 					                                                  !(Sensors.gyro.getModAngle() < -238 && Sensors.gyro.getModAngle() > -302))) {
-			if (Shooter.currentShooterState != ShooterState.STATE_OFF) {
+			if (Shooter.currentShooterState != ShooterState.OFF) {
 				katanaShoot();
-			} else if (Intake.currentBumperState == Intake.BumperState.STATE_RETRACT && Intake.bumperTime.seconds() > .2) {
+			} else if (Intake.currentBumperState == Intake.BumperState.RETRACT && Intake.bumperTime.seconds() > .2) {
 				katanaHalfFold();
 			} else if (Intake.bumperTime.seconds() > .15){
 				katanaFullFold();
@@ -50,16 +50,16 @@ public class Katana {
 			
 		}else{
 			switch(currentKatanaState){
-				case STATE_DOWN:
-					if(Intake.currentIntakeState == Intake.IntakeState.STATE_OFF && Shooter.feederCount() < 1){
-						newState(KatanaState.STATE_UP);
+				case DOWN:
+					if(Intake.currentIntakeState == Intake.IntakeState.OFF && Shooter.feederCount() < 1){
+						newState(KatanaState.UP);
 					}
 					katanaDown();
 					break;
 					
-				case STATE_UP:
-					if(Intake.currentIntakeState == Intake.IntakeState.STATE_ON || Shooter.feederCount() > 0){
-						newState(KatanaState.STATE_DOWN);
+				case UP:
+					if(Intake.currentIntakeState == Intake.IntakeState.ON || Shooter.feederCount() > 0){
+						newState(KatanaState.DOWN);
 					}
 					katanaUp();
 					break;
@@ -69,8 +69,8 @@ public class Katana {
 	
 	
 	public static enum KatanaState{
-		STATE_DOWN,
-		STATE_UP
+		DOWN,
+		UP
 	}
 	
 	public static void newState(KatanaState newKatanaState){
