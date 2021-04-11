@@ -191,7 +191,7 @@ public class Shooter {
     public void shooterOff(){ setPower(0.0); }
     
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, double towerDistance){
+    public void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal){
         shooterJustOn = false;
         switch (currentShooterState) {
             
