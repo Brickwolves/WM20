@@ -26,9 +26,10 @@ import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_V;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_H;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_S;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_V;
-import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_LEFT_DIST;
-import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_CENTER_DIST;
-import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_RIGHT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_LEFT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_CENTER_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_RIGHT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.SHOOTER_OFFSET_DISTANCE;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.blur;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.erode_const;
@@ -188,6 +189,10 @@ public class AutoAimPipeline extends OpenCvPipeline {
     
     public double distance2Goal() {
         return goalDistance;
+    }
+    
+    public double shooterOffsetAngle(){
+        return atan2(SHOOTER_OFFSET_DISTANCE, goalDistance);
     }
 
     public double getDegreeError(){

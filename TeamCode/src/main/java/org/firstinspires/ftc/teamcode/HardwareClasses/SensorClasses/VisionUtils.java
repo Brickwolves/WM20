@@ -18,6 +18,12 @@ public class VisionUtils {
     public static final double RING_HEIGHT = 20;
     public static final double TOWER_HEIGHT = 211;
     
+    public static double PS_LEFT_DIST = 40;
+    public static double PS_CENTER_DIST = 70;
+    public static double PS_RIGHT_DIST = 100;
+    
+    public static double SHOOTER_OFFSET_DISTANCE = 12;
+    
     
     public static double getDistance2Tower(double yValue) {
         if (yValue == 0) return 0;

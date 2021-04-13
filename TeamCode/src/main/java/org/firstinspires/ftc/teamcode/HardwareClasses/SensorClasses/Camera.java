@@ -31,9 +31,10 @@ public class Camera {
 	
 	public void stopVision(){ webcam.closeCameraDevice(); }
 	
-	public int startingStackAnalysis(){ return startingStackPipeline.getStackAnalysis(); }
 	
 	public int startingStackCount(){ return ringFinderPipeline.getRingCount(); }
+	
+	
 	
 	public double towerAimError(){ return autoAimPipeline.getDegreeError(); }
 	
@@ -41,13 +42,14 @@ public class Camera {
 	
 	public boolean isTowerFound(){ return autoAimPipeline.isTowerFound; }
 	
+	public double shooterOffsetAngle(){ return autoAimPipeline.shooterOffsetAngle(); }
+	
+	
+	
 	public double leftPSAimError(){ return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT); }
 	
 	public double centerPSAimError(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER); }
 	
 	public double rightPSAimError(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT); }
-	
-	public boolean arePSFound(){ return PSAimPipeline.arePSFound; }
-	
 	
 }

@@ -15,9 +15,8 @@ public class Dash_AutoAim {
     public static int MIN_V = 90;
     public static int MAX_V = 200;
     
-    public static double PS_LEFT_DIST = 40;
-    public static double PS_CENTER_DIST = 70;
-    public static double PS_RIGHT_DIST = 100;
+
+    
 
     public static int blur = 5;
     public static int erode_const = 5;
