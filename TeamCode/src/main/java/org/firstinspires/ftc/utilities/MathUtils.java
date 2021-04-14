@@ -16,6 +16,15 @@ public class MathUtils {
     public static double degsToRads(Double degs){
         return degs * (Math.PI / 180);
     }
+    
+    
+    public static double degSin(double theta){ return Math.sin(degsToRads(theta)); }
+    
+    public static double degCos(double theta){ return Math.cos(degsToRads(theta)); }
+    
+    public static double degTan(double theta){ return Math.tan(degsToRads(theta)); }
+    
+    public static double degATan(double opposite, double adjacent){ return degsToRads(Math.atan2(opposite, adjacent)); }
 
 
     public static double mod(double value, int base){

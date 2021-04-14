@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
+import org.firstinspires.ftc.utilities.MathUtils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -35,6 +36,9 @@ import static org.firstinspires.ftc.utilities.Dash_AutoAim.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.goalWidth;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.horizonLineRatio;
+import static org.firstinspires.ftc.utilities.MathUtils.degATan;
+import static org.firstinspires.ftc.utilities.MathUtils.degCos;
+import static org.firstinspires.ftc.utilities.MathUtils.degSin;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
@@ -192,7 +196,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
     
     public double shooterOffsetAngle(){
-        return atan2(SHOOTER_OFFSET_DISTANCE, goalDistance);
+        return degATan(SHOOTER_OFFSET_DISTANCE, goalDistance);
     }
 
     public double getDegreeError(){
@@ -200,8 +204,8 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
     
     public double getPSDegreeError(PowerShot powerShot){
-        double yDistance = goalDistance * Math.cos(Math.toRadians(Sensors.gyro.getRawAngle() + degreeError));
-        double zDistance = goalDistance * Math.sin(Math.toRadians(Sensors.gyro.getRawAngle() + degreeError));
+        double yDistance = goalDistance * degCos(Sensors.gyro.getRawAngle() + degreeError);
+        double zDistance = goalDistance * degSin(Sensors.gyro.getRawAngle() + degreeError);
         double dDistance;
         switch (powerShot){
             case PS_LEFT:
@@ -216,7 +220,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
             default:
                 dDistance = 0;
         }
-        return atan2(dDistance, yDistance);
+        return degATan(dDistance, yDistance);
     }
 
     public void releaseAllCaptures(){
