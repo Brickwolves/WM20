@@ -12,15 +12,15 @@ import static org.opencv.imgproc.Imgproc.contourArea;
 public class VisionUtils {
 
     public static OpenCvCamera webcam;
-    public static double IMG_WIDTH = 432;
+    public static double IMG_WIDTH = 320;
     public static double IMG_HEIGHT = 240;
     public static final double FOV = 72;
     public static final double RING_HEIGHT = 20;
     public static final double TOWER_HEIGHT = 211;
     
-    public static double PS_LEFT_DIST = 40;
-    public static double PS_CENTER_DIST = 70;
-    public static double PS_RIGHT_DIST = 100;
+    public static double PS_LEFT_DIST = 41.5;
+    public static double PS_CENTER_DIST = 64;
+    public static double PS_RIGHT_DIST = 80;
     
     public static double SHOOTER_OFFSET_DISTANCE = 12;
     

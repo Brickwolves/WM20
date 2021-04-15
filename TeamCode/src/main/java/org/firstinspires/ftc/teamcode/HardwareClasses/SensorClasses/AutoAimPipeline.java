@@ -14,6 +14,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.StrictMath.PI;
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.atan2;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_HEIGHT;
@@ -204,23 +205,23 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
     
     public double getPSDegreeError(PowerShot powerShot){
-        double yDistance = goalDistance * degCos(Sensors.gyro.getRawAngle() + degreeError);
-        double zDistance = goalDistance * degSin(Sensors.gyro.getRawAngle() + degreeError);
+        double yDistance = goalDistance * Math.cos((Sensors.gyro.getModAngle() + degreeError - 90) * (PI / 180));
+        double xDistance = goalDistance * Math.sin((Sensors.gyro.getModAngle() + degreeError - 90) * (PI / 180));
         double dDistance;
-        switch (powerShot){
+        switch (powerShot) {
             case PS_LEFT:
-                dDistance = zDistance - PS_LEFT_DIST;
+                dDistance = xDistance - PS_LEFT_DIST;
                 break;
             case PS_CENTER:
-                dDistance = zDistance - PS_CENTER_DIST;
+                dDistance = xDistance - PS_CENTER_DIST;
                 break;
             case PS_RIGHT:
-                dDistance = zDistance - PS_RIGHT_DIST;
+                dDistance = xDistance - PS_RIGHT_DIST;
                 break;
             default:
                 dDistance = 0;
         }
-        return degATan(dDistance, yDistance);
+        return (180 / PI) * Math.atan2(dDistance, yDistance) + 90;
     }
 
     public void releaseAllCaptures(){

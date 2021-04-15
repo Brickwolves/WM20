@@ -22,13 +22,13 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = .04, RESET = .31;
+    private static final double RING_FEED = .01, RESET = .31;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .1, RESET_TIME = .09, PS_RESET_TIME = 1;
+    private static final double FEED_TIME = .1, RESET_TIME = .11, PS_RESET_TIME = 1;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .06;
     
-    private static final int TOP_GOAL = 3550, POWER_SHOT = 3050;
+    private static final int TOP_GOAL = 3550, POWER_SHOT = 2950;
     
     private boolean isFeederLocked;
     private double shooterRPM;
@@ -172,7 +172,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) ((137) * Math.sqrt((9.8 * Math.pow(towerDistance, 4)) / (.7426 * towerDistance - 1.264)));
+            RPM = (int) ((128) * Math.sqrt((9.8 * Math.pow(towerDistance, 4)) / (.7426 * towerDistance - 1.264)));
         }
         targetRPM = RPM;
         setRPM(RPM);

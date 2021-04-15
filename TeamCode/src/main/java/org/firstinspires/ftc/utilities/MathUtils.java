@@ -33,7 +33,7 @@ public class MathUtils {
     
     public static double pow(double value, double exponent) {
         if(value == 0) return 0;
-        else return Math.pow(value, exponent) * (value / abs(value));
+        else return Math.pow(abs(value), exponent) * (value / abs(value));
     }
 
     //TODO  I need to do a lot more documentation on my code as I write it -  so I can do a better job of maintenance
