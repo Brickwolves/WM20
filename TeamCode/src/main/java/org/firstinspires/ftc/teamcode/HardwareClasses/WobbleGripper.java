@@ -7,20 +7,14 @@ import org.firstinspires.ftc.utilities.RingBuffer;
 
 public class WobbleGripper {
 
-    public Servo gripperOne;
-    public Servo gripperTwo;
-    public Servo lifter;
+    public Servo gripperOne, gripperTwo, lifter;
     
     private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
     
     private double armPosition;
-    private static final double GRIP = .53;
-    private static final double OPEN = 0.07;
-    private static final double HALF = 0.35;
-    private static final double ARM_UP = .68;
-    private static final double ARM_TELE = .84;
-    private static final double ARM_DOWN = 0.05;
-    private static final double ARM_FOLD = 1;
+    private static final double GRIP = .53, OPEN = 0.07, HALF = 0.35;
+    
+    private static final double ARM_UP = .68, ARM_TELE = .84, ARM_DOWN = 0.05, ARM_FOLD = 1;
     private static final double ARM_CONTROL_RATE = -.00005;
     
     private static ArmState currentArmState = ArmState.UP;
@@ -29,6 +23,7 @@ public class WobbleGripper {
 
     public WobbleGripper(Servo gripperOne, Servo gripperTwo, Servo lifter){
         gripperTwo.setDirection(Servo.Direction.REVERSE);
+        
         this.gripperOne = gripperOne;
         this.gripperTwo = gripperTwo;
         this.lifter = lifter;

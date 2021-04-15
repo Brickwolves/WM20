@@ -8,10 +8,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class Camera {
 	
 	OpenCvWebcam webcam;
-	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
 	public RingFinderPipeline ringFinderPipeline = new RingFinderPipeline();
 	public AutoAimPipeline autoAimPipeline = new AutoAimPipeline();
-	public PSAimPipeline PSAimPipeline = new PSAimPipeline();
 	
 	public Camera(OpenCvWebcam webcam){
 		this.webcam = webcam;
@@ -33,7 +31,6 @@ public class Camera {
 	
 	
 	public int startingStackCount(){ return ringFinderPipeline.getRingCount(); }
-	
 	
 	
 	public double towerAimError(){ return autoAimPipeline.getDegreeError(); }

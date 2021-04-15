@@ -21,26 +21,19 @@ public class Shooter {
     public PID shooterPID = new PID(.00018, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
-    private static final double RING_FEED = 0.04;
     
-    private static final double RESET = 0.31;
-    private static final double FEEDER_LOCK = .46;
-    private static final double FEEDER_UNLOCK = 0.2;
+    private static final double RING_FEED = .04, RESET = .31;
+    private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final int TOP_GOAL = 3550;
-    private static final int POWER_SHOT = 3050;
+    private static final double FEED_TIME = .1, RESET_TIME = .09, PS_RESET_TIME = 1;
+    private static final double LOCK_TIME = .8, UNLOCK_TIME = .06;
     
-    private static final double FEED_TIME = .1;
-    private static final double RESET_TIME = .09;
-    private static final double PS_RESET_TIME = 1;
-    private static final double LOCK_TIME = .8;
-    private static final double UNLOCK_TIME = .06;
+    private static final int TOP_GOAL = 3550, POWER_SHOT = 3050;
     
     private boolean isFeederLocked;
     private double shooterRPM;
     private static int feedCount = 0;
-    public static boolean shooterJustOn = false;
-    public static boolean feederJustOn = false;
+    public static boolean shooterJustOn = false, feederJustOn = false;
     public static double targetRPM;
 
     RingBufferOwen timeRing = new RingBufferOwen(3);
