@@ -14,10 +14,8 @@ import org.firstinspires.ftc.utilities.RingBufferOwen;
 
 public class Shooter {
 
-    private final DcMotor shooterOne;
-    private final DcMotor shooterTwo;
-    private final Servo feeder;
-    private final Servo feederLock;
+    private final DcMotor shooterOne, shooterTwo;
+    private final Servo feeder, feederLock;
     public PID shooterPID = new PID(.00018, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -25,7 +23,7 @@ public class Shooter {
     private static final double RING_FEED = .01, RESET = .31;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .1, RESET_TIME = .11, PS_RESET_TIME = 1;
+    private static final double FEED_TIME = .11, RESET_TIME = .11, PS_DELAY = .8;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .06;
     
     private static final int TOP_GOAL = 3550, POWER_SHOT = 2950;
@@ -102,7 +100,13 @@ public class Shooter {
             
             case RESET:
                 if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  break; }
-                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  feederJustOn = true;break; }
+                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.PS_DELAY); feederJustOn = true; break; }
+                resetFeeder();
+                unlockFeeder();
+                break;
+    
+            case PS_DELAY:
+                if (feederTime.seconds() > PS_DELAY) { newState(FeederState.IDLE); break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -234,7 +238,8 @@ public class Shooter {
     private enum FeederState {
         IDLE,
         RESET,
-        FEED
+        FEED,
+        PS_DELAY
     }
     
     public enum ShooterState {
