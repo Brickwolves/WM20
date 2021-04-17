@@ -43,10 +43,10 @@ public class Camera {
 	
 	
 	
-	public double leftPSAimError(){ return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT); }
+	public double leftPSAimAngle(){ return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT); }
 	
-	public double centerPSAimError(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER); }
+	public double centerPSAimAngle(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER); }
 	
-	public double rightPSAimError(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT); }
+	public double rightPSAimAngle(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT); }
 	
 }

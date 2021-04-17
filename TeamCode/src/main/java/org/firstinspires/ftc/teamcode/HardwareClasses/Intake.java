@@ -12,13 +12,15 @@ public class Intake {
     private DcMotor intakeDrive;
     public Servo bumperLeft, bumperRight;
     
-    private final static double RETRACTED = 0.38, ZERO_RING = 0.015, ONE_RING = 0.1, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.25;
+    private final static double RETRACTED = 0.38, ZERO_RING = 0.015, ONE_RING = 0.11, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.25;
     private final static double SERVO_DIFF = .09;
     
     private final static double INTAKE_ON = .87, INTAKE_REVERSE = .75;
     
     private final static double TICKS_PER_ROTATION = 28;
     private double intakeRPM;
+    
+    public static double bumperPosition;
     
     private static ElapsedTime stallTime = new ElapsedTime();
     public static ElapsedTime bumperTime = new ElapsedTime();
@@ -42,9 +44,9 @@ public class Intake {
         this.bumperRight = bumperRight;
     }
     
-    public void setBumperPosition(double position){ bumperLeft.setPosition(position); bumperRight.setPosition(position - SERVO_DIFF); }
+    public void setBumperPosition(double position){ bumperPosition = position; bumperLeft.setPosition(position); bumperRight.setPosition(position - SERVO_DIFF); }
     
-    public void retractBumper(){ bumperLeft.setPosition(RETRACTED); bumperRight.setPosition(RETRACTED - .06); }
+    public void retractBumper(){ bumperPosition = RETRACTED; setBumperPosition(RETRACTED); }
     
     public void setBumperThreshold(int ringThreshold){
         switch (ringThreshold){

@@ -85,7 +85,7 @@ public class RealAutonomous extends OpMode {
 		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
 		robot = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
-		katana = new Katana(katanaLeft, katanaRight);
+		katana = new Katana(katanaRight, katanaLeft);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.ringFinderPipeline);
 		Sensors.backCamera.startVision(1920, 1080);
@@ -114,20 +114,22 @@ public class RealAutonomous extends OpMode {
 	}
 	
 	public void start() {
+		Sensors.update();
 		mainTime.reset();
-		katana.katanaHalfFold();
-		robot.resetGyro(180);
+		robot.resetGyro(90);
 		robot.resetWithoutEncoders();
 		ringCount = Sensors.backCamera.startingStackCount();
-		//Sensors.backCamera.stopVision();
-		//Sensors.frontCamera.startVision(320, 240);
-		//Sensors.frontCamera.setPipeline(Sensors.frontCamera.autoAimPipeline);
+		Sensors.backCamera.stopVision();
+		Sensors.frontCamera.startVision(320, 240);
+		Sensors.frontCamera.setPipeline(Sensors.frontCamera.autoAimPipeline);
+		Shooter.setFeederCount(0);
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
 		Sensors.update();
+		operator.update();
 		
 		telemetry.addData("current state: ", currentMainState);
 		telemetry.addData("drive", robot.drive);
@@ -135,6 +137,8 @@ public class RealAutonomous extends OpMode {
 		telemetry.addData("turn", robot.turn);
 		telemetry.addData("power", robot.power);
 		telemetry.addData("current angle", Sensors.gyro.getModAngle());
+		
+		katana.katanaAutoState();
 		
 		switch ((int) ringCount) {
 			case 0:
@@ -206,9 +210,7 @@ public class RealAutonomous extends OpMode {
 							if (mainTime.seconds() > .8) shooter.feederState(true);
 						} else {
 							robot.turn(6, 1, 1);
-							
 							if (mainTime.seconds() > 1.7 && robot.isTurnComplete) newState(MainState.state7PS2);
-							
 						}
 						break;
 					
@@ -535,7 +537,7 @@ public class RealAutonomous extends OpMode {
 				switch (currentMainState) {
 					//drive to target C
 					case state1Drive:
-						robot.strafe(75, 180, 0, 1, .3, 0);
+						robot.strafe(75, -90, 90, 1, .3, 0);
 						
 						if (robot.currentInches > 60) wobble.armDown();
 						
@@ -548,7 +550,7 @@ public class RealAutonomous extends OpMode {
 					
 					//turn to power shot shooting position
 					case state3Turn:
-						if (mainTime.seconds() > .8) robot.turn(-137, 1, .7);
+						if (mainTime.seconds() > .8) robot.turn(-47, 1, .7);
 						if (mainTime.seconds() > .9 && robot.isTurnComplete) newState(MainState.state4Drive);
 						break;
 					
@@ -561,7 +563,7 @@ public class RealAutonomous extends OpMode {
 							wobble.armFold();
 							wobble.gripperHalf();
 						}
-						robot.strafe(40, -137, -137, 1, .3, 0);
+						robot.strafe(47, -47, -47, 1, .3, 0);
 						
 						if (robot.isStrafeComplete) newState(MainState.state5Turn);
 						break;
@@ -569,11 +571,12 @@ public class RealAutonomous extends OpMode {
 					
 					//turn towards power shots
 					case state5Turn:
+						//intake.setBumperThreshold(1);
 						if (mainTime.seconds() > .8) {
-							robot.turn(-2, 1, 0);
+							robot.turn(90, 1, .7);
 							shooter.powerShot();
 						}
-						if (mainTime.seconds() > .9 && robot.isTurnComplete) {
+						if (Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(70, 110)) {
 							newState(MainState.state6PS1);
 							break;
 						}
@@ -583,50 +586,39 @@ public class RealAutonomous extends OpMode {
 					//shoot power shot 1
 					case state6PS1:
 						shooter.powerShot();
-						katana.katanaShoot();
-						robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimError());
-						shooter.feederState(mainTime.seconds() > .3);
-						if (Shooter.feederJustOn) newState(MainState.state7PS2);
+						robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimAngle() - 4);
+						shooter.feederState(mainTime.seconds() > .7);
+						if (mainTime.seconds() > .7 && Shooter.feederCount() > 0) newState(MainState.state7PS2);
 						break;
 					
 					
 					//shoot power shot 2, turn to power shot 3
 					case state7PS2:
 						shooter.powerShot();
-						katana.katanaShoot();
-						robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimError());
-						shooter.feederState(mainTime.seconds() > .3);
-						if (Shooter.feederJustOn) newState(MainState.state8PS3);
+						robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimAngle() - 4);
+						shooter.feederState(mainTime.seconds() > .6);
+						if (mainTime.seconds() > .6 && Shooter.feederCount() > 1) newState(MainState.state8PS3);
 						break;
 					
 					
 					//shoot power shot 3, turn to second wobble goal
 					case state8PS3:
 						shooter.powerShot();
-						katana.katanaShoot();
-						robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimError());
-						shooter.feederState(mainTime.seconds() > .3);
-						if (Shooter.feederJustOn) newState(MainState.state9Turn);
+						robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimAngle() - 4);
+						shooter.feederState(mainTime.seconds() > .6);
+						if (mainTime.seconds() > .6 && Shooter.feederCount() > 2) newState(MainState.state9Drive);
 						break;
 						
-						
-					case state9Turn:
-						shooter.shooterOff();
-						katana.katanaFullFold();
-						robot.turn(-35, 1, .5);
-						if(robot.isTurnComplete){
-							newState(MainState.state9Drive);
-							break;
-						}
-						break;
 					
 					
 					//drive to second wobble goal
 					case state9Drive:
-						robot.strafe(19, -35, 145, 1, 0, 0);
-						katana.katanaHalfFold();
+						robot.strafe(19, 50, 230, 1, .3, 0);
+						shooter.shooterOff();
+						wobble.armDown();
+						wobble.gripperOpen();
 						Shooter.setFeederCount(0);
-						if (robot.isStrafeComplete) {
+						if (robot.isStrafeComplete && mainTime.seconds() > .4) {
 							newState(MainState.state10WobbleGoal);
 							robot.setPower(0, 0, 0, 1);
 						}
@@ -636,99 +628,46 @@ public class RealAutonomous extends OpMode {
 						
 					case state10WobbleGoal:
 						wobble.armDown();
-						if (mainTime.seconds() > 1) wobble.gripperGrip();
-						if (mainTime.seconds() > 1.6) {
+						if (mainTime.seconds() > .5) wobble.gripperGrip();
+						if (mainTime.seconds() > 1.1) {
 							wobble.armTele();
-							robot.strafe(3, -37, 143, 1, .3, 0);
-							if (robot.isStrafeComplete) newState(MainState.state11Turn);
-						}
-						break;
-					
-						
-					
-					case state11Turn:
-						robot.turn(0, 1, 1);
-						intake.setBumperThreshold(3);
-						if (robot.isTurnComplete) {
-							newState(MainState.state12Drive);
-							robot.setPower(0, 0, 0, 1);
+							robot.strafe(18, 90, -167, 1, .3, 0);
+							if(robot.currentInches > 14) intake.setBumperThreshold(1);
+							if (robot.isStrafeComplete) newState(MainState.state11Drive);
 						}
 						break;
 						
+						
+					case state11Drive:
+						intake.intakeStallControl();
+						robot.strafe(3, 90, 90, .4, .2, .15);
+						shooter.highTower(true);
+						if (robot.isStrafeComplete) newState(MainState.state12Drive);
+						break;
 					
 					//drive to target A
 					case state12Drive:
-						intake.setBumperThreshold(3);
-						robot.strafe(15, 0, 90, .7, .2, 0);
-						wobble.armUp();
-						wobble.gripperGrip();
+						intake.setBumperThreshold(1);
+						robot.strafe(20, Sensors.gyro.getRawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, 0);
+						intake.intakeStallControl();
+						shooter.highTower(true);
+						shooter.feederState(true);
 						if (robot.isStrafeComplete) newState(MainState.state13Drive);
 						break;
 					
 					
 					
 					case state13Drive:
-						wobble.armUp();
-						wobble.gripperGrip();
-						intake.setBumperThreshold(3);
-						if(mainTime.seconds() > 0)robot.strafe(6,0,-90, .7,.1,0);
-						if(mainTime.seconds() > 0 && robot.isStrafeComplete) newState(MainState.state14Drive);
-						break;
-					
-					
-					//strafe onto launch line
-					case state14Drive:
-						wobble.armUp();
-						wobble.gripperGrip();
-						intake.intakeOff();
-						robot.strafe(3,0,180, .6, .3, 0);
-						if(robot.isStrafeComplete) newState(MainState.state15Drive);
-						break;
-					
-						
-					case state15Drive:
-						intake.setBumperThreshold(1);
-						intake.intakeStallControl();
-						if (mainTime.seconds() > .3) {
-							robot.strafe(35, 0, 0, .25, 0, 0);
-							if(robot.isStrafeComplete) newState(MainState.state16Shoot);
-						}
-						break;
-					
-						
-					case state16Shoot:
-						robot.setPowerAuto(0, 0, 0);
-						shooter.highTower(true);
-						katana.katanaShoot();
-						
-						if (mainTime.seconds() > 1.2) {
-							intake.intakeOff();
-							intake.retractBumper();
-						}
-						if (mainTime.seconds() > 1) shooter.feederState(true);
-						if (mainTime.seconds() > 1.6 && Shooter.feederCount() >= 6) newState(MainState.state17Drive);
-						break;
-						
-						
-					case state17Drive:
-						robot.strafe(36, 0, 0, 1, .2,0);
+						intake.retractBumper();
 						shooter.shooterOff();
-						katana.katanaHalfFold();
-						if(robot.isStrafeComplete) newState(MainState.state18Turn);
-						break;
-						
-						
-					case state18Turn:
-						if(mainTime.seconds() > .6){
-							robot.turn(-105 , 1, .4);
-							wobble.armPosition(.15);
-						}
-						if(mainTime.seconds() > .6 && robot.isTurnComplete) newState(MainState.state19Drive);
+						wobble.armPosition(.15);
+						robot.strafe(70, 0, 90, 1, .4, 0);
+						if(mainTime.seconds() > .4 && robot.isStrafeComplete) newState(MainState.state19Drive);
 						break;
 						
 						
 					case state19Drive:
-						robot.strafe(7, -105, 75, .8, .2, 0);
+						robot.strafe(11, -15, 165, .8, .2, 0);
 						if(robot.isStrafeComplete){
 							newState(MainState.state20Drive);
 							wobble.armDown();
@@ -738,13 +677,13 @@ public class RealAutonomous extends OpMode {
 						
 						
 					case state20Drive:
-						if(mainTime.seconds() > .2) robot.strafe(3, -105, -105, .5, .5, 0);
+						if(mainTime.seconds() > .2) robot.strafe(7, -15, -15, .5, .5, 0);
 						if(mainTime.seconds() > .2 && robot.isStrafeComplete) newState(MainState.state21Drive);
 						break;
 					
 						
 					case state21Drive:
-						robot.strafe(45, -90, 180, 1, .5, 0);
+						robot.strafe(45, 0, -90, 1, .5, 0);
 						wobble.armFold();
 						wobble.gripperHalf();
 						if(robot.isStrafeComplete) newState(MainState.stateFinished);
@@ -752,7 +691,7 @@ public class RealAutonomous extends OpMode {
 						
 						
 					case stateFinished:
-						robot.setPowerAuto(0,0,-90);
+						robot.setPowerAuto(0,0,0);
 				}
 				
 				break;

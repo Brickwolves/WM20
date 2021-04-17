@@ -33,6 +33,15 @@ public class Katana {
 	
 	public void katanaHalfFold(){ setKatanaPosition(HALF_FOLD); }
 	
+	public void katanaAutoState(){
+		if (Shooter.targetRPM != 0) {
+			katanaShoot();
+		} else if (Intake.bumperPosition >= .3) {
+			katanaHalfFold();
+		} else {
+			katanaFullFold();
+		}
+	}
 	
 	public void katanaState(boolean foldToggle, boolean forceDown){
 		if(forceDown) {

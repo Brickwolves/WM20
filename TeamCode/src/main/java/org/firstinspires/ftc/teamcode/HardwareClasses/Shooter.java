@@ -90,18 +90,18 @@ public class Shooter {
             
             case FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.RESET);feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.RESET);  }
                     if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.RESET); feedCount++; }
+                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.RESET); }
                     feedRing();
                 }
                 unlockFeeder();
                 break;
             
             case RESET:
-                if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE);  break; }
-                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.PS_DELAY); feederJustOn = true; break; }
+                if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE); feedCount++; break; }
+                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.PS_DELAY); feederJustOn = true; feedCount++; break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -116,6 +116,7 @@ public class Shooter {
     
 
     public void setPower(double power){
+        Shooter.targetRPM = power;
         shooterOne.setPower(power);
         shooterTwo.setPower(power);
     }
@@ -157,6 +158,8 @@ public class Shooter {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setRPM(int targetRPM){
+        Shooter.targetRPM = targetRPM;
+        
         shooterPID.setFComponent(targetRPM / 10000.0);
         
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
@@ -177,9 +180,9 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) ((130) * Math.sqrt((9.8 * Math.pow(towerDistance, 4)) / (.7426 * towerDistance - 1.264)));
+            RPM = (int) ((140) * Math.sqrt((9.8 * Math.pow(towerDistance, 3.8)) / (.7426 * towerDistance - 1.264)));
         }
-        targetRPM = RPM;
+        
         setRPM(RPM);
     }
 
