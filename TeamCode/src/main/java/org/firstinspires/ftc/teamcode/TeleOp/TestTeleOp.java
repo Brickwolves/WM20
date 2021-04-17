@@ -155,7 +155,7 @@ public class TestTeleOp extends OpMode {
 		shooter.shooterState(driver.trianglePress(), false, false, false);
 		shooter.feederState(driver.square());
 		
-		intake.intakeState(driver.crossPress(), driver.circle());
+		intake.intakeState(driver.crossPress(), driver.circle(), false);
 		intake.bumperState(driver.RSPress(), driver.LTFloat() > .4);
 		
 		wobble.gripperState(driver.RBPress());

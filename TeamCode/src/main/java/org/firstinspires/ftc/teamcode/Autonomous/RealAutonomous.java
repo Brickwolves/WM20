@@ -35,7 +35,6 @@ public class RealAutonomous extends OpMode {
 	private Intake intake;
 	private WobbleGripper wobble;
 	private Katana katana;
-	private static Sensors sensors;
 	
 	
 	private MainState currentMainState = MainState.state1Drive;
@@ -73,12 +72,13 @@ public class RealAutonomous extends OpMode {
 		WebcamName backCamName = hardwareMap.get(WebcamName.class, "Back Camera");
 		OpenCvWebcam backCam = OpenCvCameraFactory.getInstance().createWebcam(backCamName, cameraMonitorViewId);
 		
-		//cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-		//WebcamName frontCamName = hardwareMap.get(WebcamName.class, "Front Camera");
-		//OpenCvWebcam frontCam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName, cameraMonitorViewId);
+		WebcamName frontCamName = hardwareMap.get(WebcamName.class, "Front Camera");
+		OpenCvWebcam frontCam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName);
 		
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
+		
+		Sensors.mapSensors(imu, frontCam, backCam);
 		
 		operator = new Controller(gamepad2);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
@@ -86,7 +86,6 @@ public class RealAutonomous extends OpMode {
 		robot = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 		wobble = new WobbleGripper(gripperOne, gripperTwo, lifter);
 		katana = new Katana(katanaLeft, katanaRight);
-		Sensors.mapSensors(imu, null, backCam);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.ringFinderPipeline);
 		Sensors.backCamera.startVision(1920, 1080);
@@ -120,16 +119,22 @@ public class RealAutonomous extends OpMode {
 		robot.resetGyro(180);
 		robot.resetWithoutEncoders();
 		ringCount = Sensors.backCamera.startingStackCount();
-		Sensors.backCamera.stopVision();
-		Sensors.frontCamera.startVision(480, 240);
-		Sensors.frontCamera.setPipeline(Sensors.frontCamera.autoAimPipeline);
+		//Sensors.backCamera.stopVision();
+		//Sensors.frontCamera.startVision(320, 240);
+		//Sensors.frontCamera.setPipeline(Sensors.frontCamera.autoAimPipeline);
 	}
 	
 	@RequiresApi(api = Build.VERSION_CODES.N)
 	@Override
 	public void loop() {
+		Sensors.update();
 		
 		telemetry.addData("current state: ", currentMainState);
+		telemetry.addData("drive", robot.drive);
+		telemetry.addData("strafe", robot.strafe);
+		telemetry.addData("turn", robot.turn);
+		telemetry.addData("power", robot.power);
+		telemetry.addData("current angle", Sensors.gyro.getModAngle());
 		
 		switch ((int) ringCount) {
 			case 0:
@@ -570,56 +575,48 @@ public class RealAutonomous extends OpMode {
 						}
 						if (mainTime.seconds() > .9 && robot.isTurnComplete) {
 							newState(MainState.state6PS1);
-							robot.setPowerAuto(0, 0, 0);
+							break;
 						}
 						break;
 					
 					
-					//shoot power shot 1, turn to power shot 2
+					//shoot power shot 1
 					case state6PS1:
 						shooter.powerShot();
 						katana.katanaShoot();
-						
-						if (Shooter.feederCount() < 1) {
-							robot.setPowerAuto(0, 0, 0);
-							if (mainTime.seconds() > .5) shooter.feederState(true);
-							else shooter.feederState(false);
-						} else {
-							robot.turn(8, 1, 1);
-							shooter.feederState(false);
-							if (mainTime.seconds() > .5 && robot.isTurnComplete) newState(MainState.state7PS2);
-						}
+						robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimError());
+						shooter.feederState(mainTime.seconds() > .3);
+						if (Shooter.feederJustOn) newState(MainState.state7PS2);
 						break;
 					
 					
 					//shoot power shot 2, turn to power shot 3
 					case state7PS2:
 						shooter.powerShot();
-						if (Shooter.feederCount() < 2) {
-							robot.setPowerAuto(0, 0, 8);
-							shooter.feederState(true);
-						} else {
-							robot.turn(11, 1, 1);
-							shooter.feederState(false);
-							if (robot.isTurnComplete) newState(MainState.state8PS3);
-						}
+						katana.katanaShoot();
+						robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimError());
+						shooter.feederState(mainTime.seconds() > .3);
+						if (Shooter.feederJustOn) newState(MainState.state8PS3);
 						break;
 					
 					
 					//shoot power shot 3, turn to second wobble goal
 					case state8PS3:
 						shooter.powerShot();
-						wobble.armDown();
-						wobble.gripperOpen();
+						katana.katanaShoot();
+						robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimError());
+						shooter.feederState(mainTime.seconds() > .3);
+						if (Shooter.feederJustOn) newState(MainState.state9Turn);
+						break;
 						
-						if (Shooter.feederCount() < 3) {
-							shooter.feederState(true);
-							robot.setPowerAuto(0, 0, 11);
-						} else {
-							robot.turn(-35, 1, .8);
-							shooter.feederState(false);
-							shooter.shooterOff();
-							if (robot.isTurnComplete) newState(MainState.state9Drive);
+						
+					case state9Turn:
+						shooter.shooterOff();
+						katana.katanaFullFold();
+						robot.turn(-35, 1, .5);
+						if(robot.isTurnComplete){
+							newState(MainState.state9Drive);
+							break;
 						}
 						break;
 					
@@ -780,6 +777,7 @@ public class RealAutonomous extends OpMode {
 		state6PS1,
 		state7PS2,
 		state8PS3,
+		state9Turn,
 		state9Drive,
 		state10WobbleGoal,
 		state11Drive,

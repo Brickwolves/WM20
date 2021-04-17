@@ -140,7 +140,7 @@ public class Intake {
     
     public void intakeReverse(){ intakeDrive.setPower(-INTAKE_REVERSE); }
     
-    public void intakeState(boolean intakeOnOff, boolean intakeReverse){
+    public void intakeState(boolean intakeOnOff, boolean intakeReverse, boolean intakeHoldOn){
         switch (currentIntakeState) {
             
             case OFF:
@@ -152,12 +152,12 @@ public class Intake {
                     }
                     break;
                 }
-                
                 if (intakeReverse) {
                     newState(IntakeState.REVERSE);
                     if(currentBumperState == BumperState.RETRACT) { newState(BumperState.DEPLOY); }
                     break; }
-                intakeOff();
+                if(intakeHoldOn) intakeStallControl();
+                else intakeOff();
                 break;
             
                 
