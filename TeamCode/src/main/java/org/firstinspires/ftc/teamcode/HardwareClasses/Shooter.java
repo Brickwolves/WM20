@@ -23,7 +23,7 @@ public class Shooter {
     private static final double RING_FEED = .01, RESET = .31;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .13, RESET_TIME = .11, PS_DELAY = .4;
+    private static final double FEED_TIME = .13, RESET_TIME = .11, PS_DELAY = .18;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
     private static final int TOP_GOAL = 3550, POWER_SHOT = 2950;
