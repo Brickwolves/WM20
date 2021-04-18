@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
-import org.firstinspires.ftc.teamcode.HardwareClasses.MecanumDrive;
+import org.firstinspires.ftc.teamcode.HardwareClasses.Robot;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
@@ -36,7 +36,7 @@ public class CollinAuto extends OpMode {
 	private final ElapsedTime mainTime = new ElapsedTime();
 	
 	private Gyro gyro;
-	private MecanumDrive robot;
+	private Robot robot;
 	private Shooter shooter;
 	private Intake intake;
 	boolean isFeederLocked = true;
@@ -66,7 +66,7 @@ public class CollinAuto extends OpMode {
 		gyro = new Gyro(imu, 0);
 		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
 		intake = new Intake(intakeDrive, outerRollerOne,outerRollerTwo);
-		robot = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
+		robot = new Robot(frontLeft, frontRight, backLeft, backRight);
 	}
 	
 	public void init_loop(){

@@ -7,46 +7,41 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.utilities.RingBuffer;
 import static org.firstinspires.ftc.utilities.Utils.getHardwareMap;
 
-public class WobbleGripper {
+public class Wobble {
 
-    public Servo gripperOne, gripperTwo, lifter;
+    private static Servo gripperOne, gripperTwo;
+    public static Servo lifter;
     
-    private RingBuffer<Double> timeRing = new RingBuffer<>(20, 0.0);
-    
-    private double armPosition;
     private static final double GRIP = .53, OPEN = 0.07, HALF = 0.35;
     
     private static final double ARM_UP = .68, ARM_TELE = .84, ARM_DOWN = 0.05, ARM_FOLD = 1;
-    private static final double ARM_CONTROL_RATE = -.00005;
     
     private static ArmState currentArmState = ArmState.UP;
-    private GripperState currentGripperState = GripperState.GRIP;
-    private ElapsedTime gripperTime = new ElapsedTime();
+    private static GripperState currentGripperState = GripperState.GRIP;
+    private static final ElapsedTime gripperTime = new ElapsedTime();
 
-    public WobbleGripper(Servo gripperOne, Servo gripperTwo, Servo lifter){
+    public Wobble(Servo gripperOne, Servo gripperTwo, Servo lifter){
         gripperTwo.setDirection(Servo.Direction.REVERSE);
         
-        this.gripperOne = gripperOne;
-        this.gripperTwo = gripperTwo;
-        this.lifter = lifter;
+        Wobble.gripperOne = gripperOne;
+        Wobble.gripperTwo = gripperTwo;
+        Wobble.lifter = lifter;
     }
     
-    public WobbleGripper(HardwareMap hardwareMap) {
-        lifter = getHardwareMap().get(Servo.class, "lifter");
+    public static void init(){
         gripperOne = getHardwareMap().get(Servo.class, "gripperone");
         gripperTwo = getHardwareMap().get(Servo.class, "grippertwo");
-    
-        gripperTwo.setDirection(Servo.Direction.REVERSE);
+        lifter = getHardwareMap().get(Servo.class, "lifter");
     }
     
     
-    public void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP+.02); }
+    public static void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP+.02); }
     
-    public void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN+.02); }
+    public static void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN+.02); }
     
-    public void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF+.02); }
+    public static void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF+.02); }
     
-    public void gripperState(boolean openClose){
+    public static void gripperState(boolean openClose){
         switch (currentGripperState){
     
             case GRIP:
@@ -68,29 +63,18 @@ public class WobbleGripper {
     }
     
 
-    public void armControl(double deltaPosition){
-        
-        double currentTime = System.currentTimeMillis();
-        double deltaMili = currentTime - timeRing.getValue(currentTime);
-        armPosition = lifter.getPosition() + deltaPosition * deltaMili * ARM_CONTROL_RATE;
-        
-        armPosition = Range.clip(armPosition, ARM_DOWN, ARM_FOLD);
-        
-        lifter.setPosition(armPosition);
-    }
+    public static void armUp() { lifter.setPosition(ARM_UP); }
 
-    public void armUp() { lifter.setPosition(ARM_UP); }
-
-    public void armDown() { lifter.setPosition(ARM_DOWN); }
+    public static void armDown() { lifter.setPosition(ARM_DOWN); }
     
-    public void armFold() { lifter.setPosition(ARM_FOLD); }
+    public static void armFold() { lifter.setPosition(ARM_FOLD); }
     
-    public void armTele() { lifter.setPosition(ARM_TELE);}
+    public static void armTele() { lifter.setPosition(ARM_TELE);}
     
-    public void armPosition(double position) { lifter.setPosition(position);}
+    public static void armPosition(double position) { lifter.setPosition(position);}
     
 
-    public void armState(boolean armUpDown, boolean armFold){
+    public static void armState(boolean armUpDown, boolean armFold){
         switch(currentArmState){
                 
             case UP:
@@ -108,13 +92,13 @@ public class WobbleGripper {
             case FOLD:
                 if(armUpDown) { newState(ArmState.UP); break; }
                 if(armFold) { newState(ArmState.DOWN); break; }
-                if(currentGripperState != GripperState.GRIP){ armFold(); }
-                else{ armTele(); }
+                if(currentGripperState != GripperState.GRIP) armFold();
+                else armTele();
                 break;
         }
     }
     
-    public void newState(GripperState newState) {
+    public static void newState(GripperState newState) {
         currentGripperState = newState;
         gripperTime.reset();
     }
