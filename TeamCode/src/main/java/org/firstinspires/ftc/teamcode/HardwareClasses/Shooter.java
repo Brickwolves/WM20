@@ -58,25 +58,20 @@ public class Shooter {
     }
     
     
-    public static void feedRing(){
-        feeder.setPosition(RING_FEED);
-    }
-
-    public static void resetFeeder(){
-        feeder.setPosition(RESET);
-    }
+    public static void feedRing(){ feeder.setPosition(RING_FEED); }
+    public static void resetFeeder(){ feeder.setPosition(RESET); }
     
-    public static void lockFeeder(){
-        feederLock.setPosition(FEEDER_LOCK);
-    }
-    
-    public static void unlockFeeder(){
-        feederLock.setPosition(FEEDER_UNLOCK);
-    }
+    public static void lockFeeder(){ feederLock.setPosition(FEEDER_LOCK); }
+    public static void unlockFeeder(){ feederLock.setPosition(FEEDER_UNLOCK); }
     
     public static void setFeederCount(int feederCount){ feedCount = feederCount; }
     
     public static double feederCount(){ return feedCount; }
+    
+    
+    public static void feederAutoState(int feedCount){
+        feederState(Shooter.feedCount <= feedCount);
+    }
     
     public static void feederState(boolean trigger){
         feederJustOn = false;

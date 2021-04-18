@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.Range;
+
+import java.awt.font.NumericShaper;
 
 public class Controller {
 	
@@ -332,6 +335,11 @@ public class Controller {
 		return gamepad.left_trigger;
 	}
 	
+	public double LTRange(double pressed, double released){
+		double range = pressed - released;
+		return (LTFloat() * range) + released;
+	}
+	
 	public boolean LT() { return gamepad.left_trigger > .4; }
 	
 	public boolean LTPress(){
@@ -351,6 +359,11 @@ public class Controller {
 	//right trigger
 	public float RTFloat() {
 		return gamepad.right_trigger;
+	}
+	
+	public double RTRange(double pressed, double released){
+		double range = pressed - released;
+		return (RTFloat() * range) + released;
 	}
 	
 	public boolean RT() { return gamepad.right_trigger > .4; }
