@@ -14,14 +14,6 @@ public class Katana {
 	
 	public static KatanaState currentKatanaState = KatanaState.DOWN;
 	
-	public Katana(Servo katanaRight, Servo katanaLeft){
-		katanaLeft.scaleRange(.55, .95);
-		katanaRight.scaleRange(.28, .68);
-		katanaLeft.setDirection(Servo.Direction.REVERSE);
-		
-		Katana.katanaRight = katanaRight;
-		Katana.katanaLeft = katanaLeft;
-	}
 	
 	public static void init(){
 		katanaRight = getHardwareMap().get(Servo.class, "katanaright");

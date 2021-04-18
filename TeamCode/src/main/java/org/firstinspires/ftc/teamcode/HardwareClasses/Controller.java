@@ -20,6 +20,7 @@ public class Controller {
 	private boolean isRB;
 	private boolean isLT;
 	private boolean isRT;
+	private boolean isShare;
 	private boolean toggleSq = false;
 	private boolean toggleTr = false;
 	private boolean toggleCr = false;
@@ -34,6 +35,7 @@ public class Controller {
 	private boolean toggleRB = false;
 	private boolean toggleLT = false;
 	private boolean toggleRT = false;
+	private boolean toggleShare = false;
 	private boolean pressSq = false;
 	private boolean pressTr = false;
 	private boolean pressCr = false;
@@ -48,6 +50,9 @@ public class Controller {
 	private boolean pressRB = false;
 	private boolean pressLT = false;
 	private boolean pressRT = false;
+	private boolean pressShare = false;
+	
+	public Thumbstick rightStick, leftStick;
 	
 	
 	public Controller(Gamepad gamepad) {
@@ -104,6 +109,12 @@ public class Controller {
 		
 		boolean wasRT = isRT;
 		pressRT = (isRT = RT()) && !wasRT;
+		
+		boolean wasShare = isShare;
+		pressShare = (isShare = share()) && !wasShare;
+		
+		rightStick = new Thumbstick(gamepad.right_stick_x, gamepad.right_stick_y);
+		leftStick = new Thumbstick(gamepad.left_stick_x, gamepad.left_stick_y);
 	}
 	
 	//cross
@@ -244,6 +255,9 @@ public class Controller {
 	}
 	
 	
+	
+	
+	
 	//left stick button
 	public boolean LS() {
 		return gamepad.left_stick_button;
@@ -359,8 +373,20 @@ public class Controller {
 	}
 	
 	
+	//cross
 	public boolean share() {
 		return gamepad.share;
+	}
+	
+	public boolean sharePress() {
+		return pressShare;
+	}
+	
+	public boolean shareToggle() {
+		if (sharePress()) {
+			toggleShare = !toggleShare;
+		}
+		return (toggleShare);
 	}
 	
 	
@@ -385,14 +411,14 @@ public class Controller {
 		}
 		
 		public boolean isInput() {
-			return (getX() != 0) || (getY() != 0);
+			return (invertedX() != 0) || (invertedY() != 0);
 		}
 		
-		public double getX() {
+		public double invertedX() {
 			return rawX;
 		}
 		
-		public double getY() {
+		public double invertedY() {
 			return rawY;
 		}
 		
@@ -401,27 +427,27 @@ public class Controller {
 			this.shiftedY = (this.rawX * Math.sin(Math.toRadians(shiftAngle))) + (this.rawY * Math.cos(Math.toRadians(shiftAngle)));
 		}
 		
-		public double getShiftedX() {
+		public double invertedShiftedX() {
 			return shiftedX;
 		}
 		
-		public double getShiftedY() {
+		public double invertedShiftedY() {
 			return shiftedY;
 		}
 		
-		public double getShiftedX(Double shiftAngle) {
+		public double invertedShiftedX(Double shiftAngle) {
 			return (this.rawX * Math.sin(Math.toRadians(shiftAngle))) + (this.rawY * Math.cos(Math.toRadians(shiftAngle)));
 		}
 		
-		public double getShiftedY(Double shiftAngle) {
+		public double invertedShiftedY(Double shiftAngle) {
 			return (this.rawX * Math.sin(Math.toRadians(shiftAngle))) + (this.rawY * Math.cos(Math.toRadians(shiftAngle)));
 		}
 		
-		public double getInvertedX() {
+		public double X() {
 			return rawX * -1;
 		}
 		
-		public double getInvertedY() {
+		public double Y() {
 			return rawY * -1;
 		}
 		
@@ -442,7 +468,7 @@ public class Controller {
 		}
 		
 		public double getAngle(){
-			return ((270 - (Math.atan2(0 - getInvertedY(), 0 - getInvertedX())) * 180 / Math.PI) % 360);
+			return ((270 - (Math.atan2(0 - Y(), 0 - X())) * 180 / Math.PI) % 360);
 		}
 		
 		

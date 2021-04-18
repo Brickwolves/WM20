@@ -35,17 +35,6 @@ public class Intake {
     public static BumperState currentBumperState = BumperState.RETRACT;
     
     
-    public Intake(DcMotor intakeDrive, Servo bumperLeft, Servo bumperRight){
-        intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        
-        bumperRight.setDirection(Servo.Direction.REVERSE);
-        Intake.intakeDrive = intakeDrive;
-        Intake.bumperLeft = bumperLeft;
-        Intake.bumperRight = bumperRight;
-    }
-    
-    
     public static void init(){
         intakeDrive = getHardwareMap().get(DcMotor.class, "intake");
         bumperLeft = getHardwareMap().get(Servo.class, "bumperleft");

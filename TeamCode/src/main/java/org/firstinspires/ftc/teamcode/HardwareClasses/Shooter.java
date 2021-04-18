@@ -48,18 +48,6 @@ public class Shooter {
     
     
     
-    public Shooter(DcMotor shooterOne, DcMotor shooterTwo, Servo feeder, Servo feederLock) {
-    
-        shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
-        Shooter.shooterOne = shooterOne;
-        Shooter.shooterTwo = shooterTwo;
-        Shooter.feeder = feeder;
-        Shooter.feederLock = feederLock;
-    }
-    
-    
     public static void init() {
         shooterOne = getHardwareMap().get(DcMotor.class, "shooterone");
         shooterTwo = getHardwareMap().get(DcMotor.class, "shootertwo");
