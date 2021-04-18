@@ -23,6 +23,7 @@ public class Wobble {
         gripperOne = hardwareMap().get(Servo.class, "gripperone");
         gripperTwo = hardwareMap().get(Servo.class, "grippertwo");
         lifter = hardwareMap().get(Servo.class, "lifter");
+        gripperTwo.setDirection(Servo.Direction.REVERSE);
     }
     
     
