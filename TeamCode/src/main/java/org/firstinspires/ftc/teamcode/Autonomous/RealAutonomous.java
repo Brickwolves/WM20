@@ -571,7 +571,6 @@ public class RealAutonomous extends OpMode {
 					
 					//turn towards power shots
 					case state5Turn:
-						//intake.setBumperThreshold(1);
 						if (mainTime.seconds() > .8) {
 							Robot.turn(90, 1, .7);
 							shooter.powerShot();
@@ -592,7 +591,7 @@ public class RealAutonomous extends OpMode {
 						break;
 					
 					
-					//shoot power shot 2, turn to power shot 3
+					//shoot power shot 2
 					case state7PS2:
 						shooter.powerShot();
 						Robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimAngle() - 4);
@@ -601,7 +600,7 @@ public class RealAutonomous extends OpMode {
 						break;
 					
 					
-					//shoot power shot 3, turn to second wobble goal
+					//shoot power shot 3
 					case state8PS3:
 						shooter.powerShot();
 						Robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimAngle() - 4);
@@ -625,19 +624,20 @@ public class RealAutonomous extends OpMode {
 						break;
 					
 						
-						
+					//grip wobble goal and line up to tower
 					case state10WobbleGoal:
 						Wobble.armDown();
 						if (mainTime.seconds() > .5) Wobble.gripperGrip();
 						if (mainTime.seconds() > 1.1) {
 							Wobble.armTele();
 							Robot.strafe(18, 90, -167, 1, .3, 0);
-							if(Robot.currentInches > 14) Intake.setBumperThreshold(1);
+							if(Robot.currentInches > 14) { Intake.setBumperThreshold(1); shooter.highTower(true); }
 							if (Robot.isStrafeComplete) newState(MainState.state11Drive);
 						}
 						break;
 						
-						
+					
+					//forward to ring stack
 					case state11Drive:
 						Intake.intakeStallControl();
 						Robot.strafe(3, 90, 90, .4, .2, .15);
@@ -645,10 +645,11 @@ public class RealAutonomous extends OpMode {
 						if (Robot.isStrafeComplete) newState(MainState.state12Drive);
 						break;
 					
-					//drive to target A
+						
+					//drive forward while intaking and shooting into high tower
 					case state12Drive:
 						Intake.setBumperThreshold(1);
-						Robot.strafe(20, Sensors.gyro.getRawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, 0);
+						Robot.strafe(20, Sensors.gyro.getRawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, .15);
 						Intake.intakeStallControl();
 						shooter.highTower(true);
 						shooter.feederState(true);
@@ -656,16 +657,18 @@ public class RealAutonomous extends OpMode {
 						break;
 					
 					
-					
+					//drive to target c for second wobble goal
 					case state13Drive:
 						Intake.retractBumper();
+						shooter.feederState(false);
 						shooter.shooterOff();
 						Wobble.armPosition(.15);
-						Robot.strafe(70, 0, 90, 1, .4, 0);
+						Robot.strafe(70, 0, 90, 1, .15, 0);
 						if(mainTime.seconds() > .4 && Robot.isStrafeComplete) newState(MainState.state19Drive);
 						break;
 						
-						
+					
+					//back into target c square and drop off wobble goal
 					case state19Drive:
 						Robot.strafe(11, -15, 165, .8, .2, 0);
 						if(Robot.isStrafeComplete){
@@ -676,12 +679,14 @@ public class RealAutonomous extends OpMode {
 						break;
 						
 						
+					//drive out of square
 					case state20Drive:
 						if(mainTime.seconds() > .2) Robot.strafe(7, -15, -15, .5, .5, 0);
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) newState(MainState.state21Drive);
 						break;
 					
 						
+					//strafe to launch line
 					case state21Drive:
 						Robot.strafe(45, 0, -90, 1, .5, 0);
 						Wobble.armFold();
@@ -693,10 +698,7 @@ public class RealAutonomous extends OpMode {
 					case stateFinished:
 						Robot.setPowerAuto(0,0,0);
 				}
-				
 				break;
-				
-				
 		}
 		telemetry.update();
 	}

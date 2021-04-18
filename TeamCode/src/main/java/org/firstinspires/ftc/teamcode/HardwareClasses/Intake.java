@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.HardwareClasses;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import static org.firstinspires.ftc.utilities.Utils.getHardwareMap;
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 import org.firstinspires.ftc.utilities.RingBufferOwen;
 
@@ -36,9 +35,9 @@ public class Intake {
     
     
     public static void init(){
-        intakeDrive = getHardwareMap().get(DcMotor.class, "intake");
-        bumperLeft = getHardwareMap().get(Servo.class, "bumperleft");
-        bumperRight = getHardwareMap().get(Servo.class, "bumperright");
+        intakeDrive = hardwareMap().get(DcMotor.class, "intake");
+        bumperLeft = hardwareMap().get(Servo.class, "bumperleft");
+        bumperRight = hardwareMap().get(Servo.class, "bumperright");
         
         intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);

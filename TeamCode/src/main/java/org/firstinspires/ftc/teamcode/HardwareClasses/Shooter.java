@@ -5,7 +5,6 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -13,7 +12,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.utilities.PID;
 import org.firstinspires.ftc.utilities.RingBufferOwen;
 
-import static org.firstinspires.ftc.utilities.Utils.getHardwareMap;
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Shooter {
 
@@ -49,10 +48,10 @@ public class Shooter {
     
     
     public static void init() {
-        shooterOne = getHardwareMap().get(DcMotor.class, "shooterone");
-        shooterTwo = getHardwareMap().get(DcMotor.class, "shootertwo");
-        feeder = getHardwareMap().get(Servo.class, "feeder");
-        feederLock = getHardwareMap().get(Servo.class, "feederlock");
+        shooterOne = hardwareMap().get(DcMotor.class, "shooterone");
+        shooterTwo = hardwareMap().get(DcMotor.class, "shootertwo");
+        feeder = hardwareMap().get(Servo.class, "feeder");
+        feederLock = hardwareMap().get(Servo.class, "feederlock");
         
         shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

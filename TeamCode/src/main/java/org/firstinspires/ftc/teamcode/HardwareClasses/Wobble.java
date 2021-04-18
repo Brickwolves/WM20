@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import org.firstinspires.ftc.utilities.RingBuffer;
-import static org.firstinspires.ftc.utilities.Utils.getHardwareMap;
+
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Wobble {
 
@@ -22,9 +20,9 @@ public class Wobble {
     
     
     public static void init(){
-        gripperOne = getHardwareMap().get(Servo.class, "gripperone");
-        gripperTwo = getHardwareMap().get(Servo.class, "grippertwo");
-        lifter = getHardwareMap().get(Servo.class, "lifter");
+        gripperOne = hardwareMap().get(Servo.class, "gripperone");
+        gripperTwo = hardwareMap().get(Servo.class, "grippertwo");
+        lifter = hardwareMap().get(Servo.class, "lifter");
     }
     
     
