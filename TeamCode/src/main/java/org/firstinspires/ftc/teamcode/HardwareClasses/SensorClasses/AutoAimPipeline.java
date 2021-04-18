@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
+import org.firstinspires.ftc.utilities.MathUtils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -13,6 +14,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.StrictMath.PI;
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.atan2;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_HEIGHT;
@@ -26,14 +28,18 @@ import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_V;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_H;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_S;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_V;
-import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_LEFT_DIST;
-import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_CENTER_DIST;
-import static org.firstinspires.ftc.utilities.Dash_AutoAim.PS_RIGHT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_LEFT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_CENTER_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_RIGHT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.SHOOTER_OFFSET_DISTANCE;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.blur;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.erode_const;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.goalWidth;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.horizonLineRatio;
+import static org.firstinspires.ftc.utilities.MathUtils.degATan;
+import static org.firstinspires.ftc.utilities.MathUtils.degCos;
+import static org.firstinspires.ftc.utilities.MathUtils.degSin;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
@@ -189,29 +195,33 @@ public class AutoAimPipeline extends OpenCvPipeline {
     public double distance2Goal() {
         return goalDistance;
     }
+    
+    public double shooterOffsetAngle(){
+        return degATan(SHOOTER_OFFSET_DISTANCE, goalDistance);
+    }
 
     public double getDegreeError(){
         return degreeError;
     }
     
     public double getPSDegreeError(PowerShot powerShot){
-        double yDistance = goalDistance * Math.cos(Math.toRadians(Sensors.gyro.getRawAngle() + degreeError));
-        double zDistance = goalDistance * Math.sin(Math.toRadians(Sensors.gyro.getRawAngle() + degreeError));
+        double yDistance = goalDistance * Math.cos((Sensors.gyro.getModAngle() + degreeError - 90) * (PI / 180));
+        double xDistance = goalDistance * Math.sin((Sensors.gyro.getModAngle() + degreeError - 90) * (PI / 180));
         double dDistance;
-        switch (powerShot){
+        switch (powerShot) {
             case PS_LEFT:
-                dDistance = zDistance - PS_LEFT_DIST;
+                dDistance = xDistance - PS_LEFT_DIST;
                 break;
             case PS_CENTER:
-                dDistance = zDistance - PS_CENTER_DIST;
+                dDistance = xDistance - PS_CENTER_DIST;
                 break;
             case PS_RIGHT:
-                dDistance = zDistance - PS_RIGHT_DIST;
+                dDistance = xDistance - PS_RIGHT_DIST;
                 break;
             default:
                 dDistance = 0;
         }
-        return atan2(dDistance, yDistance);
+        return (180 / PI) * Math.atan2(dDistance, yDistance) + 90;
     }
 
     public void releaseAllCaptures(){

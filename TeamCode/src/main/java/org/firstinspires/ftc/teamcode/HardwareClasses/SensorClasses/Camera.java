@@ -8,10 +8,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class Camera {
 	
 	OpenCvWebcam webcam;
-	public StartingStackPipeline startingStackPipeline = new StartingStackPipeline();
 	public RingFinderPipeline ringFinderPipeline = new RingFinderPipeline();
 	public AutoAimPipeline autoAimPipeline = new AutoAimPipeline();
-	public PSAimPipeline PSAimPipeline = new PSAimPipeline();
 	
 	public Camera(OpenCvWebcam webcam){
 		this.webcam = webcam;
@@ -29,9 +27,11 @@ public class Camera {
 		webcam.openCameraDeviceAsync(() -> webcam.startStreaming(width, height, OpenCvCameraRotation.UPRIGHT));
 	}
 	
-	public int startingStackAnalysis(){ return startingStackPipeline.getStackAnalysis(); }
+	public void stopVision(){ webcam.closeCameraDevice(); }
+	
 	
 	public int startingStackCount(){ return ringFinderPipeline.getRingCount(); }
+	
 	
 	public double towerAimError(){ return autoAimPipeline.getDegreeError(); }
 	
@@ -39,13 +39,14 @@ public class Camera {
 	
 	public boolean isTowerFound(){ return autoAimPipeline.isTowerFound; }
 	
-	public double leftPSAimError(){ return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT); }
+	public double shooterOffsetAngle(){ return autoAimPipeline.shooterOffsetAngle(); }
 	
-	public double centerPSAimError(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER); }
 	
-	public double rightPSAimError(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT); }
 	
-	public boolean arePSFound(){ return PSAimPipeline.arePSFound; }
+	public double leftPSAimAngle(){ return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT); }
 	
+	public double centerPSAimAngle(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER); }
+	
+	public double rightPSAimAngle(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT); }
 	
 }
