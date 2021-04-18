@@ -59,14 +59,14 @@ public class Katana {
 		}else{
 			switch(currentKatanaState){
 				case DOWN:
-					if(Intake.currentIntakeState == Intake.IntakeState.OFF && Shooter.feederCount() < 1){
+					if(Shooter.currentShooterState != Shooter.ShooterState.OFF && Shooter.feederCount() < 1){
 						newState(KatanaState.UP);
 					}
 					katanaDown();
 					break;
 					
 				case UP:
-					if(Intake.currentIntakeState == Intake.IntakeState.ON || Shooter.feederCount() > 0){
+					if(Shooter.currentShooterState == Shooter.ShooterState.OFF || Shooter.feederCount() > 0){
 						newState(KatanaState.DOWN);
 					}
 					katanaUp();

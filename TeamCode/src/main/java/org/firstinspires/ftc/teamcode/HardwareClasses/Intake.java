@@ -118,22 +118,20 @@ public class Intake {
     public void intakeStallControl(){
         switch(currentStallState){
             case START:
+                if(stallTime.seconds() > .5) newState(StallState.ON);
                 intakeOn();
-                newState(StallState.ON);
                 break;
-                
+            
             case ON:
+                if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
+                if(updateRPM() < 300 && stallTime.seconds() > .2) newState(StallState.REVERSE);
                 intakeOn();
-                if(updateRPM() < 300 && stallTime.seconds() > .2){
-                    newState(StallState.REVERSE);
-                }
                 break;
                 
             case REVERSE:
+                if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
+                if(stallTime.seconds() > .2) newState(StallState.ON);
                 intakeReverse();
-                if(stallTime.seconds() > .2){
-                    newState(StallState.ON);
-                }
                 break;
         }
     }
@@ -148,37 +146,22 @@ public class Intake {
             case OFF:
                 if (intakeOnOff) {
                     newState(IntakeState.ON);
-                    if(currentBumperState == BumperState.RETRACT) { newState(BumperState.DEPLOY); }
-                    if(Shooter.currentShooterState != Shooter.ShooterState.OFF){
-                        Shooter.newState(Shooter.ShooterState.OFF);
-                    }
+                    if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY);
+                    if(Shooter.currentShooterState != Shooter.ShooterState.OFF) Shooter.newState(Shooter.ShooterState.OFF);
                     break;
                 }
-                if (intakeReverse) {
-                    newState(IntakeState.REVERSE);
-                    if(currentBumperState == BumperState.RETRACT) { newState(BumperState.DEPLOY); }
-                    break; }
-                if(intakeHoldOn) intakeStallControl();
+                
+                if(intakeHoldOn) { intakeStallControl(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY); }
+                else if(intakeReverse) { intakeReverse(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY); }
                 else intakeOff();
                 break;
             
                 
             case ON:
-                if (intakeReverse) { newState(IntakeState.REVERSE); break; }
+                if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOnOff) { newState(IntakeState.OFF); break; }
                 intakeStallControl();
                 break;
-                
-            case REVERSE:
-                if(!intakeReverse){
-                    switch(previousIntakeState){
-                        case ON: newState(IntakeState.ON); break;
-                        case OFF: newState(IntakeState.OFF); break;
-                    }
-                }
-                intakeReverse();
-                break;
-                
         }
     }
     
@@ -204,7 +187,6 @@ public class Intake {
     public static enum IntakeState {
         OFF,
         ON,
-        REVERSE
     }
     
     private enum StallState {
