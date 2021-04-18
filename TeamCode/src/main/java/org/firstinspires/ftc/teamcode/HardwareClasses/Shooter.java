@@ -5,6 +5,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -43,6 +44,8 @@ public class Shooter {
     public ElapsedTime feederTime = new ElapsedTime();
     public static ElapsedTime shooterTime = new ElapsedTime();
     
+    
+    
     public Shooter(DcMotor shooterOne, DcMotor shooterTwo, Servo feeder, Servo feederLock) {
     
         shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -53,7 +56,18 @@ public class Shooter {
         this.feeder = feeder;
         this.feederLock = feederLock;
     }
-
+    
+    public Shooter(HardwareMap hardwareMap) {
+        shooterOne = hardwareMap.get(DcMotor.class, "shooterone");
+        shooterTwo = hardwareMap.get(DcMotor.class, "shootertwo");
+        feeder = hardwareMap.get(Servo.class, "feeder");
+        feederLock = hardwareMap.get(Servo.class, "feederlock");
+        
+        shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    
+    
     public void feedRing(){
         feeder.setPosition(RING_FEED);
     }

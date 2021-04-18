@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter.ShooterState;
@@ -20,6 +21,16 @@ public class Katana {
 		this.katanaRight = katanaRight;
 		this.katanaLeft = katanaLeft;
 	}
+	
+	public Katana(HardwareMap hardwareMap){
+		katanaRight = hardwareMap.get(Servo.class, "katanaright");
+		katanaLeft = hardwareMap.get(Servo.class, "katanaleft");
+		
+		katanaLeft.scaleRange(.55, .95);
+		katanaRight.scaleRange(.28, .68);
+		katanaLeft.setDirection(Servo.Direction.REVERSE);
+	}
+	
 	
 	public void setKatanaPosition(double position){ katanaLeft.setPosition(position); katanaRight.setPosition(position); }
 	

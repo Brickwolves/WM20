@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.utilities.RingBuffer;
+import static org.firstinspires.ftc.utilities.Utils.getHardwareMap;
 
 public class WobbleGripper {
 
@@ -27,6 +29,14 @@ public class WobbleGripper {
         this.gripperOne = gripperOne;
         this.gripperTwo = gripperTwo;
         this.lifter = lifter;
+    }
+    
+    public WobbleGripper(HardwareMap hardwareMap) {
+        lifter = getHardwareMap().get(Servo.class, "lifter");
+        gripperOne = getHardwareMap().get(Servo.class, "gripperone");
+        gripperTwo = getHardwareMap().get(Servo.class, "grippertwo");
+    
+        gripperTwo.setDirection(Servo.Direction.REVERSE);
     }
     
     

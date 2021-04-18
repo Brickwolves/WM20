@@ -13,5 +13,11 @@ public class Utils {
     public static void setHardwareMap(HardwareMap hardwareMap){
         Utils.hardwareMap = hardwareMap;
     }
+    
+    public static void breakpoint(boolean breakpoint){
+        while(true){
+            if(breakpoint) break;
+        }
+    }
 
 }
