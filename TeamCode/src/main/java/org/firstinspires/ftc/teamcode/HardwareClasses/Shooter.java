@@ -28,7 +28,7 @@ public class Shooter {
     private static final double FEED_TIME = .13, RESET_TIME = .11, PS_DELAY = .18;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
-    private static final int TOP_GOAL = 3550, POWER_SHOT = 2950;
+    private static final int TOP_GOAL = 3550, POWER_SHOT = 2900;
     
     private static boolean isFeederLocked;
     private static double shooterRPM;

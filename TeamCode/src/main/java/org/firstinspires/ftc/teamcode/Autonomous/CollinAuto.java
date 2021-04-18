@@ -64,9 +64,7 @@ public class CollinAuto extends OpMode {
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
 		gyro = new Gyro(imu, 0);
-		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
-		intake = new Intake(intakeDrive, outerRollerOne,outerRollerTwo);
-		robot = new Robot(frontLeft, frontRight, backLeft, backRight);
+		
 	}
 	
 	public void init_loop(){

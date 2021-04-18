@@ -78,14 +78,8 @@ public class RealAutonomous extends OpMode {
 		Utils.setHardwareMap(hardwareMap);
 		IMU imu = new IMU("imu");
 		
-		Sensors.init(imu, frontCam, backCam);
 		
 		operator = new Controller(gamepad2);
-		shooter = new Shooter(shooterOne, shooterTwo, feeder, feederLock);
-		intake = new Intake(intakeDrive, bumperLeft, bumperRight);
-		robot = new Robot(frontLeft, frontRight, backLeft, backRight);
-		wobble = new Wobble(gripperOne, gripperTwo, lifter);
-		katana = new Katana(katanaRight, katanaLeft);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.ringFinderPipeline);
 		Sensors.backCamera.startVision(1920, 1080);
