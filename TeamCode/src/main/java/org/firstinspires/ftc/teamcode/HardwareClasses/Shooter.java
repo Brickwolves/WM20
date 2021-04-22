@@ -17,7 +17,7 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
-    private static Servo feeder, feederLock;
+    private static Servo feeder, feederLock, telescope;
     public static PID shooterPID = new PID(.00018, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -27,6 +27,9 @@ public class Shooter {
     
     private static final double FEED_TIME = .13, RESET_TIME = .11, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
+    
+    private static final double TELE_SERVO_R = 0, TELE_SERVO_L = 1;
+    private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 47.5;
     
     private static final int TOP_GOAL = 3550, POWER_SHOT = 2900;
     
@@ -52,16 +55,35 @@ public class Shooter {
         shooterTwo = hardwareMap().get(DcMotor.class, "shootertwo");
         feeder = hardwareMap().get(Servo.class, "feeder");
         feederLock = hardwareMap().get(Servo.class, "feederlock");
+        telescope = null;
+                //hardwareMap().get(Servo.class, "telescope");
         
         shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
     
     
+    public static void setTelescopeAngle(double telescopeAngle){
+        double servoRange = (TELE_SERVO_L - TELE_SERVO_R);
+        double angleRange = (TELE_ANGLE_L - TELE_ANGLE_R);
+        double servoPos = (((telescopeAngle - TELE_ANGLE_R) * servoRange) / angleRange) + TELE_SERVO_L;
+        
+        telescope.setPosition(servoPos);
+    }
+    
+    public static void telescopeAim(boolean autoAim){
+        if(Sensors.frontCamera.isTowerFound() && autoAim) setTelescopeAngle(Sensors.frontCamera.towerAimError());
+        else setTelescopeAngle(0);
+    }
+    
+    
+    
     public static void feedRing(){ feeder.setPosition(RING_FEED); }
+    
     public static void resetFeeder(){ feeder.setPosition(RESET); }
     
     public static void lockFeeder(){ feederLock.setPosition(FEEDER_LOCK); }
+    
     public static void unlockFeeder(){ feederLock.setPosition(FEEDER_UNLOCK); }
     
     public static void setFeederCount(int feederCount){ feedCount = feederCount; }
@@ -183,7 +205,7 @@ public class Shooter {
     public static void shooterOff(){ setPower(0.0); }
     
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, boolean autoPower){
+    public static void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, boolean visionAim){
         shooterJustOn = false;
         switch (currentShooterState) {
             
@@ -215,7 +237,8 @@ public class Shooter {
                 if(shooterTime.seconds() > .5 && shooterTime.seconds() < .58 && Intake.currentIntakeState != Intake.IntakeState.OFF){
                     Intake.newState(Intake.IntakeState.OFF);
                 }
-                highTower(autoPower);
+                //telescopeAim(visionAim);
+                highTower(visionAim);
                 break;
                 
             case POWER_SHOT:
