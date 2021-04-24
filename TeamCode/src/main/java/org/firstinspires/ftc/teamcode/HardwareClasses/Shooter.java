@@ -55,11 +55,14 @@ public class Shooter {
         shooterTwo = hardwareMap().get(DcMotor.class, "shootertwo");
         feeder = hardwareMap().get(Servo.class, "feeder");
         feederLock = hardwareMap().get(Servo.class, "feederlock");
-        telescope = null;
-                //hardwareMap().get(Servo.class, "telescope");
+        telescope = hardwareMap().get(Servo.class, "telescope");
         
         shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    
+    public static void setTelescopePosition(double telescopePosition){
+        telescope.setPosition(telescopePosition);
     }
     
     
