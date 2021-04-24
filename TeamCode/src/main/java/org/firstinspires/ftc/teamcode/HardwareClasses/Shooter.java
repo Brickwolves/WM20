@@ -22,7 +22,7 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = .01, RESET = .31;
+    private static final double RING_FEED = .035, RESET = .6;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
     private static final double FEED_TIME = .13, RESET_TIME = .11, PS_DELAY = .4;
@@ -31,7 +31,7 @@ public class Shooter {
     private static final double TELE_SERVO_R = 0, TELE_SERVO_L = 1;
     private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 47.5;
     
-    private static final int TOP_GOAL = 3550, POWER_SHOT = 2900;
+    private static final int TOP_GOAL = 3700, POWER_SHOT = 2900;
     
     private static boolean isFeederLocked;
     private static double shooterRPM;
@@ -191,13 +191,14 @@ public class Shooter {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void highTower(boolean autoPower){
-        double towerDistance = Sensors.frontCamera.towerDistance() / 100;
+        /*double towerDistance = Sensors.frontCamera.towerDistance() / 100;
         int RPM;
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
             RPM = (int) ((140) * Math.sqrt((9.8 * Math.pow(towerDistance, 3.8)) / (.7426 * towerDistance - 1.264)));
-        }
+        }*/
+        int RPM = TOP_GOAL;
         
         setRPM(RPM);
     }
