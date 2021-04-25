@@ -22,7 +22,7 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, telescope;
-    public static PID shooterPID = new PID(.0002, 0.00005, 0.0001, 0.3, 50);
+    public static PID shooterPID = new PID(.0002, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
@@ -32,10 +32,10 @@ public class Shooter {
     private static final double FEED_TIME = .1, RESET_TIME = .14, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
-    private static final double TELE_SERVO_R = .95, TELE_SERVO_L = .47, TELE_SERVO_RANGE = TELE_SERVO_R - TELE_SERVO_L;
+    private static final double TELE_SERVO_R = .93, TELE_SERVO_L = .47, TELE_SERVO_RANGE = TELE_SERVO_R - TELE_SERVO_L;
     private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 37, TELE_ANGLE_RANGE = TELE_ANGLE_R - TELE_ANGLE_L;
     
-    private static final int TOP_GOAL = 3500, POWER_SHOT = 2900;
+    private static final int TOP_GOAL = 3550, POWER_SHOT = 2900;
     
     private static boolean isFeederLocked;
     private static double shooterRPM;
@@ -169,7 +169,6 @@ public class Shooter {
     
 
     public static void setPower(double power){
-        Shooter.targetRPM = power;
         shooterOne.setPower(power);
         shooterTwo.setPower(power);
     }
@@ -225,8 +224,10 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) ((140) * Math.sqrt((9.8 * Math.pow(towerDistance, 3.8)) /
-                                                   Math.pow(degCos(27), 2) * (.918 * degTan(27 * towerDistance - .796))));
+            /*RPM = (int) (130 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8))) /
+                                             (2 * degCos(27) * degCos(27) * (.918 * degTan(27) * towerDistance - .796)));*/
+            RPM = (int) (130 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8))) /
+                                 (.7426 * towerDistance - 1.264));
         }
         //int RPM = TOP_GOAL;
         
