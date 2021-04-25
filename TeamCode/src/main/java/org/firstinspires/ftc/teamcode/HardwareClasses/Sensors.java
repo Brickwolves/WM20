@@ -13,27 +13,22 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 public class Sensors {
 	
 	
-	private static final WebcamName frontCamName = hardwareMap().get(WebcamName.class, "Front Camera");
-	private static final OpenCvWebcam frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName);
-	
-	private static final WebcamName backCamName = hardwareMap().get(WebcamName.class, "Back Camera");
-	private static final OpenCvWebcam backWebcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName);
-	
-	
-	private static final IMU imu = new IMU("imu");
-	
-	
 	public static Gyro gyro;
 	public static Camera frontCamera, backCamera;
-	//public static MaxSonarI2CXL backSonar, rightSonar;
 	
 	
 	public static void init(){
+		IMU imu = new IMU("imu");
+		
+		WebcamName frontCamName = hardwareMap().get(WebcamName.class, "Front Camera");
+		OpenCvWebcam frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName);
+		
+		WebcamName backCamName = hardwareMap().get(WebcamName.class, "Back Camera");
+		OpenCvWebcam backWebcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName);
+		
 		Sensors.gyro = new Gyro(imu, 0);
 		Sensors.frontCamera = new Camera(frontWebcam);
 		Sensors.backCamera = new Camera(backWebcam);
-		/*Sensors.backSonar = hardwareMap().get(MaxSonarI2CXL.class, "backSonar");
-		Sensors.rightSonar = hardwareMap().get(MaxSonarI2CXL.class, "rightSonar");*/
 	}
 	
 	public static void update(){

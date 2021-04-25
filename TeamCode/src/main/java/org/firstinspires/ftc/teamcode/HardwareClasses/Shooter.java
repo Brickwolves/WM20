@@ -22,14 +22,14 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = .035, RESET = .6;
+    private static final double RING_FEED = .34, RESET = .6;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .13, RESET_TIME = .11, PS_DELAY = .4;
+    private static final double FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
-    private static final double TELE_SERVO_R = 0, TELE_SERVO_L = 1;
-    private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 47.5;
+    private static final double TELE_SERVO_R = .965, TELE_SERVO_L = .47;
+    private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 42;
     
     private static final int TOP_GOAL = 3700, POWER_SHOT = 2900;
     
@@ -41,9 +41,8 @@ public class Shooter {
 
     static RingBufferOwen timeRing = new RingBufferOwen(3);
     static RingBufferOwen positionRing = new RingBufferOwen(3);
-    
-    public static FeederState currentFeederState = FeederState.IDLE;
-    public static ShooterState currentShooterState = ShooterState.OFF;
+    public static FeederState currentFeederState;
+    public static ShooterState currentShooterState;
     
     public static ElapsedTime feederTime = new ElapsedTime();
     public static ElapsedTime shooterTime = new ElapsedTime();
@@ -59,17 +58,21 @@ public class Shooter {
         
         shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
     
-    public static void setTelescopePosition(double telescopePosition){
-        telescope.setPosition(telescopePosition);
+        currentFeederState = FeederState.IDLE;
+        currentShooterState = ShooterState.OFF;
     }
     
     
     public static void setTelescopeAngle(double telescopeAngle){
-        double servoRange = (TELE_SERVO_L - TELE_SERVO_R);
-        double angleRange = (TELE_ANGLE_L - TELE_ANGLE_R);
-        double servoPos = (((telescopeAngle - TELE_ANGLE_R) * servoRange) / angleRange) + TELE_SERVO_L;
+        telescopeAngle -=  Sensors.gyro.rateOfChangeShort() * .17;
+        
+        if(telescopeAngle > TELE_ANGLE_L) telescopeAngle = TELE_ANGLE_L;
+        else if(telescopeAngle < TELE_ANGLE_R) telescopeAngle = TELE_ANGLE_R;
+        
+        double servoRange = (TELE_SERVO_R - TELE_SERVO_L);
+        double angleRange = (TELE_ANGLE_R - TELE_ANGLE_L);
+        double servoPos = (((telescopeAngle - TELE_ANGLE_R) * servoRange) / angleRange) + TELE_SERVO_R;
         
         telescope.setPosition(servoPos);
     }
@@ -103,7 +106,7 @@ public class Shooter {
         switch (currentFeederState) {
             
             case IDLE:
-                if(trigger && getPower() > .1){ newState(FeederState.FEED); }
+                if(trigger){ newState(FeederState.FEED); }
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
                 else{ unlockFeeder(); }

@@ -14,8 +14,8 @@ public class Wobble {
     
     private static final double ARM_UP = .68, ARM_TELE = .84, ARM_DOWN = 0.05, ARM_FOLD = 1;
     
-    private static ArmState currentArmState = ArmState.UP;
-    private static GripperState currentGripperState = GripperState.GRIP;
+    private static ArmState currentArmState;
+    private static GripperState currentGripperState;
     private static final ElapsedTime gripperTime = new ElapsedTime();
     
     
@@ -24,6 +24,9 @@ public class Wobble {
         gripperTwo = hardwareMap().get(Servo.class, "grippertwo");
         lifter = hardwareMap().get(Servo.class, "lifter");
         gripperTwo.setDirection(Servo.Direction.REVERSE);
+    
+        currentArmState = ArmState.FOLD;
+        currentGripperState = GripperState.GRIP;
     }
     
     

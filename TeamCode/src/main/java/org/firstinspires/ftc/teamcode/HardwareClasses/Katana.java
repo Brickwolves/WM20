@@ -11,7 +11,7 @@ public class Katana {
 	
 	private static Servo katanaRight, katanaLeft;
 	
-	public static KatanaState currentKatanaState = KatanaState.DOWN;
+	public static KatanaState currentKatanaState;
 	
 	
 	public static void init(){
@@ -21,6 +21,8 @@ public class Katana {
 		katanaLeft.scaleRange(.55, .95);
 		katanaRight.scaleRange(.28, .68);
 		katanaLeft.setDirection(Servo.Direction.REVERSE);
+		
+		currentKatanaState = KatanaState.DOWN;
 	}
 	
 	

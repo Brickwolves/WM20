@@ -13,7 +13,7 @@ public class Intake {
     private static DcMotor intakeDrive;
     private static Servo bumperLeft, bumperRight;
     
-    private final static double RETRACTED = 0.38, ZERO_RING = 0.015, ONE_RING = 0.14, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.2;
+    private final static double RETRACTED = 0.38, ZERO_RING = 0.014, ONE_RING = 0.14, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.215;
     private final static double SERVO_DIFF = .09;
     
     private final static double INTAKE_ON = 1, INTAKE_REVERSE = .75;
@@ -29,9 +29,9 @@ public class Intake {
     static RingBufferOwen positionRing = new RingBufferOwen(5);
     static RingBufferOwen timeRing = new RingBufferOwen(5);
     
-    public static IntakeState currentIntakeState = IntakeState.OFF;
-    private static StallState currentStallState = StallState.START;
-    public static BumperState currentBumperState = BumperState.RETRACT;
+    public static IntakeState currentIntakeState;
+    private static StallState currentStallState;
+    public static BumperState currentBumperState;
     
     
     public static void init(){
@@ -42,6 +42,10 @@ public class Intake {
         intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         bumperRight.setDirection(Servo.Direction.REVERSE);
+    
+        currentIntakeState = IntakeState.OFF;
+        currentStallState = StallState.START;
+        currentBumperState = BumperState.DEPLOY;
     }
     
     
