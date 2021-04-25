@@ -16,7 +16,7 @@ public class VisionUtils {
     public static double IMG_HEIGHT = 240;
     public static final double FOV = 72;
     public static final double RING_HEIGHT = 20;
-    public static final double TOWER_HEIGHT = 211;
+    public static final double TOWER_HEIGHT = 186;
     
     public static double PS_LEFT_DIST = 41;
     public static double PS_CENTER_DIST = 64;

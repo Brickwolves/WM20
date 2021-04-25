@@ -130,7 +130,7 @@ public class RealAutonomous extends OpMode {
 		telemetry.addData("strafe", Robot.strafe);
 		telemetry.addData("turn", Robot.turn);
 		telemetry.addData("power", Robot.power);
-		telemetry.addData("current angle", Sensors.gyro.getModAngle());
+		telemetry.addData("current angle", Sensors.gyro.modAngle());
 		
 		katana.katanaAutoState();
 		
@@ -643,7 +643,7 @@ public class RealAutonomous extends OpMode {
 					//drive forward while intaking and shooting into high tower
 					case state12Drive:
 						Intake.setBumperThreshold(1);
-						Robot.strafe(20, Sensors.gyro.getRawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, .15);
+						Robot.strafe(20, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, .15);
 						Intake.intakeStallControl();
 						shooter.highTower(true);
 						shooter.feederState(true);

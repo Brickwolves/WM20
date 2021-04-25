@@ -15,13 +15,16 @@ public class Sensors {
 	
 	public static Gyro gyro;
 	public static Camera frontCamera, backCamera;
+	private static long currentTimeMilis;
 	
 	
 	public static void init(){
 		IMU imu = new IMU("imu");
 		
+		int cameraMonitorViewId = hardwareMap().appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap().appContext.getPackageName());
+		
 		WebcamName frontCamName = hardwareMap().get(WebcamName.class, "Front Camera");
-		OpenCvWebcam frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName);
+		OpenCvWebcam frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName, cameraMonitorViewId);
 		
 		WebcamName backCamName = hardwareMap().get(WebcamName.class, "Back Camera");
 		OpenCvWebcam backWebcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName);
@@ -32,8 +35,11 @@ public class Sensors {
 	}
 	
 	public static void update(){
+		currentTimeMilis = System.currentTimeMillis();
 		gyro.update();
 	}
+	
+	public static long currentTimeMilis(){ return currentTimeMilis; }
 
 
 }

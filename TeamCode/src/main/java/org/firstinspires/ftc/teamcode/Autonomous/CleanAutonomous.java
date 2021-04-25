@@ -6,11 +6,8 @@ import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Intake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Katana;
@@ -18,10 +15,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Robot;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Wobble;
-import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import static android.os.SystemClock.sleep;
 
@@ -600,7 +594,7 @@ public class CleanAutonomous extends OpMode {
 					//drive forward while intaking and shooting into high tower
 					case state12Drive:
 						Intake.setBumperThreshold(1);
-						Robot.strafe(20, Sensors.gyro.getRawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, .15);
+						Robot.strafe(20, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, .15);
 						Intake.intakeStallControl();
 						Shooter.highTower(true);
 						Shooter.feederState(true);
@@ -704,7 +698,7 @@ public class CleanAutonomous extends OpMode {
 		telemetry.addData("strafe", Robot.strafe);
 		telemetry.addData("turn", Robot.turn);
 		telemetry.addData("power", Robot.power);
-		telemetry.addData("current angle", Sensors.gyro.getModAngle());
+		telemetry.addData("current angle", Sensors.gyro.modAngle());
 		telemetry.update();
 	}
 }

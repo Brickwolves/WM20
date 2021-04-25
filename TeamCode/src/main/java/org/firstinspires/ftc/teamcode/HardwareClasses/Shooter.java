@@ -9,29 +9,33 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.utilities.MathUtils;
 import org.firstinspires.ftc.utilities.PID;
+import org.firstinspires.ftc.utilities.RingBuffer;
 import org.firstinspires.ftc.utilities.RingBufferOwen;
 
+import static org.firstinspires.ftc.utilities.MathUtils.degCos;
+import static org.firstinspires.ftc.utilities.MathUtils.degTan;
 import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, telescope;
-    public static PID shooterPID = new PID(.00018, 0.00003, 0.00012, 0.3, 50);
+    public static PID shooterPID = new PID(.0002, 0.00005, 0.0001, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
     private static final double RING_FEED = .34, RESET = .6;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double FEED_TIME = .1, RESET_TIME = .14, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
-    private static final double TELE_SERVO_R = .965, TELE_SERVO_L = .47;
-    private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 42;
+    private static final double TELE_SERVO_R = .95, TELE_SERVO_L = .47, TELE_SERVO_RANGE = TELE_SERVO_R - TELE_SERVO_L;
+    private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 37, TELE_ANGLE_RANGE = TELE_ANGLE_R - TELE_ANGLE_L;
     
-    private static final int TOP_GOAL = 3700, POWER_SHOT = 2900;
+    private static final int TOP_GOAL = 3500, POWER_SHOT = 2900;
     
     private static boolean isFeederLocked;
     private static double shooterRPM;
@@ -41,6 +45,8 @@ public class Shooter {
 
     static RingBufferOwen timeRing = new RingBufferOwen(3);
     static RingBufferOwen positionRing = new RingBufferOwen(3);
+    static RingBuffer<Double> shortAngleRing = new RingBuffer<>(2,0.0);
+    static RingBuffer<Long> shortTimeRing = new RingBuffer<>(2, (long)0);
     public static FeederState currentFeederState;
     public static ShooterState currentShooterState;
     
@@ -65,20 +71,40 @@ public class Shooter {
     
     
     public static void setTelescopeAngle(double telescopeAngle){
-        telescopeAngle -=  Sensors.gyro.rateOfChangeShort() * .17;
+        
+        long deltaMiliShort = Sensors.currentTimeMilis() - shortTimeRing.getValue(Sensors.currentTimeMilis());
+        double deltaSecondsShort = deltaMiliShort / 1000.0;
+    
+        double deltaAngleShort = telescopeAngle - shortAngleRing.getValue(telescopeAngle);
+        double rateOfChangeShort = deltaAngleShort/deltaSecondsShort;
+        
+        telescopeAngle += rateOfChangeShort * .17;
+        telescopeAngle -= 0;
         
         if(telescopeAngle > TELE_ANGLE_L) telescopeAngle = TELE_ANGLE_L;
         else if(telescopeAngle < TELE_ANGLE_R) telescopeAngle = TELE_ANGLE_R;
         
-        double servoRange = (TELE_SERVO_R - TELE_SERVO_L);
-        double angleRange = (TELE_ANGLE_R - TELE_ANGLE_L);
-        double servoPos = (((telescopeAngle - TELE_ANGLE_R) * servoRange) / angleRange) + TELE_SERVO_R;
+        double servoPos = (((telescopeAngle - TELE_ANGLE_R) * TELE_SERVO_RANGE) / TELE_ANGLE_RANGE) + TELE_SERVO_R;
         
         telescope.setPosition(servoPos);
     }
     
+    public static double getTelescopeAngle(){
+        return (((telescope.getPosition() - TELE_SERVO_R) * TELE_ANGLE_RANGE) / TELE_SERVO_RANGE) + TELE_ANGLE_R;
+    }
+    
+    public static double verticalComponent(){
+        double xComponent = MathUtils.degSin(getTelescopeAngle());
+        double yComponent = Math.sqrt(.2061 - .2061 * Math.pow(xComponent, 2));
+        return MathUtils.degASin(yComponent);
+    }
+    
+    public static void telescopeAim(){
+        telescopeAim(true);
+    }
+    
     public static void telescopeAim(boolean autoAim){
-        if(Sensors.frontCamera.isTowerFound() && autoAim) setTelescopeAngle(Sensors.frontCamera.towerAimError());
+        if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150)) setTelescopeAngle(Sensors.frontCamera.towerAimError());
         else setTelescopeAngle(0);
     }
     
@@ -106,7 +132,7 @@ public class Shooter {
         switch (currentFeederState) {
             
             case IDLE:
-                if(trigger){ newState(FeederState.FEED); }
+                if(trigger && getPower() > .1){ newState(FeederState.FEED); }
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
                 else{ unlockFeeder(); }
@@ -194,14 +220,15 @@ public class Shooter {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void highTower(boolean autoPower){
-        /*double towerDistance = Sensors.frontCamera.towerDistance() / 100;
+        double towerDistance = Sensors.frontCamera.towerDistance() / 100;
         int RPM;
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) ((140) * Math.sqrt((9.8 * Math.pow(towerDistance, 3.8)) / (.7426 * towerDistance - 1.264)));
-        }*/
-        int RPM = TOP_GOAL;
+            RPM = (int) ((140) * Math.sqrt((9.8 * Math.pow(towerDistance, 3.8)) /
+                                                   Math.pow(degCos(27), 2) * (.918 * degTan(27 * towerDistance - .796))));
+        }
+        //int RPM = TOP_GOAL;
         
         setRPM(RPM);
     }
@@ -228,9 +255,6 @@ public class Shooter {
                 if (powerShot) {
                     newState(ShooterState.POWER_SHOT);
                     shooterPID.resetIntegralSum();
-                    if(Intake.currentIntakeState != Intake.IntakeState.OFF){
-                        Intake.newState(Intake.IntakeState.OFF);
-                    }
                     shooterJustOn = true;
                     break;
                 }
@@ -241,9 +265,9 @@ public class Shooter {
             case TOP_GOAL:
                 if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
                 if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
-                if(shooterTime.seconds() > .5 && shooterTime.seconds() < .58 && Intake.currentIntakeState != Intake.IntakeState.OFF){
+                /*if(shooterTime.seconds() > .5 && shooterTime.seconds() < .58 && Intake.currentIntakeState != Intake.IntakeState.OFF){
                     Intake.newState(Intake.IntakeState.OFF);
-                }
+                }*/
                 //telescopeAim(visionAim);
                 highTower(visionAim);
                 break;

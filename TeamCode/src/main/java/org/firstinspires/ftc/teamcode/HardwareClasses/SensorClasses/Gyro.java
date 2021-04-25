@@ -16,8 +16,7 @@ public class Gyro {
     private final RingBuffer<Double> angleRing = new RingBuffer<>(4,0.0);
     private final RingBuffer<Long> angleTimeRing = new RingBuffer<>(4, (long)0);
     
-    private final RingBuffer<Double> shortAngleRing = new RingBuffer<>(2,0.0);
-    private final RingBuffer<Long> shortTimeRing = new RingBuffer<>(2, (long)0);
+    
     
     private double imuAngle = 0;
     private double rawAngle = 0;
@@ -38,15 +37,13 @@ public class Gyro {
         long currentTime = System.currentTimeMillis();
         long deltaMili = currentTime - angleTimeRing.getValue(currentTime);
         double deltaSeconds = deltaMili / 1000.0;
-        long deltaMiliShort = currentTime - shortTimeRing.getValue(currentTime);
-        double deltaSecondsShort = deltaMiliShort / 1000.0;
     
-        double currentAngle = Sensors.gyro.getRawAngle();
+        double currentAngle = Sensors.gyro.rawAngle();
         double deltaAngle = currentAngle - angleRing.getValue(currentAngle);
-        double deltaAngleShort = currentAngle - shortAngleRing.getValue(currentAngle);
+        
         
         rateOfChange = deltaAngle/deltaSeconds;
-        rateOfChangeShort = deltaAngleShort/deltaSecondsShort;
+        
     }
 
     public void setImu(IMU imu) {
@@ -59,15 +56,15 @@ public class Gyro {
     
     public void reset() { datum = imu.getAngle(); }
 
-    public double getRawAngle() {
+    public double rawAngle() {
         return rawAngle;
     }
     
-    public double getIMUAngle() {
+    public double IMUAngle() {
         return imuAngle;
     }
 
-    public double getModAngle() {
+    public double modAngle() {
         return modAngle;
     }
     
