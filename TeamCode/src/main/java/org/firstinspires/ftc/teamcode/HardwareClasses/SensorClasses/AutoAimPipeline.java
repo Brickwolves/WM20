@@ -189,7 +189,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
     
     public double distance2Goal() {
-        return goalDistance;
+        return goalDistance + abs(getDegreeError()) * 1;
     }
     
     public double shooterOffsetAngle(){
@@ -197,7 +197,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
 
     public double getDegreeError(){
-        return degreeError;
+        return degreeError * .7;
     }
     
     public double getPSDegreeError(PowerShot powerShot){

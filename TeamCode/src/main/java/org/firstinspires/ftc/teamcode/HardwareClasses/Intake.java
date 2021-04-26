@@ -13,7 +13,7 @@ public class Intake {
     private static DcMotor intakeDrive;
     private static Servo bumperLeft, bumperRight;
     
-    private final static double RETRACTED = 0.38, ZERO_RING = 0.014, ONE_RING = 0.14, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.215;
+    private final static double RETRACTED = 0.38, ZERO_RING = 0.014, ONE_RING = 0.14, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.34;
     private final static double SERVO_DIFF = .09;
     
     private final static double INTAKE_ON = 1, INTAKE_REVERSE = .75;

@@ -22,7 +22,7 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
-    public static PID shooterPID = new PID(.0002, 0.00003, 0.00012, 0.3, 50);
+    public static PID shooterPID = new PID(.00024, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
@@ -79,7 +79,6 @@ public class Shooter {
         double rateOfChangeShort = deltaAngleShort/deltaSecondsShort;
         
         turretAngle += rateOfChangeShort * .17;
-        turretAngle -= 0;
         
         turretAngle = Range.clip(turretAngle, TURRET_ANGLE_R, TURRET_ANGLE_L);
         
@@ -95,13 +94,14 @@ public class Shooter {
     public static double verticalComponent(){
         double xComponent = MathUtils.degSin(getTurretAngle());
         double yComponent = Math.sqrt(.2061 - .2061 * Math.pow(xComponent, 2));
-        return MathUtils.degASin(yComponent);
+        return ((MathUtils.degASin(yComponent) - 27) * .9) + 27;
     }
     
     public static void turretAim(){ turretAim(true); }
     
     public static void turretAim(boolean autoAim){
-        if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150)) setTurretAngle(Sensors.frontCamera.towerAimError());
+        if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150) && getPower() > .1)
+            setTurretAngle(Sensors.frontCamera.towerAimError() + .5);
         else setTurretAngle(0);
     }
     
@@ -221,7 +221,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (135 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
+            RPM = (int) (137 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
                                              (2 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
         
