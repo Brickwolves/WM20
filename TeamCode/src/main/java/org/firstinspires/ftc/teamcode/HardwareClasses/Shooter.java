@@ -21,7 +21,7 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
-    private static Servo feeder, feederLock, telescope;
+    private static Servo feeder, feederLock, turret;
     public static PID shooterPID = new PID(.0002, 0.00003, 0.00012, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -32,8 +32,8 @@ public class Shooter {
     private static final double FEED_TIME = .1, RESET_TIME = .14, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
-    private static final double TELE_SERVO_R = .93, TELE_SERVO_L = .47, TELE_SERVO_RANGE = TELE_SERVO_R - TELE_SERVO_L;
-    private static final double TELE_ANGLE_R = -22.5, TELE_ANGLE_L = 37, TELE_ANGLE_RANGE = TELE_ANGLE_R - TELE_ANGLE_L;
+    private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
+    private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 37, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
     
     private static final int TOP_GOAL = 3550, POWER_SHOT = 2900;
     
@@ -60,7 +60,7 @@ public class Shooter {
         shooterTwo = hardwareMap().get(DcMotor.class, "shootertwo");
         feeder = hardwareMap().get(Servo.class, "feeder");
         feederLock = hardwareMap().get(Servo.class, "feederlock");
-        telescope = hardwareMap().get(Servo.class, "telescope");
+        turret = hardwareMap().get(Servo.class, "telescope");
         
         shooterOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -70,42 +70,39 @@ public class Shooter {
     }
     
     
-    public static void setTelescopeAngle(double telescopeAngle){
+    public static void setTurretAngle(double turretAngle){
         
         long deltaMiliShort = Sensors.currentTimeMilis() - shortTimeRing.getValue(Sensors.currentTimeMilis());
         double deltaSecondsShort = deltaMiliShort / 1000.0;
     
-        double deltaAngleShort = telescopeAngle - shortAngleRing.getValue(telescopeAngle);
+        double deltaAngleShort = turretAngle - shortAngleRing.getValue(turretAngle);
         double rateOfChangeShort = deltaAngleShort/deltaSecondsShort;
         
-        telescopeAngle += rateOfChangeShort * .17;
-        telescopeAngle -= 0;
+        turretAngle += rateOfChangeShort * .17;
+        turretAngle -= 0;
         
-        if(telescopeAngle > TELE_ANGLE_L) telescopeAngle = TELE_ANGLE_L;
-        else if(telescopeAngle < TELE_ANGLE_R) telescopeAngle = TELE_ANGLE_R;
+        turretAngle = Range.clip(turretAngle, TURRET_ANGLE_R, TURRET_ANGLE_L);
         
-        double servoPos = (((telescopeAngle - TELE_ANGLE_R) * TELE_SERVO_RANGE) / TELE_ANGLE_RANGE) + TELE_SERVO_R;
+        double servoPos = (((turretAngle - TURRET_ANGLE_R) * TURRET_SERVO_RANGE) / TURRET_ANGLE_RANGE) + TURRET_SERVO_R;
         
-        telescope.setPosition(servoPos);
+        turret.setPosition(servoPos);
     }
     
-    public static double getTelescopeAngle(){
-        return (((telescope.getPosition() - TELE_SERVO_R) * TELE_ANGLE_RANGE) / TELE_SERVO_RANGE) + TELE_ANGLE_R;
+    public static double getTurretAngle(){
+        return (((turret.getPosition() - TURRET_SERVO_R) * TURRET_ANGLE_RANGE) / TURRET_SERVO_RANGE) + TURRET_ANGLE_R;
     }
     
     public static double verticalComponent(){
-        double xComponent = MathUtils.degSin(getTelescopeAngle());
+        double xComponent = MathUtils.degSin(getTurretAngle());
         double yComponent = Math.sqrt(.2061 - .2061 * Math.pow(xComponent, 2));
         return MathUtils.degASin(yComponent);
     }
     
-    public static void telescopeAim(){
-        telescopeAim(true);
-    }
+    public static void turretAim(){ turretAim(true); }
     
-    public static void telescopeAim(boolean autoAim){
-        if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150)) setTelescopeAngle(Sensors.frontCamera.towerAimError());
-        else setTelescopeAngle(0);
+    public static void turretAim(boolean autoAim){
+        if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150)) setTurretAngle(Sensors.frontCamera.towerAimError());
+        else setTurretAngle(0);
     }
     
     
@@ -224,12 +221,9 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            /*RPM = (int) (130 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8))) /
-                                             (2 * degCos(27) * degCos(27) * (.918 * degTan(27) * towerDistance - .796)));*/
-            RPM = (int) (130 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8))) /
-                                 (.7426 * towerDistance - 1.264));
+            RPM = (int) (135 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
+                                             (2 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
-        //int RPM = TOP_GOAL;
         
         setRPM(RPM);
     }

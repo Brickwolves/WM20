@@ -39,7 +39,7 @@ public class Katana {
 	public static void katanaHalfFold(){ setKatanaPosition(HALF_FOLD); }
 	
 	public static void katanaAutoState(){
-		if (Shooter.targetRPM != 0) {
+		if (Shooter.getPower() != 0) {
 			katanaShoot();
 		} else if (Intake.bumperPosition >= .3) {
 			katanaHalfFold();
@@ -47,6 +47,8 @@ public class Katana {
 			katanaFullFold();
 		}
 	}
+	
+	public static void katanaState(boolean foldToggle){ katanaState(foldToggle, false); }
 	
 	public static void katanaState(boolean foldToggle, boolean forceDown){
 		if(forceDown) {
