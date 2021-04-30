@@ -26,11 +26,11 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = .34, RESET = .6;
+    private static final double RING_FEED = .29, RESET = .6;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .1, RESET_TIME = .14, PS_DELAY = .4;
-    private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
+    private static final double FEED_TIME = .13, RESET_TIME = .13, PS_DELAY = .4;
+    private static final double LOCK_TIME = .8, UNLOCK_TIME = .12;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
     private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 37, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
@@ -129,10 +129,11 @@ public class Shooter {
         switch (currentFeederState) {
             
             case IDLE:
-                if(trigger && getPower() > .1){ newState(FeederState.FEED); }
+                if(trigger && getPower() > .1 && getRPM() > (targetRPM - 150) &&
+                           Robot.isRobotMoving() && Sensors.frontCamera.isTowerFound()) newState(FeederState.FEED);
                 
-                if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); }
-                else{ unlockFeeder(); }
+                if(feederTime.seconds() > LOCK_TIME) lockFeeder();
+                else unlockFeeder();
                 
                 isFeederLocked = false;
                 resetFeeder();
@@ -140,10 +141,10 @@ public class Shooter {
             
             case FEED:
                 if (isFeederLocked) {
-                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) { newState(FeederState.RESET);  }
-                    if (feederTime.seconds() > UNLOCK_TIME) { feedRing(); }
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) newState(FeederState.RESET);
+                    if (feederTime.seconds() > UNLOCK_TIME) feedRing();
                 }else{
-                    if (feederTime.seconds() > FEED_TIME) { newState(FeederState.RESET); }
+                    if (feederTime.seconds() > FEED_TIME) newState(FeederState.RESET);
                     feedRing();
                 }
                 unlockFeeder();
@@ -221,7 +222,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (137 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
+            RPM = (int) (139 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
                                              (2 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
         
@@ -231,7 +232,8 @@ public class Shooter {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void powerShot(){ setRPM(POWER_SHOT); }
 
-    public static void shooterOff(){ setPower(0.0); }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void shooterOff(){ setPower(0.0); setRPM(0); }
     
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void shooterState(boolean shooterOnOff, boolean powerShot, boolean topGoal, boolean visionAim){

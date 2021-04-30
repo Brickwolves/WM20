@@ -13,7 +13,7 @@ public class Intake {
     private static DcMotor intakeDrive;
     private static Servo bumperLeft, bumperRight;
     
-    private final static double RETRACTED = 0.38, ZERO_RING = 0.014, ONE_RING = 0.14, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.34;
+    private final static double RETRACTED = 0.32, ZERO_RING = 0.014, ONE_RING = 0.18, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.14;
     private final static double SERVO_DIFF = .09;
     
     private final static double INTAKE_ON = 1, INTAKE_REVERSE = .75;
@@ -129,13 +129,13 @@ public class Intake {
             
             case ON:
                 if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
-                if(updateRPM() < 300 && stallTime.seconds() > .2) newState(StallState.REVERSE);
+                if(updateRPM() < 200 && stallTime.seconds() > .3) newState(StallState.REVERSE);
                 intakeOn();
                 break;
                 
             case REVERSE:
                 if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
-                if(stallTime.seconds() > .2) newState(StallState.ON);
+                if(stallTime.seconds() > .4) newState(StallState.ON);
                 intakeReverse();
                 break;
         }
@@ -152,7 +152,7 @@ public class Intake {
                 if (intakeOnOff) {
                     newState(IntakeState.ON);
                     if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY);
-                    if(Shooter.currentShooterState != Shooter.ShooterState.OFF) Shooter.newState(Shooter.ShooterState.OFF);
+                    //if(Shooter.currentShooterState != Shooter.ShooterState.OFF) Shooter.newState(Shooter.ShooterState.OFF);
                     break;
                 }
                 
