@@ -101,7 +101,8 @@ public class Shooter {
     
     public static void turretAim(boolean autoAim){
         if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150) && getPower() > .1)
-            setTurretAngle(Sensors.frontCamera.towerAimError() + .5);
+            setTurretAngle(Sensors.frontCamera.towerAimError() + .5 +
+                                   (0.000015 * Sensors.frontCamera.towerDistance() * Sensors.robotVelocityComponent(Sensors.frontCamera.towerAimError() - 90)));
         else setTurretAngle(0);
     }
     
@@ -115,6 +116,7 @@ public class Shooter {
     
     public static void unlockFeeder(){ feederLock.setPosition(FEEDER_UNLOCK); }
     
+    
     public static void setFeederCount(int feederCount){ feedCount = feederCount; }
     
     public static double feederCount(){ return feedCount; }
@@ -124,13 +126,21 @@ public class Shooter {
         feederState(Shooter.feedCount <= feedCount);
     }
     
+    public static void feederTeleState(boolean trigger){
+        if(currentShooterState != ShooterState.POWER_SHOT){
+            feederState(getPower() > .1 && getRPM() > (targetRPM - 150) &&
+                                Sensors.isRobotMoving() && Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(50, 130));
+        }else{
+            feederState(trigger);
+        }
+    }
+    
     public static void feederState(boolean trigger){
         feederJustOn = false;
         switch (currentFeederState) {
             
             case IDLE:
-                if(trigger && getPower() > .1 && getRPM() > (targetRPM - 150) &&
-                           Robot.isRobotMoving() && Sensors.frontCamera.isTowerFound()) newState(FeederState.FEED);
+                if(trigger) newState(FeederState.FEED);
                 
                 if(feederTime.seconds() > LOCK_TIME) lockFeeder();
                 else unlockFeeder();
