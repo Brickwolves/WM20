@@ -28,7 +28,7 @@ public class MathUtils {
     
     public static double degASin(double sin){ return radsToDegs(Math.asin(sin)); }
     
-    public static double degATan(double opposite, double adjacent){ return degsToRads(Math.atan2(opposite, adjacent)); }
+    public static double degATan(double opposite, double adjacent){ return radsToDegs(Math.atan2(opposite, adjacent)); }
 
 
     public static double mod(double value, int base){

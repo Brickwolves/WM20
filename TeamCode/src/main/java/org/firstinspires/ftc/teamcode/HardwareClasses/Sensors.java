@@ -53,19 +53,19 @@ public class Sensors {
 		double deltaMinutes = deltaMili / 60000.0;
 		
 		long frPosition = Robot.frontRight.getCurrentPosition();
-		double frDeltaRotations = frPosition - frRing.getValue(frPosition) / 537.7;
+		double frDeltaRotations = (frPosition - frRing.getValue(frPosition)) / 537.7;
 		frRPM = frDeltaRotations / deltaMinutes;
 		
 		long flPosition = Robot.frontLeft.getCurrentPosition();
-		double flDeltaRotations = flPosition - flRing.getValue(flPosition) / 537.7;
+		double flDeltaRotations = (flPosition - flRing.getValue(flPosition)) / 537.7;
 		flRPM = flDeltaRotations / deltaMinutes;
 		
 		long brPosition = Robot.backRight.getCurrentPosition();
-		double brDeltaRotations = brPosition - brRing.getValue(brPosition) / 537.7;
+		double brDeltaRotations = (brPosition - brRing.getValue(brPosition)) / 537.7;
 		brRPM = brDeltaRotations / deltaMinutes;
 		
 		long blPosition = Robot.backLeft.getCurrentPosition();
-		double blDeltaRotations = blPosition - blRing.getValue(blPosition) / 537.7;
+		double blDeltaRotations = (blPosition - blRing.getValue(blPosition)) / 537.7;
 		blRPM = blDeltaRotations / deltaMinutes;
 	}
 	
@@ -75,16 +75,18 @@ public class Sensors {
 	
 	//ROBOT MOVEMENT
 	public static double robotVelocityComponent(double angle){
-		double drive = frRPM + flRPM + brRPM + blRPM;
-		double strafe = frRPM - flRPM - brRPM + blRPM;
+		double drive = (frRPM + flRPM + brRPM + blRPM) / 4;
+		double strafe = (frRPM - flRPM - brRPM + blRPM) / 4;
+		double velocityAngle;
 		
 		double velocity = Math.sqrt(Math.pow(drive, 2) + Math.pow(strafe, 2));
-		double velocityAngle = MathUtils.degASin(strafe / velocity);
+		
+		if (velocity == 0 ) velocityAngle = 0;
+		else velocityAngle = - MathUtils.degATan(drive, strafe) + 90;
 		
 		angle = angle - velocityAngle;
 		
 		return MathUtils.degCos(angle) * velocity;
-		
 	}
 	
 	public static double maxRobotRPM(){
@@ -92,7 +94,7 @@ public class Sensors {
 	}
 	
 	public static boolean isRobotMoving(){
-		return maxRobotRPM() < 50 && Robot.drive < .3 && Robot.strafe < .3 && Robot.turn < .2;
+		return maxRobotRPM() < 70 && Robot.drive < .4 && Robot.strafe < .4 && Robot.turn < .2;
 	}
 	
 	

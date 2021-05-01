@@ -26,16 +26,16 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = .29, RESET = .6;
-    private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
+    private static final double RING_FEED = .36, RESET = .6;
+    private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .23;
     
-    private static final double FEED_TIME = .13, RESET_TIME = .13, PS_DELAY = .4;
-    private static final double LOCK_TIME = .8, UNLOCK_TIME = .12;
+    private static final double FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
     private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 37, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
     
-    private static final int TOP_GOAL = 3550, POWER_SHOT = 2900;
+    private static final int TOP_GOAL = 3550, POWER_SHOT = 3100;
     
     private static boolean isFeederLocked;
     private static double shooterRPM;
@@ -102,7 +102,7 @@ public class Shooter {
     public static void turretAim(boolean autoAim){
         if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150) && getPower() > .1)
             setTurretAngle(Sensors.frontCamera.towerAimError() + .5 +
-                                   (0.000015 * Sensors.frontCamera.towerDistance() * Sensors.robotVelocityComponent(Sensors.frontCamera.towerAimError() - 90)));
+                                   (Sensors.robotVelocityComponent(Sensors.frontCamera.towerAimError() - 90)) / 30);
         else setTurretAngle(0);
     }
     
@@ -224,7 +224,6 @@ public class Shooter {
         setPower(shooterPower);
     }
     
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void highTower(boolean autoPower){
         double towerDistance = Sensors.frontCamera.towerDistance() / 100;
@@ -232,8 +231,8 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (139 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
-                                             (2 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
+            RPM = (int) (141.2 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.8) /
+                                             (2.1 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
         
         setRPM(RPM);
@@ -277,6 +276,7 @@ public class Shooter {
                 }*/
                 //telescopeAim(visionAim);
                 highTower(visionAim);
+                turretAim();
                 break;
                 
             case POWER_SHOT:
@@ -286,6 +286,7 @@ public class Shooter {
                     Intake.newState(Intake.IntakeState.OFF);
                 }
                 powerShot();
+                setTurretAngle(0);
                 break;
         }
     }
