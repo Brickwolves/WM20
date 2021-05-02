@@ -94,7 +94,7 @@ public class Sensors {
 	}
 	
 	public static boolean isRobotMoving(){
-		return maxRobotRPM() < 70 && Robot.drive < .4 && Robot.strafe < .4 && Robot.turn < .2;
+		return maxRobotRPM() < 100 && Robot.drive < .5 && Robot.strafe < .5 && Robot.turn < .1;
 	}
 	
 	
