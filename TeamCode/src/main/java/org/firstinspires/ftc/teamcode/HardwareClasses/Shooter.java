@@ -26,10 +26,10 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = .25, RESET = .6;
+    private static final double RING_FEED = .25, RESET = .58;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .23;
     
-    private static final double FEED_TIME = .15, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double FEED_TIME = .13, RESET_TIME = .135, PS_DELAY = .4;
     private static final double LOCK_TIME = .2, UNLOCK_TIME = .08;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
@@ -72,7 +72,7 @@ public class Shooter {
     
     public static void setTurretAngle(double turretAngle){
         
-        long deltaMiliShort = Sensors.currentTimeMilis() - shortTimeRing.getValue(Sensors.currentTimeMilis());
+        long deltaMiliShort = Sensors.currentTimeMillis() - shortTimeRing.getValue(Sensors.currentTimeMillis());
         double deltaSecondsShort = deltaMiliShort / 1000.0;
     
         double deltaAngleShort = turretAngle - shortAngleRing.getValue(turretAngle);
@@ -242,7 +242,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (152 * (Math.sqrt(9.8 * Math.pow(towerDistance, 3.5) /
+            RPM = (int) (210 * (Math.sqrt(9.8 * Math.pow(towerDistance, 2.7) /
                                                   (1.85 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
         

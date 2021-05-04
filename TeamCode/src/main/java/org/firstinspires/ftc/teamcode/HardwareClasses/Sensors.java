@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Camera;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.REVColorSensor;
 import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.MathUtils;
@@ -19,7 +22,9 @@ public class Sensors {
 	
 	public static Gyro gyro;
 	public static Camera frontCamera, backCamera;
+	public static REVColorSensor hopperColor;
 	private static long currentTimeMillis;
+	
 	
 	static RingBufferOwen timeRing = new RingBufferOwen(3);
 	static RingBufferOwen frRing = new RingBufferOwen(3);
@@ -40,14 +45,18 @@ public class Sensors {
 		WebcamName backCamName = hardwareMap().get(WebcamName.class, "Back Camera");
 		OpenCvWebcam backWebcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName);
 		
-		Sensors.gyro = new Gyro(imu, 0);
-		Sensors.frontCamera = new Camera(frontWebcam);
-		Sensors.backCamera = new Camera(backWebcam);
+		ColorSensor hopperColorSensor = hardwareMap().get(ColorSensor.class, "hoppercolor");
+		
+		gyro = new Gyro(imu, 0);
+		frontCamera = new Camera(frontWebcam);
+		backCamera = new Camera(backWebcam);
+		hopperColor = new REVColorSensor(hopperColorSensor);
 	}
 	
 	public static void update(){
 		currentTimeMillis = System.currentTimeMillis();
 		gyro.update();
+		hopperColor.update();
 		
 		long deltaMili = currentTimeMillis - timeRing.getValue(currentTimeMillis);
 		double deltaMinutes = deltaMili / 60000.0;
@@ -69,7 +78,7 @@ public class Sensors {
 		blRPM = blDeltaRotations / deltaMinutes;
 	}
 	
-	public static long currentTimeMilis(){ return currentTimeMillis; }
+	public static long currentTimeMillis(){ return currentTimeMillis; }
 
 
 	
@@ -95,6 +104,10 @@ public class Sensors {
 	
 	public static boolean isRobotMoving(){
 		return maxRobotRPM() < 100 && Robot.drive < .5 && Robot.strafe < .5 && Robot.turn < .1;
+	}
+	
+	public static boolean isRingLoaded(){
+		return false;
 	}
 	
 	
