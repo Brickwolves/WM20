@@ -17,13 +17,7 @@ public class REVColorSensor {
 	}
 	
 	public void update(){
-		Color.RGBToHSV((int) (sensorColor.red() * SCALE_FACTOR),
-				(int) (sensorColor.green() * SCALE_FACTOR),
-				(int) (sensorColor.blue() * SCALE_FACTOR),
-				hsvValues);
 		red = sensorColor.red();
-		blue = sensorColor.blue();
-		green = sensorColor.green();
 	}
 	
 	public float hue(){ return hsvValues[0]; }
