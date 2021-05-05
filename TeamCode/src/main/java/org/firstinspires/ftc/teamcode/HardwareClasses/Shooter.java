@@ -26,11 +26,11 @@ public class Shooter {
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = 0, RESET = .55;
-    private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .23;
+    private static final double RING_FEED = 0.26, RESET = .57;
+    private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .19, RESET_TIME = .02, PS_DELAY = .4;
-    private static final double LOCK_TIME = 1.2, UNLOCK_TIME = .08;
+    private static final double FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
     private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 37, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
