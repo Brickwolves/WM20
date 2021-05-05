@@ -197,7 +197,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
 
     public double getDegreeError(){
-        return degreeError * .7;
+        return degreeError * .8;
     }
     
     public double getPSDegreeError(PowerShot powerShot){

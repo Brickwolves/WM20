@@ -129,7 +129,7 @@ public class Intake {
             
             case ON:
                 if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
-                if(updateRPM() < 200 && stallTime.seconds() > .3) newState(StallState.REVERSE);
+                if(updateRPM() < 150 && stallTime.seconds() > .3) newState(StallState.REVERSE);
                 intakeOn();
                 break;
                 

@@ -107,7 +107,7 @@ public class Sensors {
 	}
 	
 	public static boolean isRingLoaded(){
-		return hopperColor.red() > 200;
+		return hopperColor.red() > 6100;
 	}
 	
 	
