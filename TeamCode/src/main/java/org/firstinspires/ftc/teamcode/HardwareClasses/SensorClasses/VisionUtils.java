@@ -35,7 +35,7 @@ public class VisionUtils {
         if (yValue == 0) return 0;
         double towerHeight = TOWER_HEIGHT - yValue;
         double theta = (towerHeight / IMG_HEIGHT) * .75;
-        double distance = 100/Math.tan(theta);
+        double distance = 100/Math.tan(theta) - 8;
         distanceSum = distanceSum + distance - distanceBuffer.getValue(distance);
         return distanceSum / 4;
     }

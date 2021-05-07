@@ -68,7 +68,7 @@ public class CollinAuto extends OpMode {
 	}
 	
 	public void init_loop(){
-		intake.retractBumper();
+		intake.fabricRetract();
 		intake.intakeOff();
 		shooter.resetFeeder();
 		shooter.lockFeeder();

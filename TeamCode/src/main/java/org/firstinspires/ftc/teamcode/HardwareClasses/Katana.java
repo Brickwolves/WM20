@@ -41,7 +41,7 @@ public class Katana {
 	public static void katanaAutoState(){
 		if (Shooter.getPower() != 0) {
 			katanaShoot();
-		} else if (Intake.bumperPosition >= .3) {
+		} else if (Intake.fabricPosition >= .3) {
 			katanaHalfFold();
 		} else {
 			katanaFullFold();
@@ -57,7 +57,7 @@ public class Katana {
 		}else if(foldToggle || !Sensors.gyro.angleRange(58, 122)) {
 			if (Shooter.currentShooterState != ShooterState.OFF) {
 				katanaShoot();
-			} else if (Intake.currentBumperState == Intake.BumperState.RETRACT && Intake.bumperTime.seconds() > .2) {
+			} else if (Intake.currentFabricState == Intake.FabricState.RETRACT && Intake.bumperTime.seconds() > .2) {
 				katanaHalfFold();
 			} else if (Intake.bumperTime.seconds() > .15){
 				katanaFullFold();

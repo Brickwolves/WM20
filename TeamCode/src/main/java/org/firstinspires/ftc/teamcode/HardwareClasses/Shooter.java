@@ -22,14 +22,14 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
-    public static PID shooterPID = new PID(.00023, 0.00003, 0.0001, 0.3, 50);
+    public static PID shooterPID = new PID(.00022, 0.00003, 0.0001, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
     private static final double RING_FEED = 0.26, RESET = .57;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double FEED_TIME = .1, RESET_TIME = .14, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
@@ -242,7 +242,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (125.5 * (Math.sqrt(9.8 * Math.pow(towerDistance, 4.3) /
+            RPM = (int) (124.8 * (Math.sqrt(9.8 * Math.pow(towerDistance, 4.3) /
                                                   (2.49 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
         

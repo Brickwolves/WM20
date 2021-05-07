@@ -55,10 +55,10 @@ public class CleanAutonomous extends OpMode {
 		
 		if(operator.crossToggle()){
 			Intake.intakeStallControl();
-			Intake.setBumperThreshold(1);
+			Intake.fabricGroundRings();
 		}else{
 			Intake.intakeOff();
-			Intake.retractBumper();
+			Intake.fabricRetract();
 		}
 		
 		telemetry.addData("Ring Count = ", Sensors.backCamera.startingStackCount());
@@ -84,6 +84,7 @@ public class CleanAutonomous extends OpMode {
 	public void loop() {
 		Sensors.update(); operator.update();
 		Katana.katanaAutoState();
+		Shooter.setTurretAngle(0);
 		
 		switch ((int) ringCount) {
 			case 0:
@@ -385,7 +386,7 @@ public class CleanAutonomous extends OpMode {
 					//turn to face back wall
 					case state11Turn:
 						Robot.turn(0, 1, 1);
-						Intake.setBumperThreshold(1);
+						Intake.fabricGroundRings();
 						
 						if (Robot.isTurnComplete) {
 							newState(MainState.state12Drive);
@@ -434,7 +435,7 @@ public class CleanAutonomous extends OpMode {
 						
 						if (mainTime.seconds() > .8) {
 							Intake.intakeOff();
-							Intake.retractBumper();
+							Intake.fabricRetract();
 						}
 						
 						if (mainTime.seconds() > 1) Shooter.feederState(true);
@@ -467,7 +468,7 @@ public class CleanAutonomous extends OpMode {
 					
 					case state20WobbleGoal:
 						Wobble.armDown();
-						Intake.setBumperThreshold(1);
+						Intake.fabricGroundRings();
 						Robot.setPowerAuto(0,0, Robot.closestTarget(180), 1);
 						if(mainTime.seconds() > .8){
 						
@@ -482,7 +483,7 @@ public class CleanAutonomous extends OpMode {
 				switch (currentMainState) {
 					//drive to target C
 					case state1Drive:
-						Robot.strafe(75, -90, 90, 1, .3, 0);
+						Robot.strafe(74, -90, 90, 1, .3, 0);
 						
 						if (Robot.currentInches > 60) Wobble.armDown();
 						
@@ -508,7 +509,7 @@ public class CleanAutonomous extends OpMode {
 							Wobble.armFold();
 							Wobble.gripperHalf();
 						}
-						Robot.strafe(47, -47, -47, 1, .3, 0);
+						Robot.strafe(49, -49, -49, 1, .3, 0);
 						
 						if (Robot.isStrafeComplete) newState(MainState.state5Turn);
 						break;
@@ -516,9 +517,10 @@ public class CleanAutonomous extends OpMode {
 					
 					//turn towards power shots
 					case state5Turn:
-						if (mainTime.seconds() > .8) {
-							Robot.turn(90, 1, .7);
+						if (mainTime.seconds() > .6) {
+							Robot.turn(90, 1, 1);
 							Shooter.powerShot();
+							Intake.fabricRollingRings();
 						}
 						if (Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(70, 110)) {
 							newState(MainState.state6PS1);
@@ -530,8 +532,9 @@ public class CleanAutonomous extends OpMode {
 					//shoot power shot 1
 					case state6PS1:
 						Shooter.powerShot();
-						Robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimAngle() - 4);
-						Shooter.feederState(mainTime.seconds() > .7);
+						Robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimAngle() - .4);
+						Shooter.feederState(mainTime.seconds() > .6 &&
+								                    Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (mainTime.seconds() > .7 && Shooter.feederCount() > 0) newState(MainState.state7PS2);
 						break;
 					
@@ -539,8 +542,9 @@ public class CleanAutonomous extends OpMode {
 					//shoot power shot 2
 					case state7PS2:
 						Shooter.powerShot();
-						Robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimAngle() - 4);
-						Shooter.feederState(mainTime.seconds() > .6);
+						Robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimAngle() - 1.5);
+						Shooter.feederState(mainTime.seconds() > .5 &&
+								                    Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (mainTime.seconds() > .6 && Shooter.feederCount() > 1) newState(MainState.state8PS3);
 						break;
 					
@@ -548,8 +552,9 @@ public class CleanAutonomous extends OpMode {
 					//shoot power shot 3
 					case state8PS3:
 						Shooter.powerShot();
-						Robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimAngle() - 4);
-						Shooter.feederState(mainTime.seconds() > .6);
+						Robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimAngle() - .5);
+						Shooter.feederState(mainTime.seconds() > .5 &&
+								                    Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (mainTime.seconds() > .6 && Shooter.feederCount() > 2) newState(MainState.state9Drive);
 						break;
 						
@@ -557,7 +562,7 @@ public class CleanAutonomous extends OpMode {
 					
 					//drive to second wobble goal
 					case state9Drive:
-						Robot.strafe(19, 50, 230, 1, .3, 0);
+						Robot.strafe(21, 50, 230, 1, .3, 0);
 						Shooter.shooterOff();
 						Wobble.armDown();
 						Wobble.gripperOpen();
@@ -575,8 +580,8 @@ public class CleanAutonomous extends OpMode {
 						if (mainTime.seconds() > .5) Wobble.gripperGrip();
 						if (mainTime.seconds() > 1.1) {
 							Wobble.armTele();
-							Robot.strafe(18, 90, -167, 1, .3, 0);
-							if(Robot.currentInches > 14) { Intake.setBumperThreshold(1); Shooter.highTower(true); }
+							Robot.strafe(20, 90, -167, 1, .3, 0);
+							if(Robot.currentInches > 14) {  Shooter.highTower(true); }
 							if (Robot.isStrafeComplete) newState(MainState.state11Drive);
 						}
 						break;
@@ -584,8 +589,8 @@ public class CleanAutonomous extends OpMode {
 					
 					//forward to ring stack
 					case state11Drive:
-						Intake.intakeStallControl();
-						Robot.strafe(3, 90, 90, .4, .2, .15);
+						Intake.setFabricPosition(.09);
+						Robot.strafe(8, 90, 90, .5, .2, .15);
 						Shooter.highTower(true);
 						if (Robot.isStrafeComplete) newState(MainState.state12Drive);
 						break;
@@ -593,55 +598,73 @@ public class CleanAutonomous extends OpMode {
 						
 					//drive forward while intaking and shooting into high tower
 					case state12Drive:
-						Intake.setBumperThreshold(1);
-						Robot.strafe(20, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .15, .15, .15);
-						Intake.intakeStallControl();
+						Robot.strafe(20, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 3, 90, .18, .15, .2);
+						Intake.setFabricPosition(.26);
+						Intake.setPower(.65);
 						Shooter.highTower(true);
-						Shooter.feederState(true);
+						Shooter.feederState(Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (Robot.isStrafeComplete) newState(MainState.state13Drive);
 						break;
 					
 					
 					//drive to target c for second wobble goal
 					case state13Drive:
-						Intake.retractBumper();
+						Intake.fabricRetract();
+						Intake.intakeOff();
 						Shooter.feederState(false);
 						Shooter.shooterOff();
 						Wobble.armPosition(.15);
-						Robot.strafe(70, 0, 90, 1, .15, 0);
-						if(mainTime.seconds() > .4 && Robot.isStrafeComplete) newState(MainState.state19Drive);
-						break;
-						
-					
-					//back into target c square and drop off wobble goal
-					case state19Drive:
-						Robot.strafe(11, -15, 165, .8, .2, 0);
-						if(Robot.isStrafeComplete){
-							newState(MainState.state20Drive);
-							Wobble.armDown();
-							Wobble.gripperOpen();
-						}
+						Robot.strafe(73.5, 0, 100, 1, .15, 0);
+						if(mainTime.seconds() > .4 && Robot.isStrafeComplete) newState(MainState.state20Drive);
 						break;
 						
 						
 					//drive out of square
 					case state20Drive:
-						if(mainTime.seconds() > .2) Robot.strafe(7, -15, -15, .5, .5, 0);
+						Intake.fabricGroundRings();
+						Intake.intakeStallControl();
+						Wobble.armDown();
+						Wobble.gripperOpen();
+						if(mainTime.seconds() > .2) Robot.strafe(39, 0, 10, .7, .3, 0);
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) newState(MainState.state21Drive);
 						break;
 					
 						
 					//strafe to launch line
 					case state21Drive:
-						Robot.strafe(45, 0, -90, 1, .5, 0);
+						Robot.strafe(85, 0, -100, 1, 1, 0);
 						Wobble.armFold();
 						Wobble.gripperHalf();
+						Intake.intakeStallControl();
+						Intake.fabricGroundRings();
+						Shooter.setFeederCount(0);
+						if(Robot.isStrafeComplete) newState(MainState.state22Turn);
+						break;
+					
+					case state22Turn:
+						Robot.setPowerAuto(0, 0, 110);
+						if(Sensors.gyro.angleRange(100, 120)) newState(MainState.state22Shoot);
+						break;
+						
+					case state22Shoot:
+						Robot.setPowerAuto(0, 0, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 3);
+						Shooter.highTower(true);
+						Shooter.feederState(Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
+						Intake.intakeOff();
+						Intake.fabricRollingRings();
+						if(Shooter.feederCount() > 2) newState(MainState.state23Drive);
+						break;
+						
+					case state23Drive:
+						Robot.strafe(6, 90, 90, 1, .5, 0);
+						Shooter.shooterOff();
+						Shooter.feederState(false);
 						if(Robot.isStrafeComplete) newState(MainState.stateFinished);
 						break;
 						
-						
 					case stateFinished:
-						Robot.setPowerAuto(0,0,0);
+						Robot.setPowerAuto(0,0,90);
+						break;
 				}
 				break;
 		}
@@ -689,7 +712,10 @@ public class CleanAutonomous extends OpMode {
 		state21Drive,
 		stateFinished,
 		state1Diagonal,
-		state1Turn
+		state1Turn,
+		state22Shoot,
+		state22Turn,
+		state23Drive
 	}
 	
 	private void loopTelemetry(){

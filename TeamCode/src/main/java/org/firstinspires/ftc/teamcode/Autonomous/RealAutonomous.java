@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import android.os.Build;
@@ -24,6 +25,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import static android.os.SystemClock.sleep;
+
 
 @Autonomous(name = "REAL AUTONOMOUS", group = "Auto")
 
@@ -98,7 +100,7 @@ public class RealAutonomous extends OpMode {
 			Intake.setBumperThreshold(1);
 		}else{
 			Intake.intakeOff();
-			Intake.retractBumper();
+			Intake.fabricRetract();
 		}
 		
 		telemetry.addData("Ring Count = ", Sensors.backCamera.startingStackCount());
@@ -483,7 +485,7 @@ public class RealAutonomous extends OpMode {
 						
 						if (mainTime.seconds() > .8) {
 							Intake.intakeOff();
-							Intake.retractBumper();
+							Intake.fabricRetract();
 						}
 						
 						if (mainTime.seconds() > 1) shooter.feederState(true);
@@ -653,7 +655,7 @@ public class RealAutonomous extends OpMode {
 					
 					//drive to target c for second wobble goal
 					case state13Drive:
-						Intake.retractBumper();
+						Intake.fabricRetract();
 						shooter.feederState(false);
 						shooter.shooterOff();
 						Wobble.armPosition(.15);
@@ -740,3 +742,4 @@ public class RealAutonomous extends OpMode {
 		state1Turn
 	}
 }
+*/
