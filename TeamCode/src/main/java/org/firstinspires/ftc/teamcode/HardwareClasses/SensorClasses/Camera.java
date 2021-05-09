@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import org.firstinspires.ftc.teamcode.HardwareClasses.Robot;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
@@ -43,10 +48,13 @@ public class Camera {
 	
 	
 	
-	public double leftPSAimAngle(){ return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT); }
+	@RequiresApi(api = Build.VERSION_CODES.N)
+	public double leftPSAimAngle(){ return Robot.closestTarget(autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_LEFT)); }
 	
-	public double centerPSAimAngle(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER); }
+	@RequiresApi(api = Build.VERSION_CODES.N)
+	public double centerPSAimAngle(){  return Robot.closestTarget(autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_CENTER)); }
 	
-	public double rightPSAimAngle(){  return autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT); }
+	@RequiresApi(api = Build.VERSION_CODES.N)
+	public double rightPSAimAngle(){  return Robot.closestTarget(autoAimPipeline.getPSDegreeError(AutoAimPipeline.PowerShot.PS_RIGHT)); }
 	
 }
