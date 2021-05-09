@@ -22,14 +22,14 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
-    public static PID shooterPID = new PID(.00022, 0.00003, 0.0001, 0.3, 50);
+    public static PID shooterPID = new PID(.00026, 0.00003, 0.0001, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = 0.26, RESET = .57;
+    private static final double RING_FEED = 0.24, RESET = .57;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .2;
     
-    private static final double FEED_TIME = .1, PS_DELAY = .4;
+    private static final double FEED_TIME = .14, RESET_TIME = .15, PS_DELAY = .4;
     private static final double LOCK_TIME = .8, UNLOCK_TIME = .08;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
@@ -100,9 +100,9 @@ public class Shooter {
     public static void turretAim(){ turretAim(true); }
     
     public static void turretAim(boolean autoAim){
-        if(autoAim && Sensors.gyro.angleRange(30, 150) && getPower() > .1)
+        if(autoAim && Sensors.gyro.angleRange(67.5, 127.5) && getPower() > .1)
             setTurretAngle(Sensors.frontCamera.towerAimError() - 0 +
-                                   (Sensors.robotVelocityComponent(Sensors.frontCamera.towerAimError() - 90)) / 34);
+                                   (Sensors.robotVelocityComponent(Sensors.frontCamera.towerAimError() - 90)) / 37);
         else setTurretAngle(0);
     }
     
@@ -112,7 +112,8 @@ public class Shooter {
     
     public static void turretPSAim(boolean autoAim){
         if(Sensors.frontCamera.isTowerFound() && autoAim && Sensors.gyro.angleRange(30, 150) && getPower() > .1)
-            setTurretAngle(Robot.getPSAngle() - Sensors.gyro.rawAngle() - 0);
+            setTurretAngle(Robot.getPSAngle() - Sensors.gyro.rawAngle() - 0 +
+                                   (Sensors.robotVelocityComponent(Robot.getPSAngle() - Sensors.gyro.rawAngle() - 90)) / 37);
                                    //(Sensors.robotVelocityComponent(Robot.getPSAngle() - Sensors.gyro.rawAngle())) / 30);
         else setTurretAngle(0);
     }
@@ -132,20 +133,21 @@ public class Shooter {
     
     public static double feederCount(){ return feedCount; }
     
-    public static void feederAutoState(boolean fire, int fireCount, double resetTime){
-        feederState(fire && fireCount <= feederCount() && getRPM() > (targetRPM - 60) && getRPM() < (targetRPM + 60), resetTime);
+    
+    public static void feederAutoState(int feedCount){
+        feederState(Shooter.feedCount <= feedCount);
     }
     
-    public static void feederTeleState(boolean manualTrigger, boolean manualSuppress){
-        if(currentShooterState != ShooterState.POWER_SHOT && !manualTrigger){
-            feederState((getRPM() > (targetRPM - 70) && getRPM() < (targetRPM + 70) && targetRPM > 3000 && Sensors.isRobotMoving() &&
-                                 Sensors.isRingLoaded() && Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(30, 150) && !manualSuppress), .11);
+    public static void feederTeleState(boolean trigger, boolean suppress){
+        if(currentShooterState != ShooterState.POWER_SHOT){
+            feederState((getRPM() > (targetRPM - 60) && getRPM() < (targetRPM + 60) && targetRPM > 3100 && Sensors.isRobotMoving() &&
+                                 Sensors.isRingLoaded() && Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(67.5, 127.5) && !suppress) || trigger);
         }else{
-            feederState(manualTrigger, .15);
+            feederState(trigger);
         }
     }
     
-    public static void feederState(boolean trigger, double resetTime){
+    public static void feederState(boolean trigger){
         feederJustOn = false;
         switch (currentFeederState) {
             
@@ -171,8 +173,8 @@ public class Shooter {
                 break;
             
             case RESET:
-                if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > resetTime) { newState(FeederState.IDLE); feedCount++; break; }
-                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > resetTime) { newState(FeederState.PS_DELAY); feederJustOn = true; feedCount++; break; }
+                if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.IDLE); feedCount++; break; }
+                if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME) { newState(FeederState.PS_DELAY); feederJustOn = true; feedCount++; break; }
                 resetFeeder();
                 unlockFeeder();
                 break;
@@ -238,10 +240,10 @@ public class Shooter {
     public static void highTower(boolean autoPower){
         double towerDistance = Sensors.frontCamera.towerDistance() / 100;
         int RPM;
-        if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower){
+        if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (124.8 * (Math.sqrt(9.8 * Math.pow(towerDistance, 4.3) /
+            RPM = (int) (143.3 * (Math.sqrt(9.8 * Math.pow(towerDistance, 4) /
                                                   (2.49 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * towerDistance - .796)))));
         }
         
@@ -288,7 +290,7 @@ public class Shooter {
                 if (topGoal) { newState(ShooterState.TOP_GOAL);  shooterJustOn = true; break; }
                 if (shooterOnOff || powerShot) { newState(ShooterState.OFF); break; }
                 powerShot();
-                setTurretAngle(0);
+                turretPSAim();
                 break;
         }
     }

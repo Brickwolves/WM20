@@ -189,7 +189,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
     
     public double distance2Goal() {
-        return goalDistance + abs(getDegreeError()) * 1;
+        return goalDistance;
     }
     
     public double shooterOffsetAngle(){

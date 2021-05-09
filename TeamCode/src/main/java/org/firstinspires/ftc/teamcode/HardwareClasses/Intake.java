@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
 import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
+import org.firstinspires.ftc.utilities.PID;
 import org.firstinspires.ftc.utilities.RingBufferOwen;
 
 public class Intake {
@@ -13,21 +20,24 @@ public class Intake {
     private static DcMotor intakeDriveOne, intakeDriveTwo;
     private static Servo fabricLeft, fabricRight;
     
+    public static PID intakePID = new PID(.0012, 0.000, 0.000, 0, 50);
+    
     private final static double RETRACTED = 0.37, ROLLING_RINGS = 0.2, GROUND_RINGS = 0.14;
     private final static double SERVO_DIFF = .09;
     
-    private final static double INTAKE_ON = .8, INTAKE_REVERSE = .6;
+    private final static double INTAKE_ON = .63, INTAKE_REVERSE = .6;
     
-    private final static double TICKS_PER_ROTATION = 28;
+    private final static double TICKS_PER_ROTATION = 384.5;
     private static double intakeRPM;
+    public static double targetRPM;
     
     public static double fabricPosition;
     
     private static final ElapsedTime stallTime = new ElapsedTime();
     public static ElapsedTime bumperTime = new ElapsedTime();
     
-    static RingBufferOwen positionRing = new RingBufferOwen(5);
-    static RingBufferOwen timeRing = new RingBufferOwen(5);
+    static RingBufferOwen positionRing = new RingBufferOwen(3);
+    static RingBufferOwen timeRing = new RingBufferOwen(3);
     
     public static IntakeState currentIntakeState;
     private static StallState currentStallState;
@@ -97,25 +107,43 @@ public class Intake {
         return intakeRPM;
     }
     
-    public static void setPower(double power){ intakeDriveOne.setPower(power); intakeDriveTwo.setPower(power); }
-    
-    public double getRPM(){
+    public static double getRPM(){
         return intakeRPM;
     }
     
-    public static void intakeOn(){ intakeDriveOne.setPower(INTAKE_ON); intakeDriveTwo.setPower(INTAKE_ON); }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void setRPM(int targetRPM){
+        Intake.targetRPM = targetRPM;
+        
+        intakePID.setFComponent(targetRPM / 280.0);
+        
+        double intakePower = intakePID.update(targetRPM - updateRPM());
+        
+        if(getRPM() < targetRPM * .9){
+            intakePID.setIntegralSum(targetRPM * .8);
+        }
+        
+        intakePower = Range.clip(intakePower,0.0, 1.0);
+        setPower(intakePower);
+    }
     
-    public static void intakeStallControl(double power){
+    public static void setPower(double power){ intakeDriveOne.setPower(power); intakeDriveTwo.setPower(power); }
+    
+    public static double getPower(){ return (intakeDriveOne.getPower() + intakeDriveTwo.getPower()) / 2; }
+    
+    public static void intakeOn(){ setRPM(200); }
+    
+    public static void intakeStallControl(int targetRPM){
         switch(currentStallState){
             case START:
                 if(stallTime.seconds() > .5) newState(StallState.ON);
-                intakeOn();
+                setRPM(targetRPM);
                 break;
             
             case ON:
                 if(intakeDriveOne.getPower() < .1 && intakeDriveOne.getPower() > -.1) { newState(StallState.START); break; }
-                if(updateRPM() < 150 && stallTime.seconds() > .3) newState(StallState.REVERSE);
-                setPower(power);
+                if(updateRPM() < 70 && stallTime.seconds() > .3) newState(StallState.REVERSE);
+                setRPM(targetRPM);
                 break;
                 
             case REVERSE:
@@ -127,10 +155,10 @@ public class Intake {
     }
     
     public static void intakeStallControl(){
-        intakeStallControl(INTAKE_ON);
+        intakeStallControl();
     }
     
-    public static void intakeOff(){ intakeDriveOne.setPower(0.0); intakeDriveTwo.setPower(0.0); }
+    public static void intakeOff(){ intakeDriveOne.setPower(0.0); intakeDriveTwo.setPower(0.0); targetRPM = 0; }
     
     public static void intakeReverse(){ intakeDriveOne.setPower(-INTAKE_REVERSE); intakeDriveTwo.setPower(-INTAKE_REVERSE); }
     
@@ -154,7 +182,7 @@ public class Intake {
             case ON:
                 if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOnOff) { newState(IntakeState.OFF); break; }
-                intakeStallControl();
+                intakeStallControl(170);
                 break;
         }
     }

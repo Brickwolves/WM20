@@ -22,9 +22,9 @@ public class VisionUtils {
     public static final double RING_HEIGHT = 20;
     public static final double TOWER_HEIGHT = 220;
     
-    public static double PS_LEFT_DIST = 41;
-    public static double PS_CENTER_DIST = 64;
-    public static double PS_RIGHT_DIST = 80;
+    public static double PS_LEFT_DIST = 40;
+    public static double PS_CENTER_DIST = 61.5;
+    public static double PS_RIGHT_DIST = 81.5;
     
     private static double distanceSum = 0;
     
@@ -35,7 +35,7 @@ public class VisionUtils {
         if (yValue == 0) return 0;
         double towerHeight = TOWER_HEIGHT - yValue;
         double theta = (towerHeight / IMG_HEIGHT) * .75;
-        double distance = 100/Math.tan(theta) - 8;
+        double distance = 100/Math.tan(theta) - 0;
         distanceSum = distanceSum + distance - distanceBuffer.getValue(distance);
         return distanceSum / 4;
     }
