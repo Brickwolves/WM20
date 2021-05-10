@@ -103,11 +103,11 @@ public class Sensors {
 	}
 	
 	public static boolean isRobotMoving(){
-		return maxRobotRPM() < 85 && Robot.drive < .4 && Robot.strafe < .4 && Robot.turn < .1;
+		return maxRobotRPM() < 120 && Robot.drive < .4 && Robot.strafe < .4 && Robot.turn < .1;
 	}
 	
 	public static boolean isRingLoaded(){
-		return hopperColor.red() > 6100;
+		return hopperColor.red() > 400;
 	}
 	
 	

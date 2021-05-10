@@ -487,7 +487,7 @@ public class CleanAutonomous extends OpMode {
 					//shoot power shot 3
 					case state8PS3:
 						Shooter.powerShot();
-						Robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimAngle() - .5);
+						Robot.setPowerVision(0, 0, Sensors.frontCamera.leftPSAimAngle() - 1);
 						Shooter.feederState(mainTime.seconds() > .5 &&
 								                    Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (mainTime.seconds() > .6 && Shooter.feederCount() > 2) newState(MainState.state9Drive);
@@ -498,7 +498,7 @@ public class CleanAutonomous extends OpMode {
 					//drive to second wobble goal
 					case state9Drive:
 						Robot.strafe(21, 50, 230, 1, .3, 0);
-						Shooter.shooterOff();
+						Shooter.shooterOff(); Shooter.feederState(false);
 						Wobble.armDown();
 						Wobble.gripperOpen();
 						Shooter.setFeederCount(0);
@@ -563,14 +563,14 @@ public class CleanAutonomous extends OpMode {
 						Intake.intakeStallControl();
 						Wobble.armDown();
 						Wobble.gripperOpen();
-						if(mainTime.seconds() > .2) Robot.strafe(40.5, 0, 10, .7, .3, 0);
+						if(mainTime.seconds() > .2) Robot.strafe(39, 0, 10, 1, .5, 0);
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) newState(MainState.state21Drive);
 						break;
 					
 						
 					//strafe to launch line
 					case state21Drive:
-						Robot.strafe(86.5, 0, -100, 1, 1, 0);
+						Robot.strafe(89, 0, -100, 1, 1, 0);
 						Wobble.armFold();
 						Wobble.gripperHalf();
 						Intake.intakeStallControl();
@@ -585,7 +585,7 @@ public class CleanAutonomous extends OpMode {
 						break;
 						
 					case state22Shoot:
-						Robot.setPowerAuto(0, 0, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1.2);
+						Robot.setPowerVision(0, 0, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1.2);
 						Shooter.highTower(true);
 						Shooter.feederState(Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						Intake.intakeOff();
@@ -594,7 +594,7 @@ public class CleanAutonomous extends OpMode {
 						break;
 						
 					case state23Drive:
-						Robot.strafe(6, 90, 90, 1, .5, 0);
+						Robot.strafe(6, 90, 90, 1, 1, 0);
 						Shooter.shooterOff();
 						Shooter.feederState(false);
 						if(Robot.isStrafeComplete) newState(MainState.stateFinished);

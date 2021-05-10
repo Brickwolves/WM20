@@ -51,9 +51,9 @@ public class Intake {
         fabricLeft = hardwareMap().get(Servo.class, "bumperleft");
         fabricRight = hardwareMap().get(Servo.class, "bumperright");
         
-        intakeDriveOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeDriveOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeDriveOne.setDirection(DcMotorSimple.Direction.REVERSE);
-        intakeDriveTwo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeDriveTwo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeDriveTwo.setDirection(DcMotorSimple.Direction.REVERSE);
         fabricRight.setDirection(Servo.Direction.REVERSE);
     
@@ -116,7 +116,7 @@ public class Intake {
     public static void setRPM(int targetRPM){
         Intake.targetRPM = targetRPM;
         
-        intakePID.setFComponent(targetRPM / 280.0);
+        intakePID.setFComponent(targetRPM / 360.0);
         
         double intakePower = intakePID.update(targetRPM - updateRPM());
         
@@ -132,7 +132,7 @@ public class Intake {
     
     public static double getPower(){ return (intakeDriveOne.getPower() + intakeDriveTwo.getPower()) / 2; }
     
-    public static void intakeOn(){ setRPM(200); }
+    public static void intakeOn(){ setPower(.5); }
     
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){
@@ -143,7 +143,7 @@ public class Intake {
             
             case ON:
                 if(intakeDriveOne.getPower() < .1 && intakeDriveOne.getPower() > -.1) { newState(StallState.START); break; }
-                if(updateRPM() < 70 && stallTime.seconds() > .3) newState(StallState.REVERSE);
+                if(updateRPM() < 40 && stallTime.seconds() > .3) newState(StallState.REVERSE);
                 setRPM(targetRPM);
                 break;
                 
@@ -170,7 +170,6 @@ public class Intake {
                 if (intakeOnOff) {
                     newState(IntakeState.ON);
                     if(currentFabricState == FabricState.RETRACT) newState(FabricState.GROUND);
-                    //if(Shooter.currentShooterState != Shooter.ShooterState.OFF) Shooter.newState(Shooter.ShooterState.OFF);
                     break;
                 }
                 
@@ -183,7 +182,7 @@ public class Intake {
             case ON:
                 if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOnOff) { newState(IntakeState.OFF); break; }
-                intakeStallControl(170);
+                intakeOn();
                 break;
         }
     }
