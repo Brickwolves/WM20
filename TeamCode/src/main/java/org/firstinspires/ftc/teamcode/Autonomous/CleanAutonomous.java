@@ -534,7 +534,7 @@ public class CleanAutonomous extends OpMode {
 						
 					//drive forward while intaking and shooting into high tower
 					case state12Drive:
-						Robot.strafe(20, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1, 90, .17, .15, .2);
+						Robot.strafe(18, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1, 90, .17, .15, .2);
 						Intake.setFabricPosition(.21);
 						Shooter.setTurretAngle(-1);
 						Intake.setPower(.65);
@@ -552,7 +552,7 @@ public class CleanAutonomous extends OpMode {
 						Shooter.feederState(false);
 						Shooter.shooterOff();
 						Wobble.armPosition(.2);
-						Robot.strafe(73, 0, 95, 1, .15, 0);
+						Robot.strafe(74, 0, 95, 1, .5, 0);
 						if(mainTime.seconds() > .4 && Robot.isStrafeComplete) newState(MainState.state20Drive);
 						break;
 						
