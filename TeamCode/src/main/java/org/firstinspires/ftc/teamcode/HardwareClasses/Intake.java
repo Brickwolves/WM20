@@ -132,7 +132,7 @@ public class Intake {
     
     public static double getPower(){ return (intakeDriveOne.getPower() + intakeDriveTwo.getPower()) / 2; }
     
-    public static void intakeOn(){ setPower(.38); }
+    public static void intakeOn(){ setPower(.43); }
     
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){
