@@ -26,7 +26,7 @@ public class Intake {
     private final static double SERVO_DIFF = .09;
     
     private final static int INTAKE_ON = 190;
-    private final static double INTAKE_REVERSE = .6;
+    private final static double INTAKE_REVERSE = .45;
     
     private final static double TICKS_PER_ROTATION = 384.5;
     private static double intakeRPM;
@@ -132,7 +132,7 @@ public class Intake {
     
     public static double getPower(){ return (intakeDriveOne.getPower() + intakeDriveTwo.getPower()) / 2; }
     
-    public static void intakeOn(){ setPower(.43); }
+    public static void intakeOn(){ setPower(.37); }
     
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){

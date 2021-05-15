@@ -29,7 +29,7 @@ public class Shooter {
     private static final double RING_FEED = 0, RING_FULL_FEED = 0, HALF_RESET = 0.45, RESET = .6;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .18;
     
-    private static final double FEED_TIME = .16, FULL_FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double FEED_TIME = .18, FULL_FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
     private static final double LOCK_TIME = 1, UNLOCK_TIME = .13;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
@@ -147,7 +147,7 @@ public class Shooter {
     
     public static void feederTeleState(boolean trigger, boolean suppress){
         if(currentShooterState != ShooterState.POWER_SHOT){
-            feederState((getRPM() > (targetRPM - 60) && getRPM() < (targetRPM + 60) && targetRPM > 3050 && Sensors.isRobotMoving() &&
+            feederState((getRPM() > (targetRPM - 65) && getRPM() < (targetRPM + 65) && targetRPM > 3000 && Sensors.isRobotMoving() &&
                                  Sensors.isRingLoaded() && Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(67.5, 127.5) && !suppress) || trigger);
         }else{
             feederState(trigger);
@@ -278,7 +278,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (226.5 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
+            RPM = (int) (223 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
                                                   (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .19) - .796)))));
         }
         
