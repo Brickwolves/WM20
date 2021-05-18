@@ -8,7 +8,7 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 public class Wobble {
 
     private static Servo gripperOne, gripperTwo;
-    public static Servo lifter;
+    private static Servo lifter;
     
     private static final double GRIP = .53, OPEN = 0.07, HALF = 0.35;
     
@@ -29,6 +29,7 @@ public class Wobble {
         currentGripperState = GripperState.GRIP;
     }
     
+    public static double gripperPosition() { return gripperOne.getPosition(); }
     
     public static void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP+.02); }
     

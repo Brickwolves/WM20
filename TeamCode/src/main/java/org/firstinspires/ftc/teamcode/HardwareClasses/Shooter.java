@@ -278,7 +278,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (225 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
+            RPM = (int) (227 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
                                                   (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .19) - .796)))));
         }
         
