@@ -142,7 +142,7 @@ public class CleanAutonomous extends OpMode {
 					
 					
 					case state9Drive:
-						Robot.strafe(23, 90, 0, 1, .3, 0);
+						Robot.strafe(21, 90, 0, 1, .3, 0);
 						Shooter.shooterOff();
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						if(mainTime.seconds() > .1 && Robot.isStrafeComplete) newState(MainState.state95Drive);
@@ -167,21 +167,21 @@ public class CleanAutonomous extends OpMode {
 					
 					
 					case state11Drive:
-						Robot.strafe(12, 180, 90, .8, .3, 0);
+						Robot.strafe(10, 180, 90, .8, .3, 0);
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						if(mainTime.seconds() > .2 && (mainTime.seconds() > 1.6 || Robot.isStrafeComplete)) newState(MainState.state12Drive);
 						break;
 					
 					
 					case state12Drive:
-						Robot.strafe(37.5, 178.5, 178.5, 1, .3, 0);
+						Robot.strafe(41, 180, 180, 1, .3, 0);
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) newState(MainState.state13Drive);
 						break;
 					
 					
 					case state13Drive:
-						if(mainTime.seconds() > .8) Robot.strafe(68, 180, -90, 1, .3, 0);
+						if(mainTime.seconds() > .7) Robot.strafe(68, 180, -90, 1, .3, 0);
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						Wobble.armPosition(.16);
 						if(mainTime.seconds() > .9 && Robot.isStrafeComplete) newState(MainState.state14Turn);
@@ -189,7 +189,7 @@ public class CleanAutonomous extends OpMode {
 						
 						
 					case state14Turn:
-						if(mainTime.seconds() > .2) Robot.turn(270, 1, .3);
+						if(mainTime.seconds() > .1) Robot.turn(270, 1, .3);
 						if(Sensors.gyro.angleRange(262, 280)) { Wobble.gripperOpen(); newState(MainState.state15Drive); }
 						Intake.intakeStallControl();
 						break;
@@ -219,7 +219,7 @@ public class CleanAutonomous extends OpMode {
 					
 						
 					case state18Drive:
-						Robot.strafe(16.5, 122, -68, 1, .3, 0);
+						Robot.strafe(18, 132, -58, 1, .3, 0);
 						Wobble.armDown(); Wobble.gripperOpen();
 						Shooter.shooterOff();
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) { newState(MainState.state19Wobble);  }
@@ -240,14 +240,16 @@ public class CleanAutonomous extends OpMode {
 						
 						
 					case state21Drive:
-						Robot.strafe(54, 0, 92, 1, .3, 0);
+						Robot.strafe(56, 0, 94, 1, .3, 0);
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) { newState(MainState.stateFinished); }
 						break;
 						
 						
 					case stateFinished:
+						if(mainTime.seconds() > .6)  Wobble.gripperOpen();
+						if(mainTime.seconds() > 1)  Wobble.armFold();
 						Shooter.shooterOff();
-						Robot.setPower(0,0,0,1);
+						Robot.setPowerVision(0,0,Robot.closestTarget(0),1);
 						break;
 				}
 				
@@ -405,9 +407,9 @@ public class CleanAutonomous extends OpMode {
 						
 						
 					case stateFinished:
-						if(mainTime.seconds() > .5)  Wobble.gripperOpen();
-						if(mainTime.seconds() > .8)  Wobble.armFold();
-						Robot.setPower(0, 0, 0, 1);
+						if(mainTime.seconds() > .9)  Wobble.gripperOpen();
+						if(mainTime.seconds() > 1.3)  Wobble.armFold();
+						Robot.setPowerVision(0,0,-90,1);
 						Shooter.shooterOff();
 						break;
 						
@@ -537,7 +539,7 @@ public class CleanAutonomous extends OpMode {
 						Robot.strafe(18, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1, 90, .17, .15, .2);
 						Intake.setFabricPosition(.21);
 						Shooter.setTurretAngle(-1);
-						Intake.setPower(.65);
+						Intake.setPower(.38);
 						Shooter.highTower(true);
 						Shooter.feederState(Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (Robot.isStrafeComplete) newState(MainState.state13Drive);
@@ -654,7 +656,7 @@ public class CleanAutonomous extends OpMode {
 		state1Turn,
 		state22Shoot,
 		state22Turn,
-		state3Shoot, state10Drive, state10Turn, state14Turn, state17Wobble, state15Turn, state16Turn, state19Wobble, state20Turn, state95Drive, state23Drive
+		state3Shoot, state10Drive, state10Turn, state14Turn, state17Wobble, state15Turn, state16Turn, state19Wobble, state20Turn, state95Drive, state22Drive, state23Drive
 	}
 	
 	private void loopTelemetry(){

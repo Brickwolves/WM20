@@ -138,13 +138,13 @@ public class Intake {
         switch(currentStallState){
             case START:
                 if(stallTime.seconds() > .5) newState(StallState.ON);
-                setRPM(targetRPM);
+                intakeOn();
                 break;
             
             case ON:
                 if(intakeDriveOne.getPower() < .1 && intakeDriveOne.getPower() > -.1) { newState(StallState.START); break; }
-                if(updateRPM() < 40 && stallTime.seconds() > .3) newState(StallState.REVERSE);
-                setRPM(targetRPM);
+                if(updateRPM() < 55 && stallTime.seconds() > .3) newState(StallState.REVERSE);
+                intakeOn();
                 break;
                 
             case REVERSE:
