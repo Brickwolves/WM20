@@ -50,9 +50,9 @@ public class Katana {
 	
 	public static void katanaState(boolean foldToggle){ katanaState(foldToggle, false); }
 	
-	public static void katanaState(boolean foldToggle, boolean forceDown){
-		if(forceDown) {
-			katanaDown();
+	public static void katanaState(boolean foldToggle, boolean holdUp){
+		if(holdUp) {
+			katanaUp();
 				
 		}else if(foldToggle || !Sensors.gyro.angleRange(58, 122)) {
 			if (Shooter.currentShooterState != ShooterState.OFF) {

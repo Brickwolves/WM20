@@ -22,7 +22,7 @@ public class Intake {
     
     public static PID intakePID = new PID(.0012, 0.000, 0.000, 0, 50);
     
-    private final static double RETRACTED = 0.37, ROLLING_RINGS = 0.21, GROUND_RINGS = 0.14;
+    private final static double RETRACTED = 0.37, ROLLING_RINGS = .2, GROUND_RINGS = 0.14;
     private final static double SERVO_DIFF = .09;
     
     private final static int INTAKE_ON = 190;
@@ -132,7 +132,7 @@ public class Intake {
     
     public static double getPower(){ return (intakeDriveOne.getPower() + intakeDriveTwo.getPower()) / 2; }
     
-    public static void intakeOn(){ setPower(.37); }
+    public static void intakeOn(){ setPower(.35); }
     
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){

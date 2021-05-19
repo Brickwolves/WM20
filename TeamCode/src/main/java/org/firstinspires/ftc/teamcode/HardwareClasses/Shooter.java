@@ -22,7 +22,7 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
-    public static PID shooterPID = new PID(.00021, 0.000035, 0.00014, 0.3, 50);
+    public static PID shooterPID = new PID(.0002, 0.000035, 0.00015, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
