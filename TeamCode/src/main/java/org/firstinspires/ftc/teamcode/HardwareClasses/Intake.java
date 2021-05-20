@@ -22,11 +22,11 @@ public class Intake {
     
     public static PID intakePID = new PID(.0012, 0.000, 0.000, 0, 50);
     
-    private final static double RETRACTED = 0.37, ROLLING_RINGS = .2, GROUND_RINGS = 0.14;
+    private final static double RETRACTED = 0.37, ROLLING_RINGS = .2, GROUND_RINGS = 0.1;
     private final static double SERVO_DIFF = .09;
     
     private final static int INTAKE_ON = 190;
-    private final static double INTAKE_REVERSE = .45;
+    private final static double INTAKE_REVERSE = .42;
     
     private final static double TICKS_PER_ROTATION = 384.5;
     private static double intakeRPM;
@@ -91,6 +91,11 @@ public class Intake {
                 if (!groundRings) { newState(FabricState.ROLLING); break; }
                 fabricGroundRings();
                 break;
+                
+            case REVERSE:
+                setFabricPosition(.1);
+                newState(FabricState.ROLLING);
+                break;
         }
     }
     
@@ -132,7 +137,7 @@ public class Intake {
     
     public static double getPower(){ return (intakeDriveOne.getPower() + intakeDriveTwo.getPower()) / 2; }
     
-    public static void intakeOn(){ setPower(.35); }
+    public static void intakeOn(){ setPower(.36); }
     
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){
@@ -174,13 +179,13 @@ public class Intake {
                 }
                 
                 if(intakeHoldOn) { intakeStallControl(); if(currentFabricState == FabricState.RETRACT) newState(FabricState.GROUND); }
-                else if(intakeReverse) { intakeReverse(); if(currentFabricState == FabricState.RETRACT) newState(FabricState.GROUND); }
+                else if(intakeReverse) { intakeReverse(); newState(FabricState.REVERSE); }
                 else intakeOff();
                 break;
             
                 
             case ON:
-                if (intakeReverse) { intakeReverse(); break; }
+                if (intakeReverse) { intakeReverse(); newState(FabricState.REVERSE); break; }
                 if (intakeOnOff) { newState(IntakeState.OFF); break; }
                 intakeOn();
                 break;
@@ -219,7 +224,8 @@ public class Intake {
     public enum FabricState {
         RETRACT,
         GROUND,
-        ROLLING
+        ROLLING,
+        REVERSE
     }
     
 }

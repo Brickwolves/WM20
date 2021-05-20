@@ -22,7 +22,7 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
-    public static PID shooterPID = new PID(.0002, 0.000035, 0.00015, 0.3, 50);
+    public static PID shooterPID = new PID(.00024, 0.000035, 0.00018, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
@@ -147,7 +147,7 @@ public class Shooter {
     
     public static void feederTeleState(boolean trigger, boolean suppress){
         if(currentShooterState != ShooterState.POWER_SHOT){
-            feederState((getRPM() > (targetRPM - 65) && getRPM() < (targetRPM + 65) && targetRPM > 3000 && Sensors.isRobotMoving() &&
+            feederState((getRPM() > (targetRPM - 50) && getRPM() < (targetRPM + 50) && targetRPM > 3100 && Sensors.isRobotMoving() &&
                                  Sensors.isRingLoaded() && Sensors.frontCamera.isTowerFound() && Sensors.gyro.angleRange(67.5, 127.5) && !suppress) || trigger);
         }else{
             feederState(trigger);
@@ -278,8 +278,8 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (227 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
-                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .19) - .796)))));
+            RPM = (int) (233 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
+                                                  (2.03 * degCos(verticalComponent() * .3) * degCos(verticalComponent() * .3) * (.9 * degTan(verticalComponent()) * (towerDistance + .19) - .796)))));
         }
         
         setRPM(RPM);
