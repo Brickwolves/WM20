@@ -23,6 +23,7 @@ public class Shooter {
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
     public static PID shooterPID = new PID(.00017, 0.000035, 0.00019, 0.3, 50);
+    public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
@@ -237,7 +238,6 @@ public class Shooter {
     }
 
     public static double updateRPM(){
-
         long currentTime = System.currentTimeMillis();
         long deltaMili = currentTime - timeRing.getValue(currentTime);
         double deltaMinutes = deltaMili / 60000.0;
@@ -285,7 +285,20 @@ public class Shooter {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void powerShot(){ setRPM(POWER_SHOT); }
+    public static void powerShot(){
+        Shooter.targetRPM = POWER_SHOT;
+    
+        shooterPID.setFComponent(targetRPM / 10000.0);
+    
+        double shooterPower = powerShotPID.update(targetRPM - updateRPM());
+    
+        if(getRPM() < targetRPM * .9){
+            powerShotPID.setIntegralSum(targetRPM * .8);
+        }
+    
+        shooterPower = Range.clip(shooterPower,0.0, 1.0);
+        setPower(shooterPower);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void shooterOff(){ setPower(0.0); setRPM(0); }
@@ -299,6 +312,7 @@ public class Shooter {
                 if (shooterOnOff || topGoal) {
                     newState(ShooterState.TOP_GOAL);
                     shooterPID.resetIntegralSum();
+                    powerShotPID.resetIntegralSum();
                     shooterJustOn = true;
                     break;
                 }
@@ -306,6 +320,7 @@ public class Shooter {
                 if (powerShot) {
                     newState(ShooterState.POWER_SHOT);
                     shooterPID.resetIntegralSum();
+                    powerShotPID.resetIntegralSum();
                     shooterJustOn = true;
                     break;
                 }
