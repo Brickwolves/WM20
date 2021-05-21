@@ -41,6 +41,7 @@ public class CleanAutonomous extends OpMode {
 		Robot.init(); Sensors.init(); Shooter.init(); Intake.init(); Wobble.init(); Katana.init();
 		
 		operator = new Controller(gamepad2);
+		Shooter.setTurretAngle(-27);
 		
 		Sensors.backCamera.setPipeline(Sensors.backCamera.ringFinderPipeline);
 		Sensors.backCamera.startVision(1920, 1080);
@@ -302,7 +303,7 @@ public class CleanAutonomous extends OpMode {
 						Shooter.powerShot();
 						Intake.intakeOff(); Intake.fabricRollingRings();
 						Robot.setPowerVision(0, 0, Sensors.frontCamera.centerPSAimAngle() - .4);
-						Shooter.feederState(mainTime.seconds() > .5 &&
+						Shooter.feederState(mainTime.seconds() > 1 &&
 								                    Shooter.getRPM() > (Shooter.targetRPM - 50) && Shooter.getRPM() < (Shooter.targetRPM + 50));
 						if (mainTime.seconds() > .7 && Shooter.feederCount() > 0) newState(MainState.state7PS2);
 						break;
@@ -311,7 +312,7 @@ public class CleanAutonomous extends OpMode {
 					//shoot power shot 2
 					case state7PS2:
 						Shooter.powerShot();
-						Robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimAngle() - 1.5);
+						Robot.setPowerVision(0, 0, Sensors.frontCamera.rightPSAimAngle() - 1);
 						Shooter.feederState(mainTime.seconds() > .5 &&
 								                    Shooter.getRPM() > (Shooter.targetRPM - 50) && Shooter.getRPM() < (Shooter.targetRPM + 50));
 						if (mainTime.seconds() > .6 && Shooter.feederCount() > 1) newState(MainState.state8PS3);
@@ -328,7 +329,7 @@ public class CleanAutonomous extends OpMode {
 						break;
 						
 					case state9Drive:
-						Robot.strafe(49.5, 90, 62, 1, .3, 0);
+						Robot.strafe(58, 90, 55, 1, .3, 0);
 						Shooter.shooterOff();
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						if(Robot.isStrafeComplete) newState(MainState.state10Turn);
@@ -352,7 +353,7 @@ public class CleanAutonomous extends OpMode {
 					
 					
 					case state12Drive:
-						Robot.strafe(34.7, 178.5, 178.5, 1, .3, 0);
+						Robot.strafe(36, 178.5, 178.5, 1, .3, 0);
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) newState(MainState.state13Drive);
 						break;
@@ -362,7 +363,7 @@ public class CleanAutonomous extends OpMode {
 						if(mainTime.seconds() > .8) Robot.strafe(80, 180, -90, 1, .3, 0);
 						Intake.fabricGroundRings(); Intake.intakeStallControl();
 						Wobble.armPosition(.16);
-						if(mainTime.seconds() > .9 && Robot.currentInches > 28) Wobble.gripperOpen();
+						if(mainTime.seconds() > .9 && Robot.currentInches > 23) Wobble.gripperOpen();
 						if(mainTime.seconds() > .9 && Robot.isStrafeComplete) newState(MainState.state14Turn);
 						break;
 						
@@ -388,7 +389,7 @@ public class CleanAutonomous extends OpMode {
 						
 						
 					case state16Drive:
-						Robot.strafe(18.5, 120, -60, 1, .3, 0);
+						Robot.strafe(18.5, 125, -55, 1, .3, 0);
 						Wobble.armDown(); Wobble.gripperOpen();
 						Shooter.shooterOff();
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) { newState(MainState.state17Wobble);  }
@@ -409,15 +410,15 @@ public class CleanAutonomous extends OpMode {
 						
 						
 					case state19Drive:
-						Robot.strafe(31, -90, 90, 1, .3, 0);
+						Robot.strafe(30, -90, 90, 1, .3, 0);
 						if(mainTime.seconds() > .2 && Robot.isStrafeComplete) newState(MainState.stateFinished);
 						break;
 						
 						
 					case stateFinished:
-						if(mainTime.seconds() > .9)  Wobble.gripperOpen();
+						if(mainTime.seconds() > .9) { Wobble.gripperOpen(); Robot.setPowerVision(0,0,-90,1); }
 						if(mainTime.seconds() > 1.3)  Wobble.armFold();
-						Robot.setPowerVision(0,0,-90,1);
+						
 						Shooter.shooterOff();
 						break;
 						
@@ -525,7 +526,7 @@ public class CleanAutonomous extends OpMode {
 						if (mainTime.seconds() > .5) Wobble.gripperGrip();
 						if (mainTime.seconds() > 1.1) {
 							Wobble.armTele();
-							Robot.strafe(20, 90, -167, 1, .3, 0);
+							Robot.strafe(17, 90, -167, 1, .3, 0);
 							if(Robot.currentInches > 14) {  Shooter.highTower(true); }
 							if (Robot.isStrafeComplete) newState(MainState.state11Drive);
 						}
@@ -535,7 +536,7 @@ public class CleanAutonomous extends OpMode {
 					//forward to ring stack
 					case state11Drive:
 						Intake.setFabricPosition(.09);
-						Robot.strafe(11, 90, 90, .5, .2, .15);
+						Robot.strafe(9, 90, 90, 1, .5, .15);
 						Shooter.highTower(true);
 						
 						if (Robot.isStrafeComplete) newState(MainState.state12Drive);
@@ -544,10 +545,10 @@ public class CleanAutonomous extends OpMode {
 						
 					//drive forward while intaking and shooting into high tower
 					case state12Drive:
-						Robot.strafe(18, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1, 90, .17, .15, .2);
+						Robot.strafe(20, Sensors.gyro.rawAngle() + Sensors.frontCamera.towerAimError() - 1, 90, .14, .15, .2);
 						Intake.setFabricPosition(.21);
 						Shooter.setTurretAngle(-1);
-						Intake.setPower(.38);
+						Intake.setPower(.31);
 						Shooter.highTower(true);
 						Shooter.feederState(Shooter.getRPM() > (Shooter.targetRPM - 60) && Shooter.getRPM() < (Shooter.targetRPM + 60));
 						if (Robot.isStrafeComplete) newState(MainState.state13Drive);
@@ -562,7 +563,7 @@ public class CleanAutonomous extends OpMode {
 						Shooter.feederState(false);
 						Shooter.shooterOff();
 						Wobble.armPosition(.2);
-						Robot.strafe(74, 0, 95, 1, .5, 0);
+						Robot.strafe(72, 0, 95, 1, .5, 0);
 						if(mainTime.seconds() > .4 && Robot.isStrafeComplete) newState(MainState.state20Drive);
 						break;
 						

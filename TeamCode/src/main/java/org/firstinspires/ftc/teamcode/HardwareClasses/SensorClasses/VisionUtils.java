@@ -22,8 +22,8 @@ public class VisionUtils {
     public static final double RING_HEIGHT = 20;
     public static final double TOWER_HEIGHT = 220;
     
-    public static double PS_LEFT_DIST = 40;
-    public static double PS_CENTER_DIST = 61.5;
+    public static double PS_LEFT_DIST = 42;
+    public static double PS_CENTER_DIST = 63.5;
     public static double PS_RIGHT_DIST = 82;
     
     private static double distanceSum = 0;
