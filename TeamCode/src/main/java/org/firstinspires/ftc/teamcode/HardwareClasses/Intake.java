@@ -142,7 +142,7 @@ public class Intake {
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){
             case START:
-                if(stallTime.seconds() > .5) newState(StallState.ON);
+                if(stallTime.seconds() > .5) { newState(StallState.ON); }
                 intakeOn();
                 break;
             
@@ -174,6 +174,7 @@ public class Intake {
             case OFF:
                 if (intakeOnOff) {
                     newState(IntakeState.ON);
+                    Shooter.newState(Shooter.ShooterState.OFF);
                     if(currentFabricState == FabricState.RETRACT) newState(FabricState.GROUND);
                     break;
                 }

@@ -118,6 +118,7 @@ public class Controller {
 		
 		rightStick = new Thumbstick(gamepad.right_stick_x, gamepad.right_stick_y);
 		leftStick = new Thumbstick(gamepad.left_stick_x, gamepad.left_stick_y);
+		
 	}
 	
 	//cross
@@ -404,6 +405,7 @@ public class Controller {
 	
 	
 	public boolean touchpad() { return gamepad.touchpad; }
+	
 	
 	
 	public class Thumbstick {

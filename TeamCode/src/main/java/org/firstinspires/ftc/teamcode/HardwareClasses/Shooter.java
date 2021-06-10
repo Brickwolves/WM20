@@ -22,7 +22,7 @@ public class Shooter {
 
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
-    public static PID shooterPID = new PID(.00017, 0.000035, 0.00019, 0.3, 50);
+    public static PID shooterPID = new PID(.0002, 0.000035, 0.00018, 0.3, 50);
     public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -30,7 +30,7 @@ public class Shooter {
     private static final double RING_FEED = 0, RING_FULL_FEED = 0, HALF_RESET = 0.45, RESET = .6;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .18;
     
-    private static final double FEED_TIME = .18, FULL_FEED_TIME = .1, RESET_TIME = .12, PS_DELAY = .4;
+    private static final double FEED_TIME = .1, FULL_FEED_TIME = .1, RESET_TIME = .1, PS_DELAY = .4;
     private static final double LOCK_TIME = 1, UNLOCK_TIME = .13;
     
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
@@ -278,8 +278,8 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (218 * (Math.sqrt(9.8 * Math.pow(towerDistance + .08, 3.2) /
-                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .19) - .796)))));
+            RPM = (int) (220 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.3, 3) /
+                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .3) - .796)))));
         }
         setRPM(RPM);
     }
@@ -311,6 +311,7 @@ public class Shooter {
             case OFF:
                 if (shooterOnOff || topGoal) {
                     newState(ShooterState.TOP_GOAL);
+                    Intake.newState(Intake.IntakeState.OFF);
                     shooterPID.resetIntegralSum();
                     powerShotPID.resetIntegralSum();
                     shooterJustOn = true;
@@ -319,6 +320,7 @@ public class Shooter {
                 
                 if (powerShot) {
                     newState(ShooterState.POWER_SHOT);
+                    Intake.newState(Intake.IntakeState.OFF);
                     shooterPID.resetIntegralSum();
                     powerShotPID.resetIntegralSum();
                     shooterJustOn = true;
