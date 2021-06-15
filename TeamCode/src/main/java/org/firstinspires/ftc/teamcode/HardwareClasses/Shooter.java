@@ -19,7 +19,7 @@ import static org.firstinspires.ftc.utilities.MathUtils.degTan;
 import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Shooter {
-
+    
     private static DcMotor shooterOne, shooterTwo;
     private static Servo feeder, feederLock, turret;
     public static PID shooterPID = new PID(.0002, 0.000035, 0.00018, 0.3, 50);

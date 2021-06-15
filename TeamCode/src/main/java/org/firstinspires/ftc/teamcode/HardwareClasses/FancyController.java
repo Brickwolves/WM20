@@ -10,6 +10,7 @@ public class FancyController {
 	public Button cross, circle, triangle, square, up, down, left, right, RB, LB, RS, LS, share;
 	public Trigger RT, LT;
 	
+	boolean hold = false;
 	
 	public FancyController(Gamepad gamepad) {
 		this.gamepad = gamepad;
@@ -33,6 +34,12 @@ public class FancyController {
 		share.update(gamepad.share);
 		
 		RT.update(gamepad.right_trigger); LT.update(gamepad.left_trigger);
+	}
+	
+	
+	public boolean buttonPress(boolean controllerInput){
+		boolean wasHeld = hold;
+		return (hold = controllerInput) && !wasHeld;
 	}
 	
 	
