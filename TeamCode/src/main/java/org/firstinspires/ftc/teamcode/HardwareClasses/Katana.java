@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
 import com.qualcomm.robotcore.hardware.Servo;
@@ -41,7 +42,7 @@ public class Katana {
 	public static void katanaAutoState(){
 		if (Shooter.getPower() != 0) {
 			katanaShoot();
-		} else if (Intake.fabricPosition >= .3) {
+		} else if (Intake.bumperPosition >= .3) {
 			katanaHalfFold();
 		} else {
 			katanaFullFold();
@@ -92,3 +93,4 @@ public class Katana {
 		currentKatanaState = newKatanaState;
 	}
 }
+*/

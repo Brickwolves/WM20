@@ -21,8 +21,8 @@ public class Sensors {
 	
 	
 	public static Gyro gyro;
-	public static Camera frontCamera, backCamera;
-	public static REVColorSensor hopperColor;
+	/*public static Camera frontCamera, backCamera;
+	public static REVColorSensor hopperColor;*/
 	private static long currentTimeMillis;
 	
 	
@@ -37,7 +37,7 @@ public class Sensors {
 	public static void init(){
 		IMU imu = new IMU("imu");
 		
-		int cameraMonitorViewId = hardwareMap().appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap().appContext.getPackageName());
+		/*int cameraMonitorViewId = hardwareMap().appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap().appContext.getPackageName());
 		
 		WebcamName frontCamName = hardwareMap().get(WebcamName.class, "Front Camera");
 		OpenCvWebcam frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName, cameraMonitorViewId);
@@ -45,18 +45,18 @@ public class Sensors {
 		WebcamName backCamName = hardwareMap().get(WebcamName.class, "Back Camera");
 		OpenCvWebcam backWebcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName);
 		
-		ColorSensor hopperColorSensor = hardwareMap().get(ColorSensor.class, "hoppercolor");
+		ColorSensor hopperColorSensor = hardwareMap().get(ColorSensor.class, "hoppercolor");*/
 		
 		gyro = new Gyro(imu, 0);
-		frontCamera = new Camera(frontWebcam);
-		backCamera = new Camera(backWebcam);
-		hopperColor = new REVColorSensor(hopperColorSensor);
+		//frontCamera = new Camera(frontWebcam);
+		//backCamera = new Camera(backWebcam);
+		//hopperColor = new REVColorSensor(hopperColorSensor);
 	}
 	
 	public static void update(){
 		currentTimeMillis = System.currentTimeMillis();
 		gyro.update();
-		hopperColor.update();
+		//hopperColor.update();
 		
 		long deltaMili = currentTimeMillis - timeRing.getValue(currentTimeMillis);
 		double deltaMinutes = deltaMili / 60000.0;
@@ -106,9 +106,9 @@ public class Sensors {
 		return maxRobotRPM() < 120 && Robot.drive < .4 && Robot.strafe < .4 && Robot.turn < .1;
 	}
 	
-	public static boolean isRingLoaded(){
+	/*public static boolean isRingLoaded(){
 		return hopperColor.red() > 3000;
-	}
+	}*/
 	
 	
 }

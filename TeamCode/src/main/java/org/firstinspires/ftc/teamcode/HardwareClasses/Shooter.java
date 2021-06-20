@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
 import android.os.Build;
@@ -188,26 +189,6 @@ public class Shooter {
                 unlockFeeder();
                 break;
                 
-            /*case HALF_RESET:
-                if(getRPM() < feederRPM - 20) newState(FeederState.RESET);
-                if(feederTime.seconds() > RESET_TIME - .03) {
-                    if(feederI < 1) { newState(FeederState.FEED); feederI++; }
-                    else newState(FeederState.RESET);
-                }
-                halfResetFeeder();
-                minRPM = Math.min(minRPM, getRPM());
-                break;
-    
-            case FEED_TWO:
-                if ( feederTime.seconds() > FULL_FEED_TIME) {
-                    newState(FeederState.HALF_RESET);
-                    fullFeedRing();
-                }
-                feederRPM = getRPM();
-                minRPM = Math.min(minRPM, getRPM());
-                unlockFeeder();
-                break;*/
-            
             case RESET:
                 if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME + .03) { newState(FeederState.IDLE); feedCount++; break; }
                 if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME + .03) { newState(FeederState.PS_DELAY); feederJustOn = true; feedCount++; break; }
@@ -372,4 +353,4 @@ public class Shooter {
     }
     
 
-}
+}*/
