@@ -10,7 +10,7 @@ public class Wobble {
     private static Servo gripperRight, gripperLeft;
     private static Servo lifter;
     
-    private static final double GRIP = .647, OPEN = 0.25, HALF = 0.48;
+    private static final double GRIP = .653, OPEN = 0.23, HALF = 0.48;
     
     private static final double ARM_UP = .68, ARM_TELE = .84, ARM_DOWN = 0.1, ARM_FOLD = .99, SERVO_DIFF = .13;
     
