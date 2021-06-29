@@ -7,12 +7,12 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Wobble {
 
-    private static Servo gripperOne, gripperTwo;
+    private static Servo gripperRight, gripperLeft;
     private static Servo lifter;
     
-    private static final double GRIP = .53, OPEN = 0.07, HALF = 0.35;
+    private static final double GRIP = .647, OPEN = 0.25, HALF = 0.48;
     
-    private static final double ARM_UP = .68, ARM_TELE = .84, ARM_DOWN = 0.05, ARM_FOLD = 1;
+    private static final double ARM_UP = .68, ARM_TELE = .84, ARM_DOWN = 0.1, ARM_FOLD = .99, SERVO_DIFF = .13;
     
     private static ArmState currentArmState;
     private static GripperState currentGripperState;
@@ -20,22 +20,22 @@ public class Wobble {
     
     
     public static void init(){
-        gripperOne = hardwareMap().get(Servo.class, "gripperone");
-        gripperTwo = hardwareMap().get(Servo.class, "grippertwo");
-        lifter = hardwareMap().get(Servo.class, "lifter");
-        gripperTwo.setDirection(Servo.Direction.REVERSE);
+        gripperRight = hardwareMap().get(Servo.class, "wobblegripperright");
+        gripperLeft = hardwareMap().get(Servo.class, "wobblegripperleft");
+        lifter = hardwareMap().get(Servo.class, "wobblearm");
+        gripperLeft.setDirection(Servo.Direction.REVERSE);
     
         currentArmState = ArmState.FOLD;
         currentGripperState = GripperState.GRIP;
     }
     
-    public static double gripperPosition() { return gripperOne.getPosition(); }
+    public static double gripperPosition() { return gripperRight.getPosition(); }
     
-    public static void gripperGrip() { gripperOne.setPosition(GRIP); gripperTwo.setPosition(GRIP+.02); }
+    public static void gripperGrip() { gripperRight.setPosition(GRIP); gripperLeft.setPosition(GRIP - SERVO_DIFF); }
     
-    public static void gripperOpen() { gripperOne.setPosition(OPEN); gripperTwo.setPosition(OPEN+.02); }
+    public static void gripperOpen() { gripperRight.setPosition(OPEN); gripperLeft.setPosition(OPEN - SERVO_DIFF); }
     
-    public static void gripperHalf() { gripperOne.setPosition(HALF); gripperTwo.setPosition(HALF+.02); }
+    public static void gripperHalf() { gripperRight.setPosition(HALF);gripperLeft.setPosition(HALF - SERVO_DIFF); }
     
     public static void gripperState(boolean openClose){
         switch (currentGripperState){
@@ -86,8 +86,9 @@ public class Wobble {
                 break;
     
             case FOLD:
-                if(armUpDown) { newState(ArmState.UP); break; }
-                if(armFold) { newState(ArmState.DOWN); break; }
+                if(armUpDown && currentGripperState == GripperState.HALF) newState(ArmState.DOWN);
+                else if(armUpDown) newState(ArmState.UP);
+                if(armFold) newState(ArmState.DOWN);
                 if(currentGripperState != GripperState.GRIP) armFold();
                 else armTele();
                 break;

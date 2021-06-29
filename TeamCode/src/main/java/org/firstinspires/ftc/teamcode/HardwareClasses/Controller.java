@@ -37,12 +37,6 @@ public class Controller {
 	}
 	
 	
-	public boolean buttonPress(boolean controllerInput){
-		boolean wasHeld = hold;
-		return (hold = controllerInput) && !wasHeld;
-	}
-	
-	
 	public class Button {
 		private boolean hold = false; private boolean press = false; private boolean toggle = false;
 		
@@ -74,7 +68,7 @@ public class Controller {
 		
 		public float value(){ return value; }
 		
-		public boolean hold() { return value > .4; }
+		public boolean hold() { return value > .7; }
 		
 		public boolean press() { return trigger.press(); }
 		

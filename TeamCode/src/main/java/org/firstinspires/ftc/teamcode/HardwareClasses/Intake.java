@@ -25,8 +25,8 @@ public class Intake {
     
     public static PID intakePID = new PID(.0012, 0.000, 0.000, 0, 50);
     
-    private final static double RETRACTED = 0.37, ROLLING_RINGS = .2, GROUND_RINGS = 0.1;
-    private final static double SERVO_DIFF = .09;
+    private final static double RETRACTED = 0.3, ROLLING_RINGS = .16, GROUND_RINGS = 0.02;
+    private final static double SERVO_DIFF = .025;
     
     private final static int INTAKE_ON = 190;
     private final static double INTAKE_REVERSE = .8;
@@ -45,7 +45,7 @@ public class Intake {
     
     public static IntakeState currentIntakeState;
     private static StallState currentStallState;
-    public static FabricState currentFabricState;
+    public static BumperState currentBumperState;
     
     
     public static void init(){
@@ -64,7 +64,7 @@ public class Intake {
     
         currentIntakeState = IntakeState.OFF;
         currentStallState = StallState.START;
-        currentFabricState = FabricState.GROUND;
+        currentBumperState = BumperState.GROUND;
     }
     
     
@@ -77,29 +77,24 @@ public class Intake {
     public static void bumperGroundRings(){ bumperPosition = GROUND_RINGS; setBumperPosition(GROUND_RINGS); }
     
     
-    public static void fabricState(boolean deployToggle, boolean rollingRings){
-        switch (currentFabricState) {
+    public static void bumperState(boolean deployToggle, boolean rollingRings){
+        switch (currentBumperState) {
             
             case RETRACT:
-                if (deployToggle) { newState(FabricState.GROUND); break; }
-                if (rollingRings) { newState(FabricState.ROLLING); break; }
+                if (deployToggle) { newState(BumperState.GROUND); break; }
+                if (rollingRings) { newState(BumperState.ROLLING); break; }
                 bumperRetract();
                 break;
             
             case GROUND:
-                if (deployToggle) { newState(FabricState.RETRACT); newState(IntakeState.OFF); break; }
-                if (rollingRings) { newState(FabricState.ROLLING); break; }
+                if (deployToggle) { newState(BumperState.RETRACT); newState(IntakeState.OFF); break; }
+                if (rollingRings) { newState(BumperState.ROLLING); break; }
                 bumperGroundRings();
                 break;
     
             case ROLLING:
-                if (!rollingRings) { newState(FabricState.GROUND); break; }
+                if (!rollingRings) { newState(BumperState.GROUND); break; }
                 bumperRollingRings();
-                break;
-                
-            case REVERSE:
-                setBumperPosition(.1);
-                newState(FabricState.GROUND);
                 break;
         }
     }
@@ -142,7 +137,17 @@ public class Intake {
     
     public static double getPower(){ return (intakeDriveFront.getPower() + intakeDriveBack.getPower()) / 2; }
     
+    
     public static void intakeOn(){ setPower(1); bottomRoller.setPower(1); }
+    
+    public static void intakeOff(){ intakeDriveFront.setPower(0.0); intakeDriveBack.setPower(0.0); bottomRoller.setPower(0); targetRPM = 0; }
+    
+    public static void intakeReverse(){ intakeDriveFront.setPower(-INTAKE_REVERSE); intakeDriveBack.setPower(-INTAKE_REVERSE); bottomRoller.setPower(0); }
+    
+    
+    public static void intakeStallControl(){
+        intakeStallControl(INTAKE_ON);
+    }
     
     public static void intakeStallControl(int targetRPM){
         switch(currentStallState){
@@ -156,7 +161,7 @@ public class Intake {
                 if(updateRPM() < 55 && stallTime.seconds() > .3) newState(StallState.REVERSE);
                 intakeOn();
                 break;
-                
+            
             case REVERSE:
                 if(intakeDriveFront.getPower() < .1 && intakeDriveFront.getPower() > -.1) { newState(StallState.START); break; }
                 if(stallTime.seconds() > .4) newState(StallState.ON);
@@ -165,33 +170,25 @@ public class Intake {
         }
     }
     
-    public static void intakeStallControl(){
-        intakeStallControl(INTAKE_ON);
-    }
-    
-    public static void intakeOff(){ intakeDriveFront.setPower(0.0); intakeDriveBack.setPower(0.0); bottomRoller.setPower(0); targetRPM = 0; }
-    
-    public static void intakeReverse(){ intakeDriveFront.setPower(-INTAKE_REVERSE); intakeDriveBack.setPower(-INTAKE_REVERSE); }
-    
     public static void intakeState(boolean intakeOnOff, boolean intakeReverse, boolean intakeHoldOn){
         switch (currentIntakeState) {
             
             case OFF:
                 if (intakeOnOff) {
                     newState(IntakeState.ON);
-                    //Shooter.newState(Shooter.ShooterState.OFF);
-                    if(currentFabricState == FabricState.RETRACT) newState(FabricState.GROUND);
+                    Shooter.newState(Shooter.ShooterState.OFF);
+                    if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND);
                     break;
                 }
                 
-                if(intakeHoldOn) { intakeStallControl(); if(currentFabricState == FabricState.RETRACT) newState(FabricState.GROUND); }
-                else if(intakeReverse) { intakeReverse(); newState(FabricState.REVERSE); }
+                if(intakeHoldOn) { intakeStallControl(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND); }
+                else if(intakeReverse)  intakeReverse();
                 else intakeOff();
                 break;
             
                 
             case ON:
-                if (intakeReverse) { intakeReverse(); newState(FabricState.REVERSE); break; }
+                if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOnOff) { newState(IntakeState.OFF); break; }
                 intakeOn();
                 break;
@@ -211,27 +208,21 @@ public class Intake {
         currentStallState = newState;
     }
     
-    public static void newState(FabricState newState) {
+    public static void newState(BumperState newState) {
         bumperTime.reset();
-        currentFabricState = newState;
+        currentBumperState = newState;
     }
     
     public enum IntakeState {
-        OFF,
-        ON,
+        OFF, ON
     }
     
     private enum StallState {
-        ON,
-        REVERSE,
-        START
+        ON, REVERSE, START
     }
     
-    public enum FabricState {
-        RETRACT,
-        GROUND,
-        ROLLING,
-        REVERSE
+    public enum BumperState {
+        RETRACT, GROUND, ROLLING
     }
     
 }
