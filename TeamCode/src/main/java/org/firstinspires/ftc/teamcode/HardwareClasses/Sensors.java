@@ -39,10 +39,10 @@ public class Sensors {
 		
 		int cameraMonitorViewId = hardwareMap().appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap().appContext.getPackageName());
 		
-		WebcamName frontCamName = hardwareMap().get(WebcamName.class, "Camera 1");
+		WebcamName frontCamName = hardwareMap().get(WebcamName.class, "Front Camera");
 		OpenCvWebcam frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(frontCamName, cameraMonitorViewId);
 		
-		WebcamName backCamName = hardwareMap().get(WebcamName.class, "Camera 2");
+		WebcamName backCamName = hardwareMap().get(WebcamName.class, "Back Camera");
 		OpenCvWebcam backWebcam = OpenCvCameraFactory.getInstance().createWebcam(backCamName);
 		
 		//ColorSensor hopperColorSensor = hardwareMap().get(ColorSensor.class, "hoppercolor");

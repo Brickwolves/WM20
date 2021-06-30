@@ -25,7 +25,7 @@ public class Intake {
     
     public static PID intakePID = new PID(.0012, 0.000, 0.000, 0, 50);
     
-    private final static double RETRACTED = 0.3, ROLLING_RINGS = .16, GROUND_RINGS = 0.035;
+    private final static double RETRACTED = 0.32, ROLLING_RINGS = .16, GROUND_RINGS = 0.035;
     private final static double SERVO_DIFF = .025;
     
     private final static int INTAKE_ON = 190;

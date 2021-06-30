@@ -22,22 +22,21 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 public class Shooter {
     
     private static DcMotor shooterFront, shooterBack;
-    private static Servo feeder, turret;
-	private static CRServo feederWheel;
+    private static Servo feeder, turret, feederLock;
 	
     public static PID shooterPID = new PID(.0002, 0.000035, 0.00018, 0.3, 50);
     public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = 0, RING_FULL_FEED = 0, HALF_RESET = 0.45, RESET = .6;
+    private static final double RING_FEED = 0.1, RING_FULL_FEED = 0, HALF_RESET = 0.45, RESET = .63;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .18;
     
     private static final double FEED_TIME = .1, FULL_FEED_TIME = .1, RESET_TIME = .1, PS_DELAY = .4;
     private static final double LOCK_TIME = 1, UNLOCK_TIME = .13;
     
-    private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .45, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
-    private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 37, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
+    private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .42, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
+    private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 39, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
     
     private static final int TOP_GOAL = 3550, POWER_SHOT = 3050;
     
@@ -66,7 +65,7 @@ public class Shooter {
         shooterFront = hardwareMap().get(DcMotor.class, "shooterfront");
         shooterBack = hardwareMap().get(DcMotor.class, "shooterback");
         feeder = hardwareMap().get(Servo.class, "feeder");
-        feederWheel = hardwareMap().get(CRServo.class, "feederwheel");
+        feederLock = hardwareMap().get(Servo.class, "feederlock");
         turret = hardwareMap().get(Servo.class, "turret");
         
         shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -135,9 +134,10 @@ public class Shooter {
     
     public static void halfResetFeeder(){ feeder.setPosition(HALF_RESET); }
     
-    public static void feederWheelOff(){ feederWheel.setPower(0.0); }
+    public static void lockFeeder(){ feederLock.setPosition(FEEDER_LOCK); }
     
-    public static void feederWheelOn(){ feederWheel.setPower(-1.0); }
+    public static void unlockFeeder(){ feederLock.setPosition(FEEDER_UNLOCK); }
+    
     
     
     public static void setFeederCount(int feederCount){ feedCount = feederCount; }
@@ -163,28 +163,45 @@ public class Shooter {
         switch (currentFeederState) {
             
             case IDLE:
-                if(getPower() > -.05 && trigger) newState(FeederState.FEED);
-                feederWheelOff();
-                resetFeeder();
-                break;
-    
-            case FEED:
-            	if (feederTime.seconds() > FEED_TIME) newState(FeederState.RESET);
-	            feedRing();
-                feederWheelOn();
-                break;
+                if(getPower() > -.1 && trigger) newState(FeederState.FEED);
                 
+                if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); isFeederLocked = true; }
+                else{ unlockFeeder(); isFeederLocked = false; }
+                
+                resetFeeder();
+                
+                minRPM = 10000;
+                feederI = 0;
+                break;
+            
+            case FEED:
+                if (isFeederLocked) {
+                    if (feederTime.seconds() > FEED_TIME + UNLOCK_TIME) {
+                        newState(FeederState.RESET);
+                    }
+                    if (feederTime.seconds() > UNLOCK_TIME) feedRing();
+                }else{
+                    if ( feederTime.seconds() > FEED_TIME) {
+                        newState(FeederState.RESET);
+                    }
+                    feedRing();
+                }
+                feederRPM = getRPM();
+                minRPM = Math.min(minRPM, getRPM());
+                unlockFeeder();
+                break;
+            
             case RESET:
                 if (currentShooterState != ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME + .03) { newState(FeederState.IDLE); feedCount++; break; }
                 if (currentShooterState == ShooterState.POWER_SHOT && feederTime.seconds() > RESET_TIME + .03) { newState(FeederState.PS_DELAY); feederJustOn = true; feedCount++; break; }
                 resetFeeder();
-                feederWheelOn();
+                unlockFeeder();
                 break;
-    
+            
             case PS_DELAY:
                 if (feederTime.seconds() > PS_DELAY) { newState(FeederState.IDLE); break; }
                 resetFeeder();
-                feederWheelOn();
+                unlockFeeder();
                 break;
         }
     }
@@ -300,7 +317,7 @@ public class Shooter {
                 if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
                 if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
                 //highTower(visionAim);
-                setPower(.1);
+                setPower(.05);
                 turretAim();
                 break;
                 
