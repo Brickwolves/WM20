@@ -138,7 +138,7 @@ public class Intake {
     public static double getPower(){ return (intakeDriveFront.getPower() + intakeDriveBack.getPower()) / 2; }
     
     
-    public static void intakeOn(){ setPower(.8); bottomRoller.setPower(1); }
+    public static void intakeOn(){ setPower(.65); bottomRoller.setPower(1); }
     
     public static void intakeOff(){ intakeDriveFront.setPower(0.0); intakeDriveBack.setPower(0.0); bottomRoller.setPower(0); targetRPM = 0; }
     

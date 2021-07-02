@@ -24,12 +24,12 @@ public class Shooter {
     private static DcMotor shooterFront, shooterBack;
     private static Servo feeder, turret, feederLock;
 	
-    public static PID shooterPID = new PID(.0002, 0.000035, 0.00018, 0.3, 50);
+    public static PID shooterPID = new PID(.0002, 0.000035, 0.0001, 0.3, 50);
     public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
     
-    private static final double RING_FEED = 0.1, RING_FULL_FEED = 0, HALF_RESET = 0.45, RESET = .63;
+    private static final double RING_FEED = 0.15, RING_FULL_FEED = 0, HALF_RESET = 0.45, RESET = .63;
     private static final double FEEDER_LOCK = .46, FEEDER_UNLOCK = .18;
     
     private static final double FEED_TIME = .1, FULL_FEED_TIME = .1, RESET_TIME = .1, PS_DELAY = .4;
@@ -38,7 +38,7 @@ public class Shooter {
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .42, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
     private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 39, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
     
-    private static final int TOP_GOAL = 3550, POWER_SHOT = 3050;
+    private static final int TOP_GOAL = 3550, POWER_SHOT = 2850;
     
     private static boolean isFeederLocked;
     private static double shooterRPM, feederRPM;
@@ -217,7 +217,7 @@ public class Shooter {
     }
 
     public static long getPosition(){
-        return (shooterFront.getCurrentPosition() + shooterBack.getCurrentPosition()) /  2;
+        return (shooterBack.getCurrentPosition() + shooterFront.getCurrentPosition()) / 2;
     }
 
     public static double updateRPM(){
@@ -242,7 +242,7 @@ public class Shooter {
     public static void setRPM(int targetRPM){
         Shooter.targetRPM = targetRPM;
         
-        shooterPID.setFComponent(targetRPM / 10000.0);
+        shooterPID.setFComponent(targetRPM / 8500.0);
         
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
@@ -317,7 +317,7 @@ public class Shooter {
                 if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
                 if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
                 //highTower(visionAim);
-                setPower(.05);
+                setRPM(3200);
                 turretAim();
                 break;
                 
