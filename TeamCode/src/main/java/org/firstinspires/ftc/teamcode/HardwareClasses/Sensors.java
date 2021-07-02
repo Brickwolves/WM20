@@ -62,19 +62,19 @@ public class Sensors {
 		double deltaMinutes = deltaMili / 60000.0;
 		
 		long frPosition = Robot.frontRight.getCurrentPosition();
-		double frDeltaRotations = (frPosition - frRing.getValue(frPosition)) / 537.7;
+		double frDeltaRotations = (frPosition - frRing.getValue(frPosition)) / 480.625;
 		frRPM = frDeltaRotations / deltaMinutes;
 		
 		long flPosition = Robot.frontLeft.getCurrentPosition();
-		double flDeltaRotations = (flPosition - flRing.getValue(flPosition)) / 537.7;
+		double flDeltaRotations = (flPosition - flRing.getValue(flPosition)) / 480.625;
 		flRPM = flDeltaRotations / deltaMinutes;
 		
 		long brPosition = Robot.backRight.getCurrentPosition();
-		double brDeltaRotations = (brPosition - brRing.getValue(brPosition)) / 537.7;
+		double brDeltaRotations = (brPosition - brRing.getValue(brPosition)) / 480.625;
 		brRPM = brDeltaRotations / deltaMinutes;
 		
 		long blPosition = Robot.backLeft.getCurrentPosition();
-		double blDeltaRotations = (blPosition - blRing.getValue(blPosition)) / 537.7;
+		double blDeltaRotations = (blPosition - blRing.getValue(blPosition)) / 480.625;
 		blRPM = blDeltaRotations / deltaMinutes;
 	}
 	

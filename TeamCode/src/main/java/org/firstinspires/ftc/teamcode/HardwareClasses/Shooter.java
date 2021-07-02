@@ -24,7 +24,7 @@ public class Shooter {
     private static DcMotor shooterFront, shooterBack;
     private static Servo feeder, turret, feederLock;
 	
-    public static PID shooterPID = new PID(.0002, 0.000035, 0.0001, 0.3, 50);
+    public static PID shooterPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
     public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -99,14 +99,14 @@ public class Shooter {
     
     public static double verticalComponent(){
         double xComponent = MathUtils.degSin(getTurretAngle());
-        double yComponent = Math.sqrt(.2061 - .2061 * Math.pow(xComponent, 2));
-        return ((MathUtils.degASin(yComponent) - 27) * .9) + 27;
+        double yComponent = Math.sqrt(.25 - .25 * Math.pow(xComponent, 2));
+        return ((MathUtils.degASin(yComponent) - 30) * .9) + 30;
     }
     
     public static void turretAim(){ turretAim(true); }
     
     public static void turretAim(boolean autoAim){
-        if(autoAim && Sensors.gyro.angleRange(67.5, 127.5) && getPower() > .1)
+        if(autoAim && Sensors.gyro.angleRange(67.5, 127.5) && getPower() > -.1)
             setTurretAngle(Sensors.frontCamera.towerAimError() - 1 +
                                    (Sensors.robotVelocityComponent(Sensors.frontCamera.towerAimError() - 90)) / 37);
         else setTurretAngle(0);
@@ -261,7 +261,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (220 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.3, 3) /
+            RPM = (int) (240 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.3, 3) /
                                                   (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .3) - .796)))));
         }
         setRPM(RPM);
@@ -310,14 +310,13 @@ public class Shooter {
                     break;
                 }
                 feedCount = 0;
-                shooterOff();
+                shooterOff();setTurretAngle(0);
                 break;
                 
             case TOP_GOAL:
                 if (powerShot) { newState(ShooterState.POWER_SHOT); shooterJustOn = true; break; }
                 if (shooterOnOff || topGoal) { newState(ShooterState.OFF); break; }
-                //highTower(visionAim);
-                setRPM(3200);
+                highTower(visionAim);
                 turretAim();
                 break;
                 
