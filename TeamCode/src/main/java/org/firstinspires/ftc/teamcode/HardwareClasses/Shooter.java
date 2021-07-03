@@ -23,8 +23,8 @@ public class Shooter {
     
     private static DcMotor shooterFront, shooterBack;
     private static Servo feeder, turret, feederLock;
-	
-    public static PID shooterPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
+    
+    public static PID shooterPID = new PID(.00017, 0.000035, 0.00019, 0.3, 50);
     public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 28;
@@ -261,8 +261,8 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (240 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.3, 3) /
-                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .3) - .796)))));
+            RPM = (int) (241 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.1, 3) /
+                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .1) - .796)))));
         }
         setRPM(RPM);
     }
@@ -310,7 +310,8 @@ public class Shooter {
                     break;
                 }
                 feedCount = 0;
-                shooterOff();setTurretAngle(0);
+                shooterOff();
+                setTurretAngle(0);
                 break;
                 
             case TOP_GOAL:

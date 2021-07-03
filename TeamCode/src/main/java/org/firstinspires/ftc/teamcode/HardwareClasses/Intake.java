@@ -28,7 +28,7 @@ public class Intake {
     private final static double RETRACTED = 0.32, ROLLING_RINGS = .16, GROUND_RINGS = 0.035;
     private final static double SERVO_DIFF = .025;
     
-    private final static int INTAKE_ON = 190;
+    private final static double INTAKE_ON = .8;
     private final static double INTAKE_REVERSE = .8;
     
     private final static double TICKS_PER_ROTATION = 384.5;
@@ -55,9 +55,9 @@ public class Intake {
         bumperRight = hardwareMap().get(Servo.class, "bumperright");
         bottomRoller = hardwareMap().get(CRServo.class, "bottomroller");
         
-        intakeDriveFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeDriveFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDriveFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        intakeDriveBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeDriveBack.setDirection(DcMotorSimple.Direction.REVERSE);
         bumperRight.setDirection(Servo.Direction.REVERSE);
         bottomRoller.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -138,18 +138,15 @@ public class Intake {
     public static double getPower(){ return (intakeDriveFront.getPower() + intakeDriveBack.getPower()) / 2; }
     
     
-    public static void intakeOn(){ setPower(.65); bottomRoller.setPower(1); }
+    public static void intakeOn(){ setPower(INTAKE_ON); bottomRoller.setPower(1); }
     
     public static void intakeOff(){ intakeDriveFront.setPower(0.0); intakeDriveBack.setPower(0.0); bottomRoller.setPower(0); targetRPM = 0; }
     
     public static void intakeReverse(){ intakeDriveFront.setPower(-INTAKE_REVERSE); intakeDriveBack.setPower(-INTAKE_REVERSE); bottomRoller.setPower(0); }
     
     
-    public static void intakeStallControl(){
-        intakeStallControl(INTAKE_ON);
-    }
     
-    public static void intakeStallControl(int targetRPM){
+    public static void intakeStallControl(){
         switch(currentStallState){
             case START:
                 if(stallTime.seconds() > .5) { newState(StallState.ON); }
