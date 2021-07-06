@@ -12,8 +12,8 @@ public class Dash_AutoAim {
     public static int MIN_S = 163;
     public static int MAX_S = 255;
 
-    public static int MIN_V = 88;
-    public static int MAX_V = 200;
+    public static int MIN_V = 85;
+    public static int MAX_V = 205;
     
 
     

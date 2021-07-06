@@ -28,8 +28,8 @@ public class Intake {
     private final static double RETRACTED = 0.32, ROLLING_RINGS = .16, GROUND_RINGS = 0.035;
     private final static double SERVO_DIFF = .025;
     
-    private final static double INTAKE_ON = .8;
-    private final static double INTAKE_REVERSE = .8;
+    private final static double INTAKE_ON = .7;
+    private final static double INTAKE_REVERSE = .7;
     
     private final static double TICKS_PER_ROTATION = 384.5;
     private static double intakeRPM;

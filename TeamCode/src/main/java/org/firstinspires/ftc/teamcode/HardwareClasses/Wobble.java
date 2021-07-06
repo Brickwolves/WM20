@@ -41,18 +41,18 @@ public class Wobble {
         switch (currentGripperState){
     
             case GRIP:
-                if(openClose && currentArmState != ArmState.FOLD) { newState(GripperState.OPEN); break; }
+                if(openClose && currentArmState != ArmState.FOLD) newState(GripperState.OPEN);
                 gripperGrip();
                 break;
     
             case OPEN:
-                if(openClose) { newState(GripperState.GRIP); break; }
-                if(currentArmState == ArmState.FOLD) { newState(GripperState.HALF); break; }
+                if(openClose) newState(GripperState.GRIP);
+                if(currentArmState == ArmState.FOLD) newState(GripperState.HALF);
                 gripperOpen();
                 break;
                 
             case HALF:
-                if(currentArmState != ArmState.FOLD) { newState(GripperState.OPEN); break; }
+                if(currentArmState != ArmState.FOLD) newState(GripperState.OPEN);
                 gripperHalf();
                 break;
         }
@@ -74,14 +74,14 @@ public class Wobble {
         switch(currentArmState){
                 
             case UP:
-                if(armUpDown) { newState(ArmState.DOWN); break; }
-                if(armFold) { newState(ArmState.FOLD); break; }
+                if(armUpDown) newState(ArmState.DOWN);
+                if(armFold) newState(ArmState.FOLD);
                 armUp();
                 break;
     
             case DOWN:
-                if(armUpDown) { newState(ArmState.UP); break; }
-                if(armFold) { newState(ArmState.FOLD); break; }
+                if(armUpDown) newState(ArmState.UP);
+                if(armFold) newState(ArmState.FOLD);
                 armDown();
                 break;
     
