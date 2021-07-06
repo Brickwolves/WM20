@@ -24,7 +24,7 @@ public class Shooter {
     private static DcMotor shooterFront, shooterBack;
     private static Servo feeder, turret, feederLock;
     
-    public static PID shooterPID = new PID(.00022, 0.000062, 0.00026, 0.3, 35);
+    public static PID shooterPID = new PID(.000, 0.0000, 0.000, 0.3, 50);
     public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 42;
@@ -242,7 +242,7 @@ public class Shooter {
     public static void setRPM(int targetRPM){
         Shooter.targetRPM = targetRPM;
         
-        shooterPID.setFComponent(targetRPM / 8500.0);
+        shooterPID.setFComponent(targetRPM / 5750.0);
         
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
@@ -261,7 +261,7 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (239 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.1, 3) /
+            RPM = (int) (252 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.1, 3) /
                                                   (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .1) - .796)))));
         }
         setRPM(RPM);
@@ -271,7 +271,7 @@ public class Shooter {
     public static void powerShot(){
         Shooter.targetRPM = POWER_SHOT;
     
-        shooterPID.setFComponent(targetRPM / 6666.0);
+        shooterPID.setFComponent(targetRPM / 10000.0);
     
         double shooterPower = powerShotPID.update(targetRPM - updateRPM());
     
