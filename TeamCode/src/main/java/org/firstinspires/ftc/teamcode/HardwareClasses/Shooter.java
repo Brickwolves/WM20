@@ -24,8 +24,8 @@ public class Shooter {
     private static DcMotor shooterFront, shooterBack;
     private static Servo feeder, turret, feederLock;
     
-    public static PID shooterPID = new PID(.000, 0.0000, 0.000, 0.3, 50);
-    public static PID powerShotPID = new PID(.0002, 0.000035, 0.00013, 0.3, 50);
+    public static PID shooterPID = new PID(.0001, 0.000045, 0.00003, 0.3, 50);
+    public static PID powerShotPID = new PID(.00012, 0.000045, 0.00003, 0.3, 50);
 
     private static final double TICKS_PER_ROTATION = 42;
     
@@ -38,7 +38,7 @@ public class Shooter {
     private static final double TURRET_SERVO_R = .935, TURRET_SERVO_L = .42, TURRET_SERVO_RANGE = TURRET_SERVO_R - TURRET_SERVO_L;
     private static final double TURRET_ANGLE_R = -22.5, TURRET_ANGLE_L = 39, TURRET_ANGLE_RANGE = TURRET_ANGLE_R - TURRET_ANGLE_L;
     
-    private static final int TOP_GOAL = 3550, POWER_SHOT = 2850;
+    private static final int TOP_GOAL = 3250, POWER_SHOT = 2900;
     
     private static boolean isFeederLocked;
     private static double shooterRPM, feederRPM, integralSum;
@@ -163,7 +163,7 @@ public class Shooter {
         switch (currentFeederState) {
             
             case IDLE:
-                if(getPower() > -.1 && trigger) newState(FeederState.FEED);
+                if(getPower() > .1 && getRPM() > targetRPM * .9 && trigger) newState(FeederState.FEED);
                 
                 if(feederTime.seconds() > LOCK_TIME){ lockFeeder(); isFeederLocked = true; }
                 else{ unlockFeeder(); isFeederLocked = false; }
@@ -247,7 +247,7 @@ public class Shooter {
         double shooterPower = shooterPID.update(targetRPM - updateRPM());
     
         if(getRPM() < targetRPM * .9){
-            shooterPID.setIntegralSum(targetRPM * .8);
+            shooterPID.setIntegralSum(targetRPM * .3);
         }
         
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
@@ -261,8 +261,8 @@ public class Shooter {
         if(towerDistance < 1.8 || !Sensors.frontCamera.isTowerFound() || !autoPower || !Sensors.gyro.angleRange(67.5, 127.5)){
              RPM = TOP_GOAL;
         }else {
-            RPM = (int) (252 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.1, 3) /
-                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .1) - .796)))));
+            RPM = (int) (240 * (Math.sqrt(9.8 * Math.pow(towerDistance + 0.02, 3) /
+                                                  (2.5 * degCos(verticalComponent()) * degCos(verticalComponent()) * (.9 * degTan(verticalComponent()) * (towerDistance + .02) - .796)))));
         }
         setRPM(RPM);
     }
@@ -271,12 +271,12 @@ public class Shooter {
     public static void powerShot(){
         Shooter.targetRPM = POWER_SHOT;
     
-        shooterPID.setFComponent(targetRPM / 10000.0);
+        powerShotPID.setFComponent(targetRPM / 5750.0);
     
         double shooterPower = powerShotPID.update(targetRPM - updateRPM());
     
         if(getRPM() < targetRPM * .9){
-            powerShotPID.setIntegralSum(targetRPM * .8);
+            powerShotPID.setIntegralSum(targetRPM * .3);
         }
     
         shooterPower = Range.clip(shooterPower,0.0, 1.0);
