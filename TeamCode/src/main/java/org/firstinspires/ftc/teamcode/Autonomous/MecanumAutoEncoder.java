@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
+import org.firstinspires.ftc.teamcode.HardwareClasses.BadController;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.Utils;
 
@@ -16,7 +16,7 @@ public class MecanumAutoEncoder extends LinearOpMode {
     private IMU imu;
     private Servo gripper;
     private Servo arm;
-    private Controller controller;
+    private BadController controller;
 
     private double armPos;
 
@@ -32,7 +32,7 @@ public class MecanumAutoEncoder extends LinearOpMode {
 
         gripper = hardwareMap.get(Servo.class, "gripper");
         arm = hardwareMap.get(Servo.class, "arm");
-        controller = new Controller(gamepad1);
+        controller = new BadController(gamepad1);
 
         // IMU (Inertial Measurement Unit)
         Utils.setHardwareMap(hardwareMap);

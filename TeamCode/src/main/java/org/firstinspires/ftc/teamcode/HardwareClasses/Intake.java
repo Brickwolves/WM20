@@ -1,119 +1,110 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
+
+import org.firstinspires.ftc.utilities.PID;
 import org.firstinspires.ftc.utilities.RingBufferOwen;
 
 public class Intake {
     
-    private DcMotor intakeDrive;
-    public Servo bumperLeft, bumperRight;
+    public static DcMotor intakeDriveFront, intakeDriveBack;
+    private static Servo bumperLeft, bumperRight;
+    private static CRServo bottomRoller;
     
-    private final static double RETRACTED = 0.38, ZERO_RING = 0.015, ONE_RING = 0.11, TWO_RING = 0.03, THREE_RING = 0.14, FOUR_RING = 0.25;
-    private final static double SERVO_DIFF = .09;
     
-    private final static double INTAKE_ON = .87, INTAKE_REVERSE = .75;
+    public static PID intakePID = new PID(.0012, 0.000, 0.000, 0, 50);
     
-    private final static double TICKS_PER_ROTATION = 28;
-    private double intakeRPM;
+    private final static double RETRACTED = 0.32, ROLLING_RINGS = .16, GROUND_RINGS = 0.04;
+    private final static double SERVO_DIFF = .025;
+    
+    private final static double INTAKE_ON = .7;
+    private final static double INTAKE_REVERSE = .7;
+    
+    private final static double TICKS_PER_ROTATION = 384.5;
+    private static double intakeRPM;
+    public static double targetRPM;
     
     public static double bumperPosition;
     
-    private static ElapsedTime stallTime = new ElapsedTime();
+    private static final ElapsedTime stallTime = new ElapsedTime();
     public static ElapsedTime bumperTime = new ElapsedTime();
     
-    RingBufferOwen positionRing = new RingBufferOwen(5);
-    RingBufferOwen timeRing = new RingBufferOwen(5);
+    static RingBufferOwen positionRing = new RingBufferOwen(3);
+    static RingBufferOwen timeRing = new RingBufferOwen(3);
     
-    public static IntakeState currentIntakeState = IntakeState.OFF;
-    public static IntakeState previousIntakeState = IntakeState.OFF;
-    private StallState currentStallState = StallState.START;
-    public static BumperState currentBumperState = BumperState.RETRACT;
+    public static IntakeState currentIntakeState;
+    private static StallState currentStallState;
+    public static BumperState currentBumperState;
     
     
-    public Intake(DcMotor intakeDrive, Servo bumperLeft, Servo bumperRight){
-        intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+    public static void init(){
+        intakeDriveFront = hardwareMap().get(DcMotor.class, "intakefront");
+        intakeDriveBack = hardwareMap().get(DcMotor.class, "intakeback");
+        bumperLeft = hardwareMap().get(Servo.class, "bumperleft");
+        bumperRight = hardwareMap().get(Servo.class, "bumperright");
+        bottomRoller = hardwareMap().get(CRServo.class, "bottomroller");
         
+        intakeDriveFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeDriveFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeDriveBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeDriveBack.setDirection(DcMotorSimple.Direction.REVERSE);
         bumperRight.setDirection(Servo.Direction.REVERSE);
-        this.intakeDrive = intakeDrive;
-        this.bumperLeft = bumperLeft;
-        this.bumperRight = bumperRight;
+        bottomRoller.setDirection(DcMotorSimple.Direction.REVERSE);
+    
+        currentIntakeState = IntakeState.OFF;
+        currentStallState = StallState.START;
+        currentBumperState = BumperState.GROUND;
     }
     
     
-    public Intake(HardwareMap hardwareMap){
-        bumperLeft = hardwareMap.get(Servo.class, "bumperleft");
-        bumperRight = hardwareMap.get(Servo.class, "bumperright");
-        DcMotor intakeDrive = hardwareMap.get(DcMotor.class, "intake");
-        
-        intakeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        bumperRight.setDirection(Servo.Direction.REVERSE);
-    }
+    public static void setBumperPosition(double position){ bumperPosition = position; bumperLeft.setPosition(position); bumperRight.setPosition(position - SERVO_DIFF); }
+    
+    public static void bumperRetract(){ bumperPosition = RETRACTED; setBumperPosition(RETRACTED); }
+    
+    public static void bumperRollingRings(){ bumperPosition = ROLLING_RINGS; setBumperPosition(ROLLING_RINGS); }
+    
+    public static void bumperGroundRings(){ bumperPosition = GROUND_RINGS; setBumperPosition(GROUND_RINGS); }
     
     
-    public void setBumperPosition(double position){ bumperPosition = position; bumperLeft.setPosition(position); bumperRight.setPosition(position - SERVO_DIFF); }
-    
-    public void retractBumper(){ bumperPosition = RETRACTED; setBumperPosition(RETRACTED); }
-    
-    public void setBumperThreshold(int ringThreshold){
-        switch (ringThreshold){
-            case 0:
-                setBumperPosition(ZERO_RING);
-                break;
-    
-            case 1:
-                setBumperPosition(ONE_RING);
-                break;
-    
-            case 2:
-                setBumperPosition(TWO_RING);
-                break;
-    
-            case 3:
-                setBumperPosition(THREE_RING);
-                break;
-    
-            case 4:
-                setBumperPosition(FOUR_RING);
-                break;
-        }
-        
-    }
-    
-    public void bumperState(boolean deployToggle, boolean rollingRings){
+    public static void bumperState(boolean deployToggle, boolean rollingRings){
         switch (currentBumperState) {
             
             case RETRACT:
-                if (deployToggle) { newState(BumperState.DEPLOY); break; }
+                if (deployToggle) { newState(BumperState.GROUND); break; }
                 if (rollingRings) { newState(BumperState.ROLLING); break; }
-                retractBumper();
+                bumperRetract();
                 break;
             
-            case DEPLOY:
+            case GROUND:
                 if (deployToggle) { newState(BumperState.RETRACT); newState(IntakeState.OFF); break; }
                 if (rollingRings) { newState(BumperState.ROLLING); break; }
-                setBumperThreshold(1);
+                bumperGroundRings();
                 break;
     
             case ROLLING:
-                if (!rollingRings) { newState(BumperState.DEPLOY); break; }
-                setBumperThreshold(4);
+                if (!rollingRings) { newState(BumperState.GROUND); break; }
+                bumperRollingRings();
                 break;
         }
     }
     
-    public double updateRPM(){
-        long currentTime = System.currentTimeMillis();
+    public static double updateRPM(){
+        long currentTime = Sensors.currentTimeMillis();
         long deltaMili = currentTime - timeRing.getValue(currentTime);
         double deltaMinutes = deltaMili / 60000.0;
     
-        long currentPosition = intakeDrive.getCurrentPosition();
+        long currentPosition = intakeDriveFront.getCurrentPosition();
         long deltaTicks = currentPosition - positionRing.getValue(currentPosition);
         double deltaRotations = deltaTicks / TICKS_PER_ROTATION;
     
@@ -122,50 +113,73 @@ public class Intake {
         return intakeRPM;
     }
     
-    public double getRPM(){
+    public static double getRPM(){
         return intakeRPM;
     }
     
-    public void intakeOn(){ intakeDrive.setPower(INTAKE_ON); }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static void setRPM(int targetRPM){
+        Intake.targetRPM = targetRPM;
+        
+        intakePID.setFComponent(targetRPM / 360.0);
+        
+        double intakePower = intakePID.update(targetRPM - updateRPM());
+        
+        if(getRPM() < targetRPM * .9){
+            intakePID.setIntegralSum(targetRPM * .8);
+        }
+        
+        intakePower = Range.clip(intakePower,0.0, 1.0);
+        setPower(intakePower);
+    }
     
-    public void intakeStallControl(){
+    public static void setPower(double power){ intakeDriveFront.setPower(power); intakeDriveBack.setPower(power); }
+    
+    public static double getPower(){ return (intakeDriveFront.getPower() + intakeDriveBack.getPower()) / 2; }
+    
+    
+    public static void intakeOn(){ setPower(INTAKE_ON); bottomRoller.setPower(1); }
+    
+    public static void intakeOff(){ intakeDriveFront.setPower(0.0); intakeDriveBack.setPower(0.0); bottomRoller.setPower(0); targetRPM = 0; }
+    
+    public static void intakeReverse(){ intakeDriveFront.setPower(-INTAKE_REVERSE); intakeDriveBack.setPower(-INTAKE_REVERSE); bottomRoller.setPower(0); }
+    
+    
+    
+    public static void intakeStallControl(){
         switch(currentStallState){
             case START:
-                if(stallTime.seconds() > .5) newState(StallState.ON);
+                if(stallTime.seconds() > .5) { newState(StallState.ON); }
                 intakeOn();
                 break;
             
             case ON:
-                if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
-                if(updateRPM() < 300 && stallTime.seconds() > .2) newState(StallState.REVERSE);
+                if(intakeDriveFront.getPower() < .1 && intakeDriveFront.getPower() > -.1) { newState(StallState.START); break; }
+                if(updateRPM() < 55 && stallTime.seconds() > .3) newState(StallState.REVERSE);
                 intakeOn();
                 break;
-                
+            
             case REVERSE:
-                if(intakeDrive.getPower() < .2 && intakeDrive.getPower() > -.2) { newState(StallState.START); break; }
-                if(stallTime.seconds() > .2) newState(StallState.ON);
+                if(intakeDriveFront.getPower() < .1 && intakeDriveFront.getPower() > -.1) { newState(StallState.START); break; }
+                if(stallTime.seconds() > .4) newState(StallState.ON);
                 intakeReverse();
                 break;
         }
     }
     
-    public void intakeOff(){ intakeDrive.setPower(0.0); }
-    
-    public void intakeReverse(){ intakeDrive.setPower(-INTAKE_REVERSE); }
-    
-    public void intakeState(boolean intakeOnOff, boolean intakeReverse, boolean intakeHoldOn){
+    public static void intakeState(boolean intakeOnOff, boolean intakeReverse, boolean intakeHoldOn){
         switch (currentIntakeState) {
             
             case OFF:
                 if (intakeOnOff) {
                     newState(IntakeState.ON);
-                    if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY);
-                    if(Shooter.currentShooterState != Shooter.ShooterState.OFF) Shooter.newState(Shooter.ShooterState.OFF);
+                    Shooter.newState(Shooter.ShooterState.OFF);
+                    if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND);
                     break;
                 }
                 
-                if(intakeHoldOn) { intakeStallControl(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY); }
-                else if(intakeReverse) { intakeReverse(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.DEPLOY); }
+                if(intakeHoldOn) { intakeStallControl(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND); }
+                else if(intakeReverse)  intakeReverse();
                 else intakeOff();
                 break;
             
@@ -173,7 +187,7 @@ public class Intake {
             case ON:
                 if (intakeReverse) { intakeReverse(); break; }
                 if (intakeOnOff) { newState(IntakeState.OFF); break; }
-                intakeStallControl();
+                intakeOn();
                 break;
         }
     }
@@ -183,11 +197,10 @@ public class Intake {
     
     public static void newState(IntakeState newState) {
         stallTime.reset();
-        previousIntakeState = currentIntakeState;
         currentIntakeState = newState;
     }
     
-    private void newState(StallState newState) {
+    private static void newState(StallState newState) {
         stallTime.reset();
         currentStallState = newState;
     }
@@ -197,21 +210,16 @@ public class Intake {
         currentBumperState = newState;
     }
     
-    public static enum IntakeState {
-        OFF,
-        ON,
+    public enum IntakeState {
+        OFF, ON
     }
     
     private enum StallState {
-        ON,
-        REVERSE,
-        START
+        ON, REVERSE, START
     }
     
-    public static enum BumperState {
-        RETRACT,
-        DEPLOY,
-        ROLLING
+    public enum BumperState {
+        RETRACT, GROUND, ROLLING
     }
     
 }

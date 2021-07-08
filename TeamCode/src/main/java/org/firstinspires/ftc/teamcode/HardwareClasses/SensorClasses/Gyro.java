@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.MathUtils;
 import org.firstinspires.ftc.utilities.RingBuffer;
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Gyro {
 
@@ -16,14 +17,21 @@ public class Gyro {
     private final RingBuffer<Double> angleRing = new RingBuffer<>(4,0.0);
     private final RingBuffer<Long> angleTimeRing = new RingBuffer<>(4, (long)0);
     
+    
+    
     private double imuAngle = 0;
     private double rawAngle = 0;
     private double modAngle = 0;
     private double rateOfChange = 0;
+    private double rateOfChangeShort = 0;
+    
+    public Gyro(){
+    
+    }
+    
 
-    public Gyro(IMU imu, double datum) {
-        this.imu = imu;
-        this.datum = datum;
+    public void init() {
+        imu = new IMU("imu");
     }
     
     public void update(){
@@ -35,10 +43,12 @@ public class Gyro {
         long deltaMili = currentTime - angleTimeRing.getValue(currentTime);
         double deltaSeconds = deltaMili / 1000.0;
     
-        double currentAngle = Sensors.gyro.getRawAngle();
+        double currentAngle = Sensors.gyro.rawAngle();
         double deltaAngle = currentAngle - angleRing.getValue(currentAngle);
         
+        
         rateOfChange = deltaAngle/deltaSeconds;
+        
     }
 
     public void setImu(IMU imu) {
@@ -51,15 +61,15 @@ public class Gyro {
     
     public void reset() { datum = imu.getAngle(); }
 
-    public double getRawAngle() {
+    public double rawAngle() {
         return rawAngle;
     }
     
-    public double getIMUAngle() {
+    public double IMUAngle() {
         return imuAngle;
     }
 
-    public double getModAngle() {
+    public double modAngle() {
         return modAngle;
     }
     
@@ -73,6 +83,10 @@ public class Gyro {
     
     public double rateOfChange(){
         return rateOfChange;
+    }
+    
+    public double rateOfChangeShort(){
+        return rateOfChangeShort;
     }
 
     //TODO Make this work with more accuracy. Curse you, floorMod(int)!

@@ -6,7 +6,7 @@ public class Utils {
 
     private static HardwareMap hardwareMap;
 
-    public static HardwareMap getHardwareMap(){
+    public static HardwareMap hardwareMap(){
         return hardwareMap;
     }
 

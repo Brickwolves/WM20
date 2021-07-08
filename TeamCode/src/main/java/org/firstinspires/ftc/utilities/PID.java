@@ -16,7 +16,7 @@ public class PID {
     private double derivative;
     private double fComponent;
     private double result = 0;
-    private double integralSum = 0;
+    public double integralSum = 0;
     private int integralLength;
 
     private RingBuffer <Double> integralBuffer;

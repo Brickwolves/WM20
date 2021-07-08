@@ -6,14 +6,14 @@ import com.acmerobotics.dashboard.config.Config;
 public class Dash_AutoAim {
 
     // GOAL FINDER
-    public static int MIN_H = 100;
-    public static int MAX_H = 120;
+    public static int MIN_H = 98;
+    public static int MAX_H = 122;
 
-    public static int MIN_S = 165;
+    public static int MIN_S = 163;
     public static int MAX_S = 255;
 
-    public static int MIN_V = 90;
-    public static int MAX_V = 200;
+    public static int MIN_V = 85;
+    public static int MAX_V = 205;
     
 
     

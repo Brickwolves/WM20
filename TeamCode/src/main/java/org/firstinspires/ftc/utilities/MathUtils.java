@@ -13,9 +13,11 @@ public class MathUtils {
         return (outputRange / (1 + Math.pow(range, -rawNumber))) - outputRange / 2;
     }
 
-    public static double degsToRads(Double degs){
-        return degs * (Math.PI / 180);
+    public static double degsToRads(Double theta){
+        return theta * (Math.PI / 180);
     }
+    
+    public static double radsToDegs(Double theta){ return theta * (180 / Math.PI); }
     
     
     public static double degSin(double theta){ return Math.sin(degsToRads(theta)); }
@@ -24,7 +26,9 @@ public class MathUtils {
     
     public static double degTan(double theta){ return Math.tan(degsToRads(theta)); }
     
-    public static double degATan(double opposite, double adjacent){ return degsToRads(Math.atan2(opposite, adjacent)); }
+    public static double degASin(double sin){ return radsToDegs(Math.asin(sin)); }
+    
+    public static double degATan(double opposite, double adjacent){ return radsToDegs(Math.atan2(opposite, adjacent)); }
 
 
     public static double mod(double value, int base){

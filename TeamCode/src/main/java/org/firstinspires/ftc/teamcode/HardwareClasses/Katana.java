@@ -1,51 +1,46 @@
+/*
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Shooter.ShooterState;
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Katana {
 	
 	private static final double DOWN = 0, UP = 0.4, FULL_FOLD = 1, HALF_FOLD = .86, SHOOT = 0.7;
 	
-	Servo katanaRight, katanaLeft;
+	private static Servo katanaRight, katanaLeft;
 	
-	public static KatanaState currentKatanaState = KatanaState.DOWN;
+	public static KatanaState currentKatanaState;
 	
-	public Katana(Servo katanaRight, Servo katanaLeft){
-		katanaLeft.scaleRange(.55, .95);
-		katanaRight.scaleRange(.28, .68);
-		katanaLeft.setDirection(Servo.Direction.REVERSE);
-		
-		this.katanaRight = katanaRight;
-		this.katanaLeft = katanaLeft;
-	}
 	
-	public Katana(HardwareMap hardwareMap){
-		katanaRight = hardwareMap.get(Servo.class, "katanaright");
-		katanaLeft = hardwareMap.get(Servo.class, "katanaleft");
+	public static void init(){
+		katanaRight = hardwareMap().get(Servo.class, "katanaright");
+		katanaLeft = hardwareMap().get(Servo.class, "katanaleft");
 		
 		katanaLeft.scaleRange(.55, .95);
 		katanaRight.scaleRange(.28, .68);
 		katanaLeft.setDirection(Servo.Direction.REVERSE);
+		
+		currentKatanaState = KatanaState.DOWN;
 	}
 	
 	
-	public void setKatanaPosition(double position){ katanaLeft.setPosition(position); katanaRight.setPosition(position); }
+	public static void setKatanaPosition(double position){ katanaLeft.setPosition(position); katanaRight.setPosition(position); }
 	
-	public void katanaDown(){ setKatanaPosition(DOWN); }
+	public static void katanaDown(){ setKatanaPosition(DOWN); }
 	
-	public void katanaUp(){ setKatanaPosition(UP); }
+	public static void katanaUp(){ setKatanaPosition(UP); }
 	
-	public void katanaShoot(){ setKatanaPosition(SHOOT); }
+	public static void katanaShoot(){ setKatanaPosition(SHOOT); }
 	
-	public void katanaFullFold(){ setKatanaPosition(FULL_FOLD); }
+	public static void katanaFullFold(){ setKatanaPosition(FULL_FOLD); }
 	
-	public void katanaHalfFold(){ setKatanaPosition(HALF_FOLD); }
+	public static void katanaHalfFold(){ setKatanaPosition(HALF_FOLD); }
 	
-	public void katanaAutoState(){
-		if (Shooter.targetRPM != 0) {
+	public static void katanaAutoState(){
+		if (Shooter.getPower() != 0) {
 			katanaShoot();
 		} else if (Intake.bumperPosition >= .3) {
 			katanaHalfFold();
@@ -54,14 +49,16 @@ public class Katana {
 		}
 	}
 	
-	public void katanaState(boolean foldToggle, boolean forceDown){
-		if(forceDown) {
-			katanaDown();
+	public static void katanaState(boolean foldToggle){ katanaState(foldToggle, false); }
+	
+	public static void katanaState(boolean foldToggle, boolean holdUp){
+		if(holdUp) {
+			katanaUp();
 				
 		}else if(foldToggle || !Sensors.gyro.angleRange(58, 122)) {
 			if (Shooter.currentShooterState != ShooterState.OFF) {
 				katanaShoot();
-			} else if (Intake.currentBumperState == Intake.BumperState.RETRACT && Intake.bumperTime.seconds() > .2) {
+			} else if (Intake.currentFabricState == Intake.FabricState.RETRACT && Intake.bumperTime.seconds() > .2) {
 				katanaHalfFold();
 			} else if (Intake.bumperTime.seconds() > .15){
 				katanaFullFold();
@@ -87,7 +84,7 @@ public class Katana {
 	}
 	
 	
-	public static enum KatanaState{
+	public enum KatanaState{
 		DOWN,
 		UP
 	}
@@ -96,3 +93,4 @@ public class Katana {
 		currentKatanaState = newKatanaState;
 	}
 }
+*/

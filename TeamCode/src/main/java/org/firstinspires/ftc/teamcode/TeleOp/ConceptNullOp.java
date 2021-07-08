@@ -32,45 +32,99 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-/**
- * Demonstrates empty OpMode
- */
-@TeleOp(name = "Concept: NullOp", group = "Concept")
-@Disabled
+import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
+import org.firstinspires.ftc.utilities.Utils;
+
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
+
+
+
+@TeleOp(name = "Oliver Evan TeleOp", group = "TeleOp")
+//Disabled
 public class ConceptNullOp extends OpMode {
 
-  private ElapsedTime runtime = new ElapsedTime();
+  DcMotor frontLeft, frontRight, backLeft, backRight;
+  Controller driver;
+  static Gyro gyro = new Gyro();
 
   @Override
   public void init() {
-    telemetry.addData("Status", "Initialized");
+    Utils.setHardwareMap(hardwareMap);
+    
+    frontLeft = hardwareMap.get(DcMotor.class, "frontleft");
+    frontRight = hardwareMap.get(DcMotor.class, "frontright");
+    backLeft = hardwareMap.get(DcMotor.class, "backleft");
+    backRight = hardwareMap.get(DcMotor.class, "backright");
+  
+    driver = new Controller(gamepad1);
+  
+    frontRight.setDirection(DcMotor.Direction.FORWARD);
+    frontLeft.setDirection(DcMotor.Direction.REVERSE);
+    backRight.setDirection(DcMotor.Direction.FORWARD);
+    backLeft.setDirection(DcMotor.Direction.REVERSE);
+  
+    frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    
+    gyro.init();
+    
   }
-
-  /*
-     * Code to run when the op mode is first enabled goes here
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
-     */
+  
+  
   @Override
   public void init_loop() {
   }
 
-  /*
-   * This method will be called ONCE when start is pressed
-   * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#loop()
-   */
+  
+  
   @Override
   public void start() {
-    runtime.reset();
+    gyro.reset();
   }
 
-  /*
-   * This method will be called repeatedly in a loop
-   * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#loop()
-   */
+  
+  
   @Override
   public void loop() {
-    telemetry.addData("Status", "Run Time: " + runtime.toString());
+    driver.update();
+    gyro.update();
+    driver.rightStick.setShift(gyro.modAngle());
+    
+    double drive = driver.rightStick.shiftedY();
+    double strafe = driver.rightStick.shiftedX();
+    double turn = driver.leftStick.X();
+    
+    if(gamepad1.right_trigger > .4) {
+       drive /= 2.5;
+       strafe /= 2.5;
+       turn /= 2.5;
+    }
+  
+    drive = Range.clip(drive, -1, 1);
+    strafe = Range.clip(strafe, -1, 1);
+    turn = Range.clip(turn, -1, 1);
+  
+    double flPower = drive - strafe - turn;
+    double frPower = drive + strafe + turn;
+    double blPower = drive + strafe - turn;
+    double brPower = drive - strafe + turn;
+  
+    double maxPower = abs(max(max(abs(flPower), abs(frPower)), max(abs(blPower), abs(brPower))));
+    if(maxPower > 1) { frPower /= maxPower; flPower /= maxPower; blPower /= maxPower; brPower /= maxPower; }
+    else if(maxPower < .05 && maxPower > -.05) { flPower = 0; frPower = 0; blPower = 0; brPower = 0; }
+  
+    frontLeft.setPower(flPower);
+    frontRight.setPower(frPower);
+    backLeft.setPower(blPower);
+    backRight.setPower(brPower);
+    
   }
 }
