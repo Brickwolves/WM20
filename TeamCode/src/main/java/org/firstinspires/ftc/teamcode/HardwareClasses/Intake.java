@@ -18,7 +18,7 @@ import org.firstinspires.ftc.utilities.RingBufferOwen;
 
 public class Intake {
     
-    private static DcMotor intakeDriveFront, intakeDriveBack;
+    public static DcMotor intakeDriveFront, intakeDriveBack;
     private static Servo bumperLeft, bumperRight;
     private static CRServo bottomRoller;
     

@@ -67,9 +67,11 @@ public class Shooter {
         feeder = hardwareMap().get(Servo.class, "feeder");
         feederLock = hardwareMap().get(Servo.class, "feederlock");
         turret = hardwareMap().get(Servo.class, "turret");
+    
         
         shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        
     
         currentFeederState = FeederState.IDLE;
         currentShooterState = ShooterState.OFF;
