@@ -32,85 +32,75 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Robot;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Gyro;
+import org.firstinspires.ftc.utilities.Utils;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
-import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
-/**
- * Demonstrates empty OpMode
- */
-@TeleOp(name = "Concept: NullOp", group = "Concept")
+
+
+@TeleOp(name = "Oliver Evan TeleOp", group = "TeleOp")
 //Disabled
 public class ConceptNullOp extends OpMode {
 
-  DcMotor frontLeft, frontRight, backLeft, backRight, intakeFront, intakeBack;
-  CRServo bottomRoller;
+  DcMotor frontLeft, frontRight, backLeft, backRight;
   Controller driver;
+  static Gyro gyro = new Gyro();
 
   @Override
   public void init() {
-    frontLeft = hardwareMap.get(DcMotor.class, "front_left");
-    frontRight = hardwareMap.get(DcMotor.class, "front_right");
-    backLeft = hardwareMap.get(DcMotor.class, "back_left");
-    backRight = hardwareMap.get(DcMotor.class, "back_right");
-    intakeFront = hardwareMap.get(DcMotor.class, "intakefront");
-    intakeBack = hardwareMap.get(DcMotor.class, "intakeback");
-    bottomRoller = hardwareMap.get(CRServo.class, "bottomroller");
+    Utils.setHardwareMap(hardwareMap);
+    
+    frontLeft = hardwareMap.get(DcMotor.class, "frontleft");
+    frontRight = hardwareMap.get(DcMotor.class, "frontright");
+    backLeft = hardwareMap.get(DcMotor.class, "backleft");
+    backRight = hardwareMap.get(DcMotor.class, "backright");
   
     driver = new Controller(gamepad1);
   
-    frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-    frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-    backRight.setDirection(DcMotorSimple.Direction.FORWARD);
-    backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-    intakeFront.setDirection(DcMotorSimple.Direction.REVERSE);
-    intakeBack.setDirection(DcMotorSimple.Direction.REVERSE);
-    bottomRoller.setDirection(DcMotorSimple.Direction.REVERSE);
+    frontRight.setDirection(DcMotor.Direction.FORWARD);
+    frontLeft.setDirection(DcMotor.Direction.REVERSE);
+    backRight.setDirection(DcMotor.Direction.FORWARD);
+    backLeft.setDirection(DcMotor.Direction.REVERSE);
   
     frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     
+    gyro.init();
+    
   }
-
-  /*
-     * Code to run when the op mode is first enabled goes here
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
-     */
+  
+  
   @Override
   public void init_loop() {
   }
 
-  /*
-   * This method will be called ONCE when start is pressed
-   * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#loop()
-   */
+  
+  
   @Override
   public void start() {
-  
+    gyro.reset();
   }
 
-  /*
-   * This method will be called repeatedly in a loop
-   * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#loop()
-   */
+  
+  
   @Override
   public void loop() {
     driver.update();
+    gyro.update();
+    driver.rightStick.setShift(gyro.modAngle());
     
-    double drive = gamepad1.right_stick_y * -1;
-    double strafe = gamepad1.right_stick_x * -1;
-    double turn = gamepad1.left_stick_x * -1;
+    double drive = driver.rightStick.shiftedY();
+    double strafe = driver.rightStick.shiftedX();
+    double turn = driver.leftStick.X();
     
     if(gamepad1.right_trigger > .4) {
        drive /= 2.5;
@@ -135,16 +125,6 @@ public class ConceptNullOp extends OpMode {
     frontRight.setPower(frPower);
     backLeft.setPower(blPower);
     backRight.setPower(brPower);
-    
-    if(driver.cross.toggle()){
-      intakeBack.setPower(1);
-      intakeBack.setPower(1);
-      bottomRoller.setPower(1);
-    }else{
-      intakeBack.setPower(0);
-      intakeBack.setPower(0);
-      bottomRoller.setPower(0);
-    }
     
   }
 }

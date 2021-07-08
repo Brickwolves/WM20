@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.firstinspires.ftc.utilities.IMU;
 import org.firstinspires.ftc.utilities.MathUtils;
 import org.firstinspires.ftc.utilities.RingBuffer;
+import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Gyro {
 
@@ -23,10 +24,14 @@ public class Gyro {
     private double modAngle = 0;
     private double rateOfChange = 0;
     private double rateOfChangeShort = 0;
+    
+    public Gyro(){
+    
+    }
+    
 
-    public Gyro(IMU imu, double datum) {
-        this.imu = imu;
-        this.datum = datum;
+    public void init() {
+        imu = new IMU("imu");
     }
     
     public void update(){

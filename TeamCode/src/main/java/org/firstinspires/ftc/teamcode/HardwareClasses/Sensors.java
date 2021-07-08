@@ -19,10 +19,9 @@ import static org.firstinspires.ftc.utilities.Utils.hardwareMap;
 
 public class Sensors {
 	
-	
-	public static Gyro gyro;
+	public static Gyro gyro = new Gyro();
 	public static Camera frontCamera, backCamera;
-	public static REVColorSensor hopperColor;
+	//public static REVColorSensor hopperColor;
 	private static long currentTimeMillis;
 	
 	
@@ -35,7 +34,6 @@ public class Sensors {
 	
 	
 	public static void init(){
-		IMU imu = new IMU("imu");
 		
 		int cameraMonitorViewId = hardwareMap().appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap().appContext.getPackageName());
 		
@@ -47,7 +45,7 @@ public class Sensors {
 		
 		//ColorSensor hopperColorSensor = hardwareMap().get(ColorSensor.class, "hoppercolor");
 		
-		gyro = new Gyro(imu, 0);
+		gyro.init();
 		frontCamera = new Camera(frontWebcam);
 		backCamera = new Camera(backWebcam);
 		//hopperColor = new REVColorSensor(hopperColorSensor);
