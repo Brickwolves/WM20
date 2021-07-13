@@ -32,8 +32,10 @@ public class Sensors {
 	static RingBufferOwen blRing = new RingBufferOwen(3);
 	private static double frRPM, flRPM, brRPM, blRPM;
 	
+	public static Alliance alliance;
 	
-	public static void init(){
+	
+	public static void init(Alliance alliance){
 		
 		int cameraMonitorViewId = hardwareMap().appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap().appContext.getPackageName());
 		
@@ -45,7 +47,8 @@ public class Sensors {
 		
 		//ColorSensor hopperColorSensor = hardwareMap().get(ColorSensor.class, "hoppercolor");
 		
-		gyro.init();
+		Sensors.alliance = alliance;
+		gyro.init(alliance);
 		frontCamera = new Camera(frontWebcam);
 		backCamera = new Camera(backWebcam);
 		//hopperColor = new REVColorSensor(hopperColorSensor);
@@ -107,6 +110,12 @@ public class Sensors {
 	/*public static boolean isRingLoaded(){
 		return hopperColor.red() > 3000;
 	}*/
+	
+	
+	public enum Alliance{
+		BLUE,
+		RED
+	}
 	
 	
 }

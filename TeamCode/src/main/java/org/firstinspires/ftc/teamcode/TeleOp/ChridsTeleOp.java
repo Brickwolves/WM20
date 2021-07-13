@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Controller;
@@ -44,10 +43,9 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
 
-
-@TeleOp(name = "Oliver Evan TeleOp", group = "TeleOp")
-//Disabled
-public class ConceptNullOp extends OpMode {
+@TeleOp(name = "Chrids TeleOp", group = "TeleOp")
+@Disabled
+public class ChridsTeleOp extends OpMode {
 
   DcMotor frontLeft, frontRight, backLeft, backRight;
   Controller driver;
@@ -64,10 +62,10 @@ public class ConceptNullOp extends OpMode {
   
     driver = new Controller(gamepad1);
   
-    frontRight.setDirection(DcMotor.Direction.FORWARD);
-    frontLeft.setDirection(DcMotor.Direction.REVERSE);
-    backRight.setDirection(DcMotor.Direction.FORWARD);
-    backLeft.setDirection(DcMotor.Direction.REVERSE);
+    frontRight.setDirection(DcMotor.Direction.REVERSE);
+    frontLeft.setDirection(DcMotor.Direction.FORWARD);
+    backRight.setDirection(DcMotor.Direction.REVERSE);
+    backLeft.setDirection(DcMotor.Direction.FORWARD);
   
     frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -98,33 +96,29 @@ public class ConceptNullOp extends OpMode {
     gyro.update();
     driver.rightStick.setShift(gyro.modAngle());
     
-    double drive = driver.rightStick.shiftedY();
-    double strafe = driver.rightStick.shiftedX();
+    double drive = driver.rightStick.Y();
     double turn = driver.leftStick.X();
     
     if(gamepad1.right_trigger > .4) {
        drive /= 2.5;
-       strafe /= 2.5;
        turn /= 2.5;
     }
   
     drive = Range.clip(drive, -1, 1);
-    strafe = Range.clip(strafe, -1, 1);
     turn = Range.clip(turn, -1, 1);
   
-    double flPower = drive - strafe - turn;
-    double frPower = drive + strafe + turn;
-    double blPower = drive + strafe - turn;
-    double brPower = drive - strafe + turn;
+    double leftPower = drive - turn;
+    double rightPower = drive + turn;
+    
   
-    double maxPower = abs(max(max(abs(flPower), abs(frPower)), max(abs(blPower), abs(brPower))));
-    if(maxPower > 1) { frPower /= maxPower; flPower /= maxPower; blPower /= maxPower; brPower /= maxPower; }
-    else if(maxPower < .05 && maxPower > -.05) { flPower = 0; frPower = 0; blPower = 0; brPower = 0; }
+    double maxPower = abs(max(abs(leftPower), abs(rightPower)));
+    if(maxPower > 1) { leftPower /= maxPower; rightPower /= maxPower; }
+    else if(maxPower < .05 && maxPower > -.05) { leftPower = 0; rightPower = 0; }
   
-    frontLeft.setPower(flPower);
-    frontRight.setPower(frPower);
-    backLeft.setPower(blPower);
-    backRight.setPower(brPower);
+    frontLeft.setPower(leftPower);
+    frontRight.setPower(rightPower);
+    backLeft.setPower(leftPower);
+    backRight.setPower(rightPower);
     
   }
 }

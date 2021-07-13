@@ -17,19 +17,19 @@ import static java.lang.StrictMath.PI;
 import static java.lang.StrictMath.abs;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_HEIGHT;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.IMG_WIDTH;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_CENTER_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_LEFT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_RIGHT_DIST;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.SHOOTER_OFFSET_DISTANCE;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.findNLargestContours;
-import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.pixels2Degrees;
 import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.getDistance2Tower;
+import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.pixels2Degrees;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_H;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_S;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MAX_V;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_H;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_S;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.MIN_V;
-import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_LEFT_DIST;
-import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_CENTER_DIST;
-import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.PS_RIGHT_DIST;
-import static org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.VisionUtils.SHOOTER_OFFSET_DISTANCE;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.blur;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.dilate_const;
 import static org.firstinspires.ftc.utilities.Dash_AutoAim.erode_const;
@@ -51,7 +51,7 @@ import static org.opencv.imgproc.Imgproc.line;
 import static org.opencv.imgproc.Imgproc.putText;
 import static org.opencv.imgproc.Imgproc.rectangle;
 
-public class AutoAimPipeline extends OpenCvPipeline {
+public class RedAimPipeline extends OpenCvPipeline {
     private boolean viewportPaused;
 
 
@@ -196,7 +196,7 @@ public class AutoAimPipeline extends OpenCvPipeline {
         return degATan(SHOOTER_OFFSET_DISTANCE, goalDistance);
     }
 
-    public double getDegreeError(){
+    public double towerDegreeError(){
         return degreeError * .8;
     }
     
@@ -205,13 +205,13 @@ public class AutoAimPipeline extends OpenCvPipeline {
         double xDistance = goalDistance * Math.sin((Sensors.gyro.modAngle() + degreeError - 90) * (PI / 180));
         double dDistance;
         switch (powerShot) {
-            case PS_LEFT:
+            case LEFT:
                 dDistance = xDistance - PS_LEFT_DIST;
                 break;
-            case PS_CENTER:
+            case CENTER:
                 dDistance = xDistance - PS_CENTER_DIST;
                 break;
-            case PS_RIGHT:
+            case RIGHT:
                 dDistance = xDistance - PS_RIGHT_DIST;
                 break;
             default:
@@ -231,9 +231,9 @@ public class AutoAimPipeline extends OpenCvPipeline {
     }
     
     public enum PowerShot{
-        PS_LEFT,
-        PS_CENTER,
-        PS_RIGHT
+        LEFT,
+        CENTER,
+        RIGHT
     }
 
     @Override

@@ -10,7 +10,6 @@ public class Controller {
 	public Button cross, circle, triangle, square, up, down, left, right, RB, LB, RS, LS, share, touchpad;
 	public Trigger RT, LT;
 	
-	boolean hold = false;
 	
 	public Controller(Gamepad gamepad) {
 		this.gamepad = gamepad;

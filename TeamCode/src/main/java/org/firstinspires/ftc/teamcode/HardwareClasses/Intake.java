@@ -28,8 +28,8 @@ public class Intake {
     private final static double RETRACTED = 0.32, ROLLING_RINGS = .16, GROUND_RINGS = 0.04;
     private final static double SERVO_DIFF = .025;
     
-    private final static double INTAKE_ON = .7;
-    private final static double INTAKE_REVERSE = .7;
+    private final static double INTAKE_ON = 1;
+    private final static double INTAKE_REVERSE = .55;
     
     private final static double TICKS_PER_ROTATION = 384.5;
     private static double intakeRPM;
@@ -172,21 +172,20 @@ public class Intake {
             
             case OFF:
                 if (intakeOnOff) {
-                    newState(IntakeState.ON);
                     Shooter.newState(Shooter.ShooterState.OFF);
+                    newState(IntakeState.ON);
                     if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND);
                     break;
                 }
                 
-                if(intakeHoldOn) { intakeStallControl(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND); }
-                else if(intakeReverse)  intakeReverse();
+                if(intakeHoldOn) { intakeOn(); if(currentBumperState == BumperState.RETRACT) newState(BumperState.GROUND); }
+                else if(intakeReverse) intakeReverse();
                 else intakeOff();
                 break;
-            
                 
             case ON:
                 if (intakeReverse) { intakeReverse(); break; }
-                if (intakeOnOff) { newState(IntakeState.OFF); break; }
+                if (intakeOnOff) newState(IntakeState.OFF);
                 intakeOn();
                 break;
         }
