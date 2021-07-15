@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses;
+package org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Ew;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;

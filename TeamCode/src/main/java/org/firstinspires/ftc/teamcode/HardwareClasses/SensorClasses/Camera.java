@@ -5,6 +5,9 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.Robot;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Ew.BlueAimPipeline;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Ew.RedAimPipeline;
+import org.firstinspires.ftc.teamcode.HardwareClasses.SensorClasses.Ew.RingFinderPipeline;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Sensors;
 import org.opencv.core.Mat;
 import org.openftc.easyopencv.OpenCvCamera;
